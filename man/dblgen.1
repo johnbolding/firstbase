@@ -1,0 +1,84 @@
+.TH DBLGEN 1 "12 September 1995"
+.FB
+.SH NAME
+dblgen \- generate a set of \fIFirstBase\fP labels
+.SH SYNOPSIS
+.B dblgen
+[\fB-b\fP] [\fB-y\fP] [\fB-n\fP]
+[\fB-d\fP \fIdatabase\fP] [\fB-i\fP \fIindex\fP]
+[\fB-H\fP \fIN_lines\fP]
+[\fB-T\fP \fIN_lines\fP]
+.SH DESCRIPTION
+.I Dblgen
+generates a set of \fIFirstBase\fP labels using
+a \fIFirstBase\fP label dictionary defined via 
+\fIdbdlbl\fP(1).
+This label dictionary is used to determine which fields are to appear
+where on the label.
+.PP
+The \fB-b\fP
+flag will run the \fIFirstBase\fP tool in batch mode, suitable for shell
+scripts.
+This mode produces no output on the terminal, thus can also be used
+when running the process in the background.
+The \fB-y\fP flag will run the tool at the terminal without pausing to ask
+the user if existing files can be destroyed and without displaying
+a 'picture' of the requested task.
+.PP
+\fIDblgen\fP(1)
+first displays an image of what the labels will look like and where the
+print image file will go. The user has a chance to abort here.
+The labels may be generated from one to four up (across the top), as
+specified in the label dictionary. The width of each label is
+derived from the label dictionary also. See
+\fIdbdlbl\fP(1)
+for more information on the label generator dictionary.
+.PP
+The \fB-n\fP argument line switch is used to turn off the printing of the
+statistics label. Without this flag, a statistics label showing how many
+labels were printed is produced as the last label.
+.PP
+The \fB-H\fP and \fB-T\fP
+argument line switches are used to tune the number of blanklines
+printed \fIbetween\fP each label, either as head_lines or tail_lines.
+Using this feature, printer fonts
+requiring more vertical spacing can be utilized as needed.
+.SH FILES
+.PD 0
+.TP 10
+cdblbl
+default name for the \fIFirstBase\fP labels.
+.TP 10
+dbase
+default name for the \fIFirstBase\fP database.
+.TP 10
+index
+default name for the \fIFirstBase\fP index.
+.TP 10
+*.idictl
+dictionary for label generator.
+.TP 10
+*.cdb
+\fIFirstBase\fP database.
+.TP 10
+*.idx
+\fIFirstBase\fP index.
+.TP 10
+*.lbl
+\fIFirstBase\fP labels.
+.PD
+.SH SEE ALSO
+dbedit(1), dbdlbl(1), generators(5), firstbase(5)
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br
+.SH DIAGNOSTICS
+If the label print file already exists 
+\fIDblgen\fP(1)
+will pause and ask permission to overwrite it.
+.sp 1
+This tool uses a \fIFirstBase\fP index to generate the output from the database
+in a particular order.
+If this index is detected to be out of date or non-existent, it is
+regenerated \fIautomatically\fP.
+.br

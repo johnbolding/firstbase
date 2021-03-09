@@ -1,0 +1,172 @@
+# Copyright (C) 2001 FirstBase Software, Inc. All rights reserved.
+#
+# $Id: Makefile.in,v 9.0 2001/01/22 18:27:57 john Exp $
+#
+# See the file LICENSE for conditions of use and distribution
+#
+#
+# Makefile for Firstbase applications/rolodex
+#
+
+PRODUCT = @PRODUCT@
+VERSION = @VERSION@
+
+FIRSTBASEHOME = @FIRSTBASEHOME@
+
+DEMODIR = rolodex
+
+SHELL = /bin/sh
+srcdir = @srcdir@
+VPATH = @srcdir@
+
+CC = @CC@
+CFLAGS = @CFLAGS@
+CPPFLAGS = @CPPFLAGS@
+DEFS = @DEFS@
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_DATA = @INSTALL_DATA@
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@ $(LIBEXTRA)
+
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = $(exec_prefix)/$(FIRSTBASEHOME)/bin
+scriptsdir = $(exec_prefix)/$(FIRSTBASEHOME)/scripts
+libdir = $(prefix)/$(FIRSTBASEHOME)/lib
+mandir = $(prefix)/$(FIRSTBASEHOME)/man
+docdir = $(prefix)/$(FIRSTBASEHOME)/doc
+includedir = $(prefix)/$(FIRSTBASEHOME)/include
+appdir = $(prefix)/$(FIRSTBASEHOME)/applications
+
+LIBFB = -lfb
+INCLUDES = -I$(includedir)
+
+COMPILE = $(CC) -c $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
+LINK = $(CC) $(LDFLAGS) -L$(libdir) -o $@
+
+FILES = coname.* lname.* rolodex.* Makefile.in README \
+   merge.in macro.m script.sql
+
+MENUFILES = \
+   menu/INQUIRY \
+   menu/INQUIRY.help \
+   menu/MAIN \
+   menu/MAIN.help \
+   menu/MANAGER \
+   menu/MANAGER.help
+REPORTFILES= \
+   report/COMMON \
+   report/report.ddict \
+   report/report.m_end \
+   report/report.vdict \
+   report/vemit-sql.awk
+REPORTCHOICE=report/choice/rep_type.ch
+REPORTMACRO= \
+   report/macro/prt_comp.m \
+   report/macro/prt_sum.m
+   
+REPORTCOMMANDS = \
+   report/report.sh
+
+.SUFFIXES:
+.SUFFIXES: .c .o
+.c.o:
+	$(COMPILE) $< -o $@
+
+all:
+
+demo: rolodex.cdb
+
+rolodex.cdb::
+	@(  PATH=$(PATH):$(bindir):$(scriptsdir); export PATH; \
+	   FIRSTBASEHOME=$(prefix)/$(FIRSTBASEHOME); export FIRSTBASEHOME; \
+	   rmdb rolodex; rmidx lname coname; \
+	   echo Loading Rolodex Database; \
+	   dbload -d rolodex -b rolodex.emit ; \
+	   chmod 0666 rolodex.* lname.* coname.*; \
+	   echo Checking Rolodex Database; \
+	   dbcheck -clp rolodex ; \
+	)
+
+install::
+	@PWD=`pwd` && \
+        if [ "$(appdir)/$(DEMODIR)" != "$(PWD)" ] ; then \
+	   echo Installing to $(appdir)/$(DEMODIR); \
+	   $(INSTALL) -d -m 0777 $(appdir)/$(DEMODIR); \
+	   $(INSTALL) -d -m 0777 $(appdir)/$(DEMODIR)/report; \
+	   $(INSTALL) -d -m 0777 $(appdir)/$(DEMODIR)/menu; \
+	   $(INSTALL) -d -m 0777 $(appdir)/$(DEMODIR)/report/macro; \
+	   $(INSTALL) -d -m 0777 $(appdir)/$(DEMODIR)/report/choice; \
+	   for file in $(FILES) Makefile ; do \
+	      $(INSTALL_DATA) -m 0666 $$file $(appdir)/$(DEMODIR) ; \
+	   done ; \
+	   for file in $(MENUFILES) ; do \
+	      $(INSTALL_DATA) -m 0666 $$file $(appdir)/$(DEMODIR)/menu ; \
+	   done ; \
+	   for file in $(REPORTFILES) ; do \
+	      $(INSTALL_DATA) -m 0666 $$file $(appdir)/$(DEMODIR)/report ; \
+	   done ; \
+	   for file in $(REPORTCHOICE) ; do \
+	      $(INSTALL_DATA) -m 0666 $$file $(appdir)/$(DEMODIR)/choice ; \
+	   done ; \
+	   for file in $(REPORTMACRO) ; do \
+	      $(INSTALL_DATA) -m 0666 $$file \
+	         $(appdir)/$(DEMODIR)/report/macro ; \
+	   done ; \
+	   for file in $(REPORTCOMMANDS) ; do \
+	      $(INSTALL_DATA) -m 0777 $$file $(appdir)/$(DEMODIR)/report ; \
+	   done ; \
+	fi
+
+mostlyclean:
+	rmdb rolodex
+	rmidx coname lname
+	-rm -f *.prt complete.me complete.data list.me
+
+clean: mostlyclean
+
+distclean: clean
+	rm -f Makefile
+
+realclean: distclean
+	rm -f TAGS
+
+extraclean:: distclean
+	rm -f patch* *~* *\#* *.orig *.rej *.bak core a.out
+
+Makefile::
+	cd ../../ && CONFIG_FILES=applications/$(DEMODIR)/$@ CONFIG_HEADERS= ./config.status
+
+DISTDIR = ../../$(PRODUCT)-$(VERSION)/applications/$(DEMODIR)
+DISTFILES = $(FILES)
+
+dist::
+	@echo "Copying ... applications/$(DEMODIR)"
+	@for file in $(DISTFILES); do \
+	   ln $(srcdir)/$$file $(DISTDIR) 2> /dev/null \
+	      || cp -p $(srcdir)/$$file $(DISTDIR); \
+	done
+	@for subdir in menu report report/choice report/macro; do \
+	  mkdir $(DISTDIR)/$$subdir; \
+	  chmod 777 $(DISTDIR)/$$subdir; \
+	done
+	@for file in $(MENUFILES); do \
+	   ln $(srcdir)/$$file $(DISTDIR)/menu 2> /dev/null \
+	      || cp -p $(srcdir)/$$file $(DISTDIR)/menu; \
+	done
+	@for file in $(REPORTFILES) $(REPORTCOMMANDS); do \
+	   ln $(srcdir)/$$file $(DISTDIR)/report 2> /dev/null \
+	      || cp -p $(srcdir)/$$file $(DISTDIR)/report; \
+	done
+	@for file in $(REPORTCHOICE); do \
+	   ln $(srcdir)/$$file $(DISTDIR)/report/choice 2> /dev/null \
+	      || cp -p $(srcdir)/$$file $(DISTDIR)/report/choice; \
+	done
+	@for file in $(REPORTMACRO); do \
+	   ln $(srcdir)/$$file $(DISTDIR)/report/macro 2> /dev/null \
+	      || cp -p $(srcdir)/$$file $(DISTDIR)/report/macro; \
+	done
+
+# Prevent GNU make 3 from overflowing arg limit on system V.
+.NOEXPORT:

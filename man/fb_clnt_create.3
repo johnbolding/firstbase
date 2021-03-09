@@ -1,0 +1,745 @@
+.TH FB_CLNT_CREATE 3 "12 September 1995"
+.FB
+.SH NAME
+access,
+access_clnt,
+addidx_clnt,
+addrec_clnt,
+b_addrec_clnt,
+b_delrec_clnt,
+bulkrec_begin,
+bulkrec_end,
+chdir,
+chdir_clnt,
+clnt_create,
+clnt_destroy,
+clnt_timeout,
+close,
+close_clnt,
+closedb_clnt,
+closeidx_clnt,
+creat,
+creat_clnt,
+delrec_clnt,
+errno,
+errno_clnt,
+fetch_clnt,
+fetchrec,
+fetchrec_clnt,
+fetchxrec,
+fetchxrec_clnt,
+firstxrec_clnt,
+getwd_clnt,
+getctime,
+getctime_clnt,
+gethead_clnt,
+getrec_clnt,
+getirec_clnt,
+getxrec_clnt,
+lastxrec_clnt,
+lock_clnt,
+lockf,
+lockf_clnt,
+lseek,
+lseek_clnt,
+mkdir,
+mkdir_clnt,
+nextxrec_clnt,
+open,
+open_clnt,
+opendb_clnt,
+openidx_clnt,
+put_autoindex_clnt,
+putrec_clnt,
+read,
+read_clnt,
+rmdir,
+rmdir_clnt,
+s_lock_clnt,
+s_unlock_clnt,
+set_autoindex_clnt,
+status_clnt,
+store_clnt,
+subidx_clnt,
+symlink,
+symlink_clnt,
+sync_clnt,
+system_clnt,
+umask,
+umask_clnt,
+unlink,
+unlink_clnt,
+unlock_clnt,
+write,
+write_clnt \- client/server mechanisms to communicate with \fIfbserver\fP
+.SH DESCRIPTION
+\fIFirstBase\fP client routines allow C programs to communicate with
+\fIfbserver\fP and manipulate \fIFirstBase\fP databases. First, the client
+uses \fIfb_clnt_create\fP to generate a temporary server and establish
+a client/server link between the two processes. Then, additional calls to
+\fIFirstBase\fP client routines will send RPC requests to the server and wait
+for the server to reply. Finally, the client should issue the
+\fIfb_clnt_destroy\fP call to destroy the temporary server.
+.PP
+For the most part, these \fIFirstBase\fP client routines are designed to
+behave like their non-client counterparts. In these cases, the arguments to
+both will be the same. Additionally, many of these routines are called
+transparently from the standard non-client interface
+when \fIcdb_use_rpc\fP is set to one. For example, \fIfb_addrec\fP will
+really call \fIfb_addrec_clnt\fP when \fIcdb_use_rpc\fP is set.
+For more details, see \fIsetup\fP(5), and the section on ADDITIONAL
+INTERFACES at the end of this manual page.
+.LP
+.ft B
+.nf
+fb_access_clnt(path, mode)
+char *path;
+int mode;
+.fi
+.ft R
+.IP
+This routine implements the standard Unix \fIaccess\fP(2) mechanism on the
+server.
+.LP
+.ft B
+.nf
+fb_addidx_clnt(iname, db)
+char *iname;
+fb_database *db;
+.fi
+.ft R
+.IP
+This routine emulates the standard \fIFirstBase\fP \fIfb_addidx\fP mechanism
+(see \fIuseidx\fP(3)).
+On the server side, the Btree+ index \fIiname\fP
+is opened and added to the array of autoindexes, \fIdb->b_autoindex\fP.
+Return status is either FB_AOK or FB_ERROR.
+.LP
+.ft B
+.nf
+fb_addrec_clnt(db)
+fb_database *db;
+.fi
+.ft R
+.IP
+Adds the record stored in the database structure on the server side
+and updates all autoindexes. \fIfb_addrec_clnt\fP returns FB_ERROR if any part
+of the request failed, or FB_AOK if the server request was completed.
+.LP
+.ft B
+.nf
+fb_b_addrec_clnt(db)
+fb_database *db;
+.fi
+.ft R
+.IP
+Batch mechanism for adding many records at once. See the discussion in
+\fIfb_addrec\fP(3).
+Adds the record stored in the database structure on the server side
+and updates all autoindexes. \fIfb_b_addrec_clnt\fP returns FB_ERROR if any part
+of the request failed, or FB_AOK if the server request was completed.
+.LP
+.ft B
+.nf
+fb_bulkrec_begin_clnt(db, fwait)
+fb_database *db;
+int fwait;
+.fi
+.ft R
+.IP
+Used to begin bulk record processing.
+See the discussion in \fIbulkrec\fP(3). Returns FB_AOK or FB_ERROR,
+and might set \fIcdb_error\fP.
+.LP
+.ft B
+.nf
+fb_bulkrec_end_clnt(db)
+fb_database *db;
+.fi
+.ft R
+.IP
+Used to begin bulk record processing.
+See the discussion in \fIbulkrec\fP(3). Returns FB_AOK or FB_ERROR.
+.LP
+.ft B
+.nf
+fb_chdir_clnt(path)
+char *path;
+.fi
+.ft R
+.IP
+This routine implements the standard Unix \fIchdir\fP(2) mechanism on the
+server.
+.LP
+.ft B
+.nf
+fb_clnt_timeout(seconds)
+int seconds;
+.fi
+.ft R
+.IP
+Controls the number of seconds a \fIFirstBase\fP RPC client/server
+request will wait before a timeout occurs. The default is cdb_locktime + 10.
+There is not a return status.
+.LP
+.ft B
+.nf
+fb_close_clnt(fd)
+int fd;
+.fi
+.ft R
+.IP
+Closes the file descriptor on the server. Similar to \fIclose\fP(2).
+Return status is 0 on success or -1 on failure.
+.LP
+.ft B
+.nf
+fb_closedb_clnt(db)
+fb_database *db;
+.fi
+.ft R
+.IP
+Closes the database on the server and frees up the storage on the client.
+Return status is either FB_AOK or FB_ERROR.
+.LP
+.ft B
+.nf
+fb_closeidx_clnt(db)
+fb_database *db;
+.fi
+.ft R
+.IP
+Emulates the standard \fIFirstBase\fP \fIfb_closeidx\fP mechanism
+(see \fIopenidx\fP(3)). Closes the \fIcurrent\fP index in database \fIdb\fP.
+Returns FB_AOK or FB_ERROR.
+.LP
+.ft B
+.nf
+fb_creat_clnt(name, mode)
+char *name;
+int mode;
+.fi
+.ft R
+.IP
+Create the file \fIname\fP with \fImode\fP on the server.
+Similar to \fIcreat\fP(2).
+Return status is -1 on failure or the non-negative file descriptor on
+completion.
+.LP
+.ft B
+.nf
+fb_delrec_clnt(db)
+fb_database *db;
+.fi
+.ft R
+.IP
+Flags the current \fIdb\fP record as being deleted.
+In addition, deletes the entry from all auto indexes.
+Return status is either FB_AOK or FB_ERROR.
+.LP
+.ft B
+.nf
+fb_b_delrec_clnt(db)
+fb_database *db;
+.fi
+.ft R
+.IP
+Batch mechanism for deleting many records at once. See the discussion in
+\fIfb_delrec\fP(3).
+Deletes the record stored in the database structure on the server side
+and updates all autoindexes. \fIfb_b_delrec_clnt\fP returns FB_ERROR if any part
+of the request failed, or FB_AOK if the server request was completed.
+.LP
+.ft B
+.nf
+fb_fetch_clnt(f, s, db)
+fb_field *f;
+char *s;
+fb_database *db;
+.fi
+.ft R
+.IP
+Fetches the server data for the field \fIf\fP from database \fIdb\fP.
+This data is copied into the buffer \fIs\fP.
+Return status is either FB_AOK or FB_ERROR.
+.LP
+.ft B
+.nf
+fb_fetchrec_clnt(rec, db)
+long rec;
+fb_database *db;
+.fi
+.ft R
+.IP
+This routine is a combination of \fIfb_getrec_clnt\fP and a
+series \fIfb_fetch_clnt\fP
+requests, but is done all in one RPC call. \fIfb_fetchrec_clnt\fP does a
+\fIgetrec\fP of record \fIrec\fP for database \fIdb\fP on the server.
+The server returns the contents of all fields and the client stores them
+so that simple \fIfetch\fP calls or use of the \fIFLD\fP macro from the
+client process can access each field individually.
+Return status is either FB_AOK or FB_ERROR.
+.sp 1
+The benefits of \fIfb_fetchrec_clnt\fP are that only one RPC call is done.
+However, the entire record is shipped to the client, which might be
+inefficient depending on the application.
+.LP
+.ft B
+.nf
+fb_fetchxrec_clnt(key, db)
+char *key;
+fb_database *db;
+.fi
+.ft R
+.IP
+\fIFb_fetchxrec_clnt\fP does an \fIfb_getxrec_clnt\fP and a series of
+\fIfb_fetch_clnt\fP requests, but in a single RPC call. See
+\fIfb_fetchrec_clnt\fP for more comments.
+Return status is either FB_AOK or FB_ERROR.
+.LP
+.ft B
+.nf
+fb_firstxrec_clnt(db)
+fb_database *db;
+.fi
+.ft R
+.IP
+Locate and load (\fIgetrec\fP) the first indexed record
+of the database \fIdb\fP on the server.
+Return status is either FB_AOK or FB_ERROR.
+.LP
+.ft B
+.nf
+fb_free_globals_clnt()
+.fi
+.ft R
+.IP
+Executes an \fIfb_free_globals\fP(3) on \fIboth\fP the server and the client
+side. There is no return status.
+.LP
+.ft B
+.nf
+time_t fb_getctime_clnt(path)
+char *path;
+.fi
+.ft R
+.IP
+This routine returns the time_t value of the file \fIpath\fP as described by
+the standard Unix \fIstat\fP(2) command.
+.LP
+.ft B
+.nf
+fb_gethead_clnt(db)
+fb_database *db;
+.fi
+.ft R
+.IP
+Get the header information from the server about database \fIdb\fP.
+The information is stored in the client database structure, into db->reccnt
+and db->delcnt.
+Return status is either FB_AOK or FB_ERROR.
+.LP
+.ft B
+.nf
+fb_getrec_clnt(rec, db)
+long rec;
+fb_database *db;
+.fi
+.ft R
+.IP
+\fIFb_getrec_clnt\fP loads record \fIrec\fP from database \fIdb\fP on the
+server. Fields of the loaded record are then available via \fIfb_fetch_clnt\fP.
+In addition, see \fIfb_fetchrec_clnt\fP.
+Return status is either FB_AOK or FB_ERROR.
+.LP
+.ft B
+.nf
+fb_getirec_clnt(rec, db)
+long rec;
+fb_database *db;
+.fi
+.ft R
+.IP
+\fIFb_getirec_clnt\fP loads record \fIrec\fP from database \fIdb\fP on the
+server and synchronizes the current btree index with the loaded record.
+Return status is either FB_AOK or FB_ERROR.
+.LP
+.ft B
+.nf
+fb_getwd_clnt(buf)
+char *buf;
+.fi
+.ft R
+.IP
+This routine returns the current working directory in the buffer \fIbuf\fP.
+.LP
+.ft B
+.nf
+fb_getxrec_clnt(key, db)
+char *key;
+fb_database *db;
+.fi
+.ft R
+.IP
+\fIFb_getxrec_clnt\fP searches the current index of the server
+database \fIdb\fP and loads the first record with an index value of \fIkey\fP.
+Fields of the loaded record are then available via \fIfb_fetch_clnt\fP.
+In addition, see \fIfb_fetchxrec_clnt\fP.
+Return status is either FB_AOK or FB_ERROR.
+.LP
+.ft B
+.nf
+fb_lastxrec_clnt(db)
+fb_database *db;
+.fi
+.ft R
+.IP
+Locate and load (\fIgetrec\fP) the last indexed record
+of the database \fIdb\fP on the server.
+Return status is either FB_AOK or FB_ERROR.
+.LP
+.ft B
+.nf
+fb_lock_clnt(rec, db, wait)
+long rec;
+fb_database *db;
+int wait;
+.fi
+.ft R
+.IP
+\fIFb_lock_clnt\fP is analogous to the \fIFirstBase\fP call \fIfb_lock\fP(3).
+This mechanism locks the record \fIrec\fP of database \fIdb\fP on the server.
+If \fIwait\fP is WAIT (1), the process will block until the lock is granted,
+or a timeout occurs. See \fIfb_lock\fP(3) for more details.
+Return status is either FB_AOK or FB_ERROR.
+.LP
+.ft B
+.nf
+fb_lockf_clnt(fd, cmd, size)
+int fd, cmd;
+long size;
+.fi
+.ft R
+.IP
+This routine implements the standard Unix \fIlockf\fP(3) mechanism.
+.LP
+.ft B
+.nf
+fb_lseek_clnt(des, offset, whence)
+int des, whence;
+off_t offset;
+.fi
+.ft R
+.IP
+This routine implements the standard Unix \fIlseek\fP(2) mechanism.
+.LP
+.ft B
+.nf
+fb_mkdir_clnt(path, mode)
+char *path;
+int mode;
+.fi
+.ft R
+.IP
+This routine implements the standard Unix \fImkdir\fP(2) mechanism.
+.LP
+.ft B
+.nf
+fb_nextxrec_clnt(db)
+fb_database *db;
+.fi
+.ft R
+.IP
+Load (\fIgetrec\fP) the last next indexed record
+of the database \fIdb\fP on the server.
+Return status is either FB_AOK or FB_ERROR.
+.LP
+.ft B
+.nf
+fb_open_clnt(path, flags)
+char *path;
+int flags;
+.fi
+.ft R
+.IP
+Opens the file on the server side using the standard \fIopen\fP(2) library call.
+The \fIpath\fP, \fIflags\fP and return value are all the same as the UNIX call.
+.LP
+.ft B
+.nf
+fb_opendb_clnt(db, mode, ixflag, ixoption)
+fb_database *db;
+int mode;
+int ixflag;
+int ixoption;
+.fi
+.ft R
+.IP
+This routine emulates the standard \fIFirstBase\fP \fIopendb\fP(3) mechanism.
+On the server side, the database is opened, using \fImode\fP, \fIixflag\fP and
+\fIixoption\fP. Field names and database information are returned to the
+client and loaded into the database \fIdb\fP. Additionally, all expected
+space allocations are done (like db->arec, etc).
+Return status is either FB_AOK or FB_ERROR.
+.LP
+.ft B
+.nf
+fb_openidx_clnt(iname, db)
+char *iname;
+fb_database *db;
+.fi
+.ft R
+.IP
+This routine emulates the standard \fIFirstBase\fP \fIopenidx\fP(3) mechanism.
+On the server side, the index \fIiname\fP
+is opened and associated as the \fIcurrent\fP index for database \fIdb\fP.
+Return status is either FB_AOK or FB_ERROR.
+.LP
+.ft B
+.nf
+fb_put_autoindex_clnt(db)
+fb_database *db;
+.fi
+.ft R
+.IP
+Updates any autoindexes reflected by the current record.
+See \fIput_autoindex\fP(3) for more details.
+Return status is either FB_AOK or FB_ERROR.
+.LP
+.ft B
+.nf
+fb_putrec_clnt(rec, db)
+long rec;
+fb_database *db;
+.fi
+.ft R
+.IP
+\fIFb_putrec_clnt\fP stores the current record
+as logical record \fIrec\fP into the database \fIdb\fP on the server.
+Return status is either FB_AOK or FB_ERROR.
+.LP
+.ft B
+.nf
+fb_read_clnt(d, buf, nbytes)
+int d;
+char *buf;
+int nbytes;
+.fi
+.ft R
+.IP
+Implements the standard \fIread\fP(2) call on the server side.
+.LP
+.ft B
+.nf
+fb_rmdir_clnt(path)
+char *path;
+.fi
+.ft R
+.IP
+This routine implements the standard Unix \fIrmdir\fP(2) mechanism.
+.LP
+.ft B
+.nf
+fb_s_lock_clnt(fd, fwait, fname)
+int fd;
+int fwait;
+char *fname;
+.fi
+.ft R
+.IP
+Locks the file descriptor on the server side.
+See \fIfb_lock\fP(3) for more details.
+Return status is either FB_AOK or FB_ERROR.
+.LP
+.ft B
+.nf
+fb_s_unlock_clnt(fd, fname)
+int fd;
+char *fname;
+.fi
+.ft R
+.IP
+Unlocks the file descriptor on the server side.
+See \fIfb_lock\fP(3) for more details.
+Return status is either FB_AOK or FB_ERROR.
+.LP
+.ft B
+.nf
+fb_set_autoindex_clnt(db)
+fb_database *db;
+.fi
+.ft R
+.IP
+Stores all index values in case indexes need updating.
+See \fIput_autoindex\fP(3) for more details.
+Return status is either FB_AOK or FB_ERROR.
+.LP
+.ft B
+.nf
+fb_status_clnt(db, output)
+fb_database *db;
+char *output;
+.fi
+.ft R
+.IP
+Returns textual information about each of the open server databases.
+This text is stored into output. The information returned is simplistic:
+database name, index name, as well as record and delete counts.
+Return status is either FB_AOK or FB_ERROR.
+.LP
+.ft B
+.nf
+fb_store_clnt(k, s, db)
+fb_field *k;
+char *s;
+fb_database *db;
+.fi
+.ft R
+.IP
+Store places string \fIs\fP into field \fIk\fP of the database \fIdb\fP
+on the server. See \fIstore\fP(3) for more detail about field storage.
+Return status is either FB_AOK or FB_ERROR.
+.LP
+.ft B
+.nf
+fb_subidx_clnt(iname, db)
+char *iname;
+fb_database *db;
+.fi
+.ft R
+.IP
+This routine emulates the standard \fIFirstBase\fP \fIfb_subidx\fP mechanism
+(see \fIuseidx\fP(3)).
+On the server side, the Btree+ index \fIiname\fP
+is closed and removed from the array of autoindexes, \fIdb->b_autoindex\fP.
+Return status is either FB_AOK or FB_ERROR.
+.LP
+.ft B
+.nf
+fb_symlink_clnt(name1, name2)
+char *name1, *name2
+.fi
+.ft R
+.IP
+This routine implements the standard Unix \fIsymlink\fP(2) mechanism.
+.LP
+.ft B
+.nf
+fb_system_clnt(s, rootperm)
+char *s;
+int rootperm;
+.fi
+.ft R
+.IP
+This routine emulates the standard \fIFirstBase\fP \fIfb_system\fP mechanism
+(see \fIfb_system\fP(3)), submitting the string \fIs\fP
+to the shell on the server side.
+Return status is the exit status of the shell execution.
+.LP
+.ft B
+.nf
+fb_sync_clnt(db)
+fb_database *db;
+.fi
+.ft R
+.IP
+Synchronize the database and all data files on the server side.
+This is similar to the \fIfb_sync\fP(3) call.
+.LP
+.ft B
+.nf
+fb_umask_clnt(numask)
+int numask
+.fi
+.ft R
+.IP
+This routine implements the Unix \fIumask\fP(2) call.
+.LP
+.ft B
+.nf
+fb_unlink_clnt(path)
+char *path;
+.fi
+.ft R
+.IP
+This routine implements the Unix \fIunlink\fP(2) call.
+.LP
+.ft B
+.nf
+fb_unlock_clnt(rec, db)
+long rec;
+fb_database *db;
+.fi
+.ft R
+.IP
+\fIFb_unlock_clnt\fP is analogous to the \fIFirstBase\fP
+call \fIcdb_unlock\fP(3).
+This mechanism unlocks the record \fIrec\fP of database \fIdb\fP on the server.
+See \fIfb_lock\fP(3) for more details.
+Return status is either FB_AOK or FB_ERROR.
+.LP
+.ft B
+.nf
+fb_useidx_clnt(n, db)
+int n;
+fb_database *db;
+.fi
+.ft R
+.IP
+This routine emulates the standard \fIFirstBase\fP \fIfb_useidx\fP mechanism
+(see \fIuseidx\fP(3)).
+On the server side, the Btree+ index \fIiname\fP
+is marked as the \fIcurrent\fP index.
+Return status is either FB_AOK or FB_ERROR.
+.LP
+.ft B
+.nf
+fb_write_clnt(d, buf, nbytes)
+int d;
+char *buf;
+int nbytes;
+.fi
+.ft R
+.IP
+Implements the standard \fIwrite\fP(2) call on the server side.
+.SH ADDITIONAL INTERFACES
+Some of the calls built into the \fIFirstBase\fP client library do not have
+explicit \fIFirstBase\fP non-rpc counterparts. However, some have UNIX
+counterparts. For all of these, the \fIFirstBase\fP client library provides
+an additional set of routines that will behave transparently during
+RPC \fIand\fP non-RPC programs, like other \fIFirstBase\fP mechanisms.
+.PP
+The following routines will call the proper equivalent function running as
+a standalone process (non-RPC) or when used with \fIFirstBase\fP
+client/server RPC calls. In all cases the parameters are the same as the
+ones listed above.
+.LP
+.ft B
+.nf
+      fb_chdir
+      fb_close
+      fb_creat
+      fb_errno
+      fb_fetchrec
+      fb_fetchxrec
+      fb_getctime
+      fb_getwd
+      fb_lockf
+      fb_lseek
+      fb_open
+      fb_read
+      fb_rmdir
+      fb_symlink
+      fb_umask
+      fb_unlink
+      fb_write
+.fi
+.ft R
+.PP
+Note that \fIfb_fetchrec\fP under non-RPC will use \fIgetrec\fP(3), and
+\fIfb_fetchxrec\fP will use \fIgetxrec\fP(3).
+.SH SEE ALSO
+fbserver(8).
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br

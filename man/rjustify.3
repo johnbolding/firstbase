@@ -1,0 +1,30 @@
+.TH RJUSTIFY 3 "12 September 1995"
+.FB
+.SH NAME
+rjustify \- right justify a string according to a field type
+.SH SYNOPSIS
+#include <firstbase/fb.h>
+.sp 1
+char *fb_rjustify(to, from, size, type)
+.br
+char *to, *from, type;
+.br
+int size;
+.PP
+.SH DESCRIPTION
+\fIFb_rjustify\fP is a simple routine in the \fIFirstBase\fP library used to
+right justify and/or truncate a string in a field of blanks according to a
+given size. Formally, 
+the first \fIsize\fP characters of string \fIfrom\fP are right justified in
+a blank padded field. The resultant \fIto\fP string is guaranteed to be
+exactly \fIsize\fP characters long.
+.PP
+The \fItype\fP is used to detect special situations surrounding the
+\fIFirstBase\fP FB_DOLLARS data type. This \fItype\fP value is the same as
+defined in each field descriptor.
+.PP
+\fIFb_rjustify\fP returns the argument \fIto\fP.
+.br
+.SH SEE ALSO
+makess(3), pad(3), getxrec(3).
+.br

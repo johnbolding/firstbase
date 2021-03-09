@@ -1,0 +1,59 @@
+:
+: DBDUMP - shell script used to save a good copy of a database.
+:          The idea is to store copies of the dbase.cdb and dbase.map
+:          files either off line, or on the disk somewhere.
+:          If this script is changed, the matching DBRESTOR script
+:          will need modifications also.
+:
+:          Assumption is that the indicated dbase passes dbcheck.
+clear
+echo "****** Backup a Cdb Database ****** "
+if [ $# -eq 0 ]
+   then
+   echo -n "Enter Database Name: "
+   read BASENAME
+else
+   BASENAME=$1
+fi
+
+DBASE=${BASENAME}.cdb
+MAP=${BASENAME}.map
+LOG=${BASENAME}.log
+BAK_DBASE=${BASENAME}.BKcdb
+BAK_MAP=${BASENAME}.BKmap
+
+if [ ! -s $DBASE ]
+   then
+   echo
+   echo "Database $DBASE does not exist."
+   exit 1
+fi
+if [ ! -s $MAP ]
+   then
+   echo
+   echo "Database Map $MAP does not exist."
+   exit 1
+fi
+
+echo
+echo "Make sure no one else is using Database $BASENAME !!!"
+
+echo; echo; echo
+
+echo -n "Ready to Backup Database $BASENAME (y/<no>) ? "
+read answer
+if [ "$answer" != "y" ]
+   then
+   echo
+   echo Database Backup Aborted.
+   exit
+fi
+
+echo -n "Backing Up Database Files to Disk..."
+cp $DBASE $BAK_DBASE
+cp $MAP $BAK_MAP
+echo
+echo -n "Removing Old Database Log..."
+rm -f $LOG
+echo
+echo Backup Complete.

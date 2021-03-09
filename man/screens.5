@@ -1,0 +1,52 @@
+.TH SCREENS 5 "12 September 1995"
+.FB
+.SH NAME
+screens \- \fIFirstBase\fP Screen Overview
+.SH SYNOPSIS
+Description of \fIFirstBase\fP program screens
+.SH DESCRIPTION
+All programs in the 
+.I FirstBase
+system use a standard screen or window through which users
+watch execution of \fIFirstBase\fP programs. This screen contains various pieces
+of information that the user should
+be aware of.
+.PP
+.I FirstBase
+screens reserve the first two or three lines 
+and the last two lines for program information.
+The top line contains three distinct area of information:
+the name of the tool running, the title of the company or application,
+and a status area.
+.PP
+The status information is updated often and 
+always reflects the current state of the program that is
+running.
+.PP
+The second line will contain other pieces of information at times, such as
+the current record number or the view screen being used to edit with.
+.PP
+The 23rd line is used to display a footer to all programs, and
+for error messages. This footer displays some relevant file name
+information, database record and delete counts, index record and
+organization counts, as well as the current user name, and the time.
+Optionally, the working directory name is also displayed.
+See \fIsetup\fP(5).
+.PP
+A single bell accompanies error messages, although visible bells are also
+supported via termcap settings.
+If recoverable, these messages
+are displayed on the 23rd line.
+If the error is non-recoverable, the error messages is displayed on the
+24th line just before \fIFirstBase\fP exits.
+.PP
+Note that it is possible to completely turn off lines 1, 2, 23 and 24 of
+standard \fIFirstBase\fP screen displays by using \fIsetup\fP(5)
+variables. However, these lines are
+still reserved even when turned off due to error messages and other
+information that might need to be given to the user.
+.SH SEE ALSO
+firstbase(1), firstbase(5), coname(5), setup(5), terminals(5), libscr(3)
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br

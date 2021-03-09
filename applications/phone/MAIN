@@ -1,0 +1,19 @@
+
+
+         $Phone_Database_Demonstration
+
+   $1. Edit Phone Database using dbedit
+   $2. Emit all Phone Database data
+   $3. Use dbmacro to ouput first field of each record
+       (In shell parlance, dbmacro -d Phone -m 'print($1)' )
+
+%
+
+$1
+dbedit -d Phone -i Lname
+
+$2
+dbemit -d Phone -
+
+$3
+dbmacro -d Phone -m 'print($1)'

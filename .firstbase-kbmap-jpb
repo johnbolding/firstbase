@@ -1,0 +1,52 @@
+#
+# my bindings. -jpb
+#
+# meta characters: \^ = Control , \e = Escape, \\ = \  \^? = DEL
+#
+setkey "\^f"	delete-char-forward
+setkey "\^?"	delete-char-backward
+setkey "\^h"	move-char-backward
+setkey "\^l"	move-char-forward
+setkey "\^e"	end-of-line
+setkey "\^a"	beginning-of-line
+setkey "\^w"	delete-word-backward
+setkey "\^o"	delete-word-forward
+setkey "\^b"	move-word-backward
+setkey "\^y"	move-word-forward
+setkey "\^u"	delete-to-beginning-of-line
+setkey "\^d"	delete-to-end-of-line
+setkey "\^x\^u"	upcase-word
+setkey "\^x\^c"	capitalize-word
+setkey "\^x\^l"	downcase-word
+setkey "\^x\^r"	redraw
+setkey "\^r"	redraw
+setkey "\^g"	quit
+
+setkey "\^v"	pagedown
+setkey "\^p"	pageup
+setkey "\^j"	next			# next field, dbvedit
+setkey "\^k"	prev			# prev field, dbvedit
+setkey "\^c"	abort			# general abort keystroke
+setkey "\^n\^s" writerec		# dbvedit writerec
+setkey "\^nd" 	deleterec		# delete record
+
+setkey "\^t"	system-interrupt	# UNIX interrupt. sometimes allowed
+setkey "\ep"	system-stop		# UNIX stop. .cdbrc controlled
+
+setkey "\es"	ssignal
+setkey "\eq"	qsignal
+setkey "\e[M"	ssignal
+setkey "\e[N"	qsignal
+
+# Arrow keys - may need tuning to your particular keyboard
+setkey "\e[A"	prev   			# example of an arrow key
+setkey "\e[B"	next   			# example of an arrow key
+setkey "\e[C"	move-char-forward	# example of an arrow key
+setkey "\e[D"	move-char-backward   	# example of an arrow key
+
+setkey "\eOP"   help
+setkey "\eOQ"   next
+
+# setkey "\^A@\^J"   help
+# setkey "\^B@\^J"   end
+# setkey "\e[17~"   help

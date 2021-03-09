@@ -1,0 +1,30 @@
+.TH MAKESS 3 " 4 April 1996"
+.FB
+.SH NAME
+makess \- make a search string
+.SH SYNOPSIS
+#include <firstbase/fb.h>
+.sp 1
+fb_makess(key, type, size)
+.br
+char *key, type;
+.br
+int size;
+.PP
+.SH DESCRIPTION
+\fIFb_makess\fP uses the passed in string \fIkey\fP and
+generates a proper \fIFirstBase\fP search string or key.
+The result is based on a \fIFirstBase\fP field \fItype\fP and \fIsize\fP.
+.PP
+This mechanism is used before calling \fIgetxrec\fP. It uses
+\fIpad\fP(3), \fIrjustify\fP(3), and \fIendate\fP(3)
+depending whether \fItype\fP represents an alpha, numeric or date field.
+.PP
+Again, the string stored back into key is used to locate a record
+with \fIgetxrec\fP(3).
+If the value of \fIkey\fP is intended to represent a partial key, then
+a call to \fIfb_trim\fP should be used to strip off blanks which otherwise
+would be used as signficant characters in any search request to \fIgetxrec\fP.
+.SH SEE ALSO
+endate(3), getxrec(3), getxhead(3), pad(3), rjustify(3), trim(3).
+.br

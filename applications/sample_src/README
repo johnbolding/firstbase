@@ -1,0 +1,15 @@
+$Id: README,v 9.0 2001/01/22 18:28:07 john Exp $
+
+README file for $FIRSTBASEHOME/applications/sample_src area.
+
+This is an example of a simple C program using firstbase.
+
+termtest
+--------
+a simple program that tests a few display and input functions.
+
+rectest
+-------
+a simple program that allows adding/reading records
+to a very simple database named `dbase'.
+

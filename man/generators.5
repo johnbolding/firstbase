@@ -1,0 +1,119 @@
+.TH GENERATORS 5 "12 September 1995"
+.FB
+.SH NAME
+generators \- \fIFirstBase\fP generators 
+.SH SYNOPSIS
+Description of behavior of \fIFirstBase\fP generators
+.SH DESCRIPTION
+A \fIFirstBase\fP
+.I generator
+is a program that generates a data object.
+All
+.I FirstBase
+generators require a dictionary and behave in a similar manner.
+A generator dictionary is used to define an object to be generated.
+.PP
+All of these tools, and optionally, dbigen(1) itself,
+use a \fIFirstBase\fP index to generate the output from the database
+in a particular order.
+If this index is detected to be out of date or non-existent, it is
+regenerated \fIautomatically\fP. An index is out of date if 
+either the database or the index dictionary have changed.
+.PP
+This automatic regeneration can be turned off
+controlled via environment variables.
+See \fIsetup\fP(5) for more.
+.PP
+The generatable objects are:
+.TP 10
+.I indexes
+uses \fIdbdind\fP(1) and \fIdbigen\fP(1).
+.TP 10
+.I reports
+uses \fIdbdprt\fP(1) and \fIdbpgen\fP(1).
+.TP 10
+.I labels
+uses \fIdbdlbl\fP(1) and \fIdblgen\fP(1).
+.TP 10
+.I databases
+uses \fIdbdcnv\fP(1) and \fIdbcgen\fP(1).
+.TP 10
+.I updates
+uses \fIdbdupd\fP(1) and \fIdbugen\fP(1) (and \fIdbrload\fP(1)).
+.PP
+If invoked with the \fB-b\fP flag, generators will run in batch mode.
+If invoked with the \fB-y\fP flag, generators will run in yes mode.
+Both batch mode and yes mode will bypass any questions the user
+might need to answer, destroying any old files that are there,
+and start the generation task immediately, if possible.
+.PP
+The difference between \fIbatch mode\fP and \fIyes mode\fP is
+that \fIbatch mode\fP
+is completely silent about its operation \(em no screen headers, no counters,
+no screen indication that the generator is running at all.
+.PP
+However, \fIyes mode\fP will 
+display the motions of the generator, the screen headers, time and date,
+and record counting \(em all without any user intervention.
+.PP
+Batch mode use can be executed from a shell file, making large
+data processing tasks that are repeated very easy to keep organized.
+.PP
+When a generator is used interactively,
+an image of the object about to be created will be shown on the screen.
+The user
+can abort at this point if necessary.
+.PP
+During actual generation, \fIFirstBase\fP
+generators display a count in the lower right quadrant
+of the number of processed objects. The behavior of this counter is
+controllable by an environment variable also. See \fIsetup\fP(5).
+.SH SPECIAL CASE GENERATORS
+There are a few special case generators that take different types of
+dictionaries (if they can be called dictionaries at all).
+These special generators are
+\fIdbawk\fP(1), \fIdbmacro\fP(1), \fIdbmerge\fP(1), \fIdbsql\fP(1),
+and \fIdbvform\fP(1).
+.PP
+Like the other generators, each of these can also works from an index.
+For these tools, the input dictionary or program is distinct in
+each case, and the output (generally) is a text object to be printed or used
+in UNIX (piped into another program, for example). \fIDbmacro\fP and
+\fIdbsql\fP  have some other features as well.
+.PP
+For information on these special generators, see the associated manual pages.
+.TP 10
+.SH FILES
+.PD 0
+.TP 10
+*.idx
+\fIFirstBase\fP generated index.
+.TP 10
+*.prt
+\fIFirstBase\fP print image report.
+.TP 10
+*.lbl
+\fIFirstBase\fP print image of labels.
+.TP 10
+*.cdb
+\fIFirstBase\fP database.
+.TP 10
+*.map
+\fIFirstBase\fP database map file.
+.PD
+.SH SEE ALSO
+dbdcnv(1), dbdind(1), dbdprt(1), dbdlbl(1), dbdupd(1),
+dbcgen(1), dbigen(1), dbpgen(1), dblgen(1), dbugen(1),
+dbrload(1), dbawk(1), dbmacro(1), dbmerge(1), dbsql(1), dbvform(1), setup(5)
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br
+.SH DIAGNOSTICS
+All \fIFirstBase\fP
+generators will enforce record locking through the use of
+\fIgetrec\fP(3), Note that the LOCKLEVEL must be \fB2\fP to enable this
+extra locking feature.
+A write lock is not required to be able to read a record.
+However, \fIdbugen\fP(1), \fIdbrload\fP(1) and \fIdbmacro\fP(1)
+all require write locks when modifying records.
+.br

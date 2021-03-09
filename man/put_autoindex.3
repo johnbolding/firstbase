@@ -1,0 +1,68 @@
+.TH PUT_AUTOINDEX 3 "12 September 1995"
+.FB
+.SH NAME
+put_autoindex, set_autoindex \- reset and store autoindex entries
+.SH SYNOPSIS
+#include <firstbase/fb.h>
+.sp 1
+fb_put_autoindex(db)
+.br
+fb_database *db;
+.sp 1
+fb_set_autoindex(db)
+.br
+fb_database *db;
+.SH DESCRIPTION
+Automatic indexes within \fIFirstBase\fP are either defined in the database
+dictionary (\fIddict\fP(5)) for simple autoindexes or via the
+autoindex file (\fIautoindex\fP(5)) for complex indexes.
+The \fIfb_put_autoindex\fP and \fIfb_set_autoindex\fP
+mechanisms handle index maintenance for an open database.
+.PP
+These autoindex mechanisms are only needed when an existing record is retrieved
+(\fIfb_getrec\fP or \fIfb_getxrec\fP), a key field is modified, and then the
+record is replaced (\fIfb_putrec\fP). When new records are added
+(\fIfb_addrec\fP) or existing records are deleted (\fIfb_delrec\fP), these
+autoindex mechanisms are \fInot\fP needed.
+.PP
+Generally, the scenario for use of these autoindex maintenance routines is:
+.sp 1
+.nf
+.nj
+.ft CW
+   char *key;
+   fb_database *dp;
+
+   fb_getxrec(key, dp);
+   fb_set_autoindex(dp);
+   ...
+   /* change values in key fields */
+   ...
+   fb_putrec(dp->rec, dp);
+   fb_put_autoindex(dp);
+.ft
+.fi
+.ju
+.sp 1
+.PP
+In this pseudo code, a record is retrieved using \fIfb_getxrec\fP.
+Then \fIfb_set_autoindex\fP is called to save the field values that are
+used in the defined autoindexes.
+After this, the values in the fields can be changed and the record
+is written to the database using \fIfb_putrec\fP.
+Finally, \fIfb_put_autoindex\fP is called to synchronize all automatic indexes.
+.PP
+.SH CLIENT/SERVER
+The \fIfb_put_autoindex\fP and \fIfb_set_autoindex\fP
+routines will transparently
+call the \fIfb_put_autoindex_clnt\fP and \fIfb_set_autoindex_clnt\fP
+mechanisms when the global \fIFirstBase\fP variable \fIcdb_use_rpc\fP
+is set to one. See \fIfb_clnt_create\fP(3) for more details.
+.PP
+.SH SEE ALSO
+btree(4), openidx(3).
+.SH DIAGNOSTICS
+\fIFb_put_autoindex\fP and \fIfb_set_autoindex\fP
+will return the error code FB_ERROR if any part fails.
+An FB_AOK signal is returned on correct completion.
+.br

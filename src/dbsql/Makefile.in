@@ -1,0 +1,255 @@
+# Copyright (C) 2001 FirstBase Software, Inc. All rights reserved.
+#
+# $Id: Makefile.in,v 9.5 2004/01/02 20:51:06 john Exp $
+#
+# See the file LICENSE for conditions of use and distribution
+#
+#
+# Makefile for Firstbase src/dbsql
+#
+
+PRODUCT = @PRODUCT@
+VERSION = @VERSION@
+
+SHELL = /bin/sh
+srcdir = @srcdir@
+VPATH = @srcdir@
+
+CC = @CC@
+CFLAGS = @CFLAGS@
+CPPFLAGS = @CPPFLAGS@
+DEFS = @DEFS@
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@ $(LIBEXTRA)
+LEX = @LEX@
+LFLAGS =
+YACC = @YACC@
+YFLAGS = -d
+AR_OPTS = @AR_OPTS@
+LEXLIB = @LEXLIB@
+
+firstbasehome = @FIRSTBASEHOME@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = $(exec_prefix)/$(firstbasehome)/bin
+infodir = $(prefix)/$(firstbasehome)/info
+libdir = $(prefix)/$(firstbasehome)/lib
+mandir = $(prefix)/$(firstbasehome)/man
+docdir = $(prefix)/$(firstbasehome)/doc
+includedir = $(prefix)/$(firstbasehome)/include
+
+COMPILE = $(CC) -c $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
+LINK = $(CC) $(LDFLAGS) -o $@
+
+.SUFFIXES:
+.SUFFIXES: .c .o .l .y
+
+.c.o:
+	$(COMPILE) $< -o $@
+
+.y.c:
+	$(YACC) $(YFLAGS) -o $@ $<
+	@if [ -f y.tab.h ] ; then cp y.tab.h dbsql.g.h ; fi ;
+
+# README:
+#    The minor version 6 flex generates stuff that does not work.
+#    And I do not have time to debug it. Use the previous version for now.
+#    Sun Oct 25 15:22:14 2020
+#
+# .l.c:
+# 	$(LEX) $(LFLAGS) -t $< > $@
+#
+dbsql.lx.c::
+	@echo cp dbsql.lx.c.yyflex_minor_version_5 dbsql.lx.c
+	@cp dbsql.lx.c.yyflex_minor_version_5 dbsql.lx.c
+
+
+INCLUDES = @INCLUDES@
+LIBFB = ../lib/libfb.a
+
+DBSQL=				\
+		dbsql.g.o	\
+		dbsql.lx.o	\
+		libsym.o	\
+		node.o		\
+		execute.o	\
+		html.o		\
+		mk_canon.o	\
+		make_rel.o	\
+                relate.o	\
+                r_select.o	\
+                r_prepro.o	\
+                r_projec.o	\
+                r_distin.o	\
+                r_ord_by.o	\
+                r_grp_by.o	\
+                r_subpro.o	\
+                relidx.o	\
+                relateac.o	\
+                recureac.o	\
+                relatets.o	\
+		librel.o	\
+		sort_mat.o	\
+		sequence.o	\
+		headers.o	\
+		u_qsel.o	\
+		u_lib.o		\
+		u_proj.o	\
+		u_subpro.o	\
+		u_distin.o	\
+		u_virt.o	\
+		u_ord_by.o	\
+		u_grp_by.o	\
+		u_mulvar.o	\
+		instance.o	\
+		reduce.o	\
+		groupeac.o	\
+		expr.o		\
+		function.o	\
+		sfunc.o		\
+		yyerror.o	\
+		token.o		\
+		whereeac.o	\
+		libsql.o	\
+		initsql.o	\
+		helpsql.o	\
+		cr_view.o	\
+		dropview.o	\
+		cr_index.o	\
+		dropidx.o	\
+		h_lib.o		\
+		dbsql.o
+
+dbsql: $(DBSQL)
+	@echo linking $@
+	$(LINK) $(DBSQL) $(LIBFB) $(LIBS) $(LEXLIB)
+
+all: dbsql
+
+PROGS = dbsql
+
+install: all
+	$(INSTALL) -d $(bindir)
+	@for file in $(PROGS) ; do \
+	   $(INSTALL) $$file $(bindir) ; \
+	done
+
+mostlyclean:
+	rm -f *.o *._o core core.* dbsql.g.c dbsql.lx.c dbsql.g.h y.tab.h \
+		dbsql_df.h dbsql $(PROGS)
+
+clean: mostlyclean
+
+distclean: clean
+	rm -f Makefile
+
+realclean: distclean
+	rm -f TAGS
+
+extraclean:: distclean
+	rm -f patch* *~* *\#* *.orig *.rej *.bak core a.out
+
+Makefile: Makefile.in ../../config.status
+	cd ../.. && \
+		CONFIG_FILES=src/dbsql/$@ CONFIG_HEADERS= ./config.status
+
+MHEADERS= \
+../include/fb.h  \
+../include/config.h \
+../include/input.h \
+../include/error.h \
+../include/message.h \
+../include/libcc.h \
+../include/libcdb.h \
+../include/libdbd.h \
+../include/libinit.h \
+../include/liblic.h \
+../include/librec.h \
+../include/libscr.h \
+../include/libwin.h \
+../include/libsec.h \
+../include/libedit.h \
+../include/libclnt.h \
+../include/interface.h \
+../include/cx.h \
+../include/fb_vars.h \
+../include/fb_ext.h \
+dbsql.h \
+dbsql_v.h \
+dbsql_e.h
+
+dbsql_df.h:
+	-cmp -s dbsql.g.h dbsql_df.h || cp dbsql.g.h dbsql_df.h
+
+token.c: dbsql_df.h
+	@if [ "$(srcdir)" != "." ] ; then cp $(srcdir)/token.c . ; fi
+	-chmod ugo+w $(srcdir)/token.c
+	ed - < $(srcdir)/tokenscript
+	rm temp
+
+dbsql.g.o:	dbsql.g.c dbsql_df.h $(MHEADERS)
+dbsql.lx.o:	dbsql.lx.c dbsql_df.h $(MHEADERS)
+dbsql.o:	$(MHEADERS)
+libsym.o:	$(MHEADERS)
+node.o:		$(MHEADERS)
+execute.o:	$(MHEADERS)
+html.o:		$(MHEADERS)
+u_qsel.o:	$(MHEADERS)
+u_lib.o:	$(MHEADERS)
+u_proj.o:	$(MHEADERS)
+u_sub_pro.o:	$(MHEADERS)
+u_distin.o:	$(MHEADERS)
+u_virt.o:	$(MHEADERS)
+u_ord_by.o:	$(MHEADERS)
+u_grp_by.o:	$(MHEADERS)
+u_mulvar.o:	$(MHEADERS)
+instance.o:	$(MHEADERS)
+reduce.o:	$(MHEADERS)
+groupeac.o:	$(MHEADERS)
+mk_canon.o:	$(MHEADERS)
+make_rel.o:	$(MHEADERS)
+relate.o:	$(MHEADERS)
+r_select.o:	$(MHEADERS)
+r_prepro.o:	$(MHEADERS)
+r_projec.o:	$(MHEADERS)
+r_distin.o:	$(MHEADERS)
+r_ord_by.o:	$(MHEADERS)
+r_grp_by.o:	$(MHEADERS)
+r_subpro.o:	$(MHEADERS)
+relidx.o:	$(MHEADERS)
+relateac.o:	$(MHEADERS)
+relatets.o:	$(MHEADERS)
+recureac.o:	$(MHEADERS)
+headers.o:	$(MHEADERS)
+librel.o:	$(MHEADERS)
+sort_mat.o:	$(MHEADERS)
+sequence.o:	$(MHEADERS)
+expr.o:		$(MHEADERS)
+function.o:	$(MHEADERS)
+sfunc.o:	$(MHEADERS)
+yyerror.o:	$(MHEADERS)
+token.o:	$(MHEADERS)
+whereeac.o:	$(MHEADERS)
+libsql.o:	$(MHEADERS)
+initsql.o:	$(MHEADERS)
+helpsql.o:	$(MHEADERS)
+cr_view.o:	$(MHEADERS)
+dropview.o:	$(MHEADERS)
+cr_index.o:	$(MHEADERS)
+dropidx.o:	$(MHEADERS)
+h_lib.o:	$(MHEADERS)
+
+DISTDIR = ../../$(PRODUCT)-$(VERSION)/src/dbsql
+DISTFILES = *.c *.y *.l *.h tokenscript Makefile.in
+
+dist: clean
+	@echo "Copying distribution files from dbsql"
+	@for file in $(DISTFILES); do \
+	   ln $(srcdir)/$$file $(DISTDIR) 2> /dev/null \
+	      || cp -p $(srcdir)/$$file $(DISTDIR); \
+	done
+
+# Prevent GNU make 3 from overflowing arg limit on system V.
+.NOEXPORT:

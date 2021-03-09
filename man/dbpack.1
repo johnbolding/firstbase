@@ -1,0 +1,63 @@
+.TH DBPACK 1 "12 September 1995"
+.FB
+.SH NAME
+dbpack \- remove deleted records from a \fIFirstBase\fP database
+.SH SYNOPSIS
+.B dbpack
+[\fB-b\fP] [\fB-y\fP]
+\fIdatabase\fP [\fIdatabase\fP ...]
+.SH DESCRIPTION
+.I Dbpack
+squeezes out all deleted records from a \fIFirstBase\fP database, leaving only the
+pure, 'packed' database.
+The packing is done in place.
+.PP
+The \fB-b\fP
+flag will run the \fIFirstBase\fP tool in batch mode, suitable for shell scripts.
+This mode produces no output on the terminal, thus can also be used
+when running the process in the background.
+The \fB-y\fP flag will run the tool at the terminal without pausing to ask
+the user if existing files can be destroyed and without displaying
+a 'picture' of the requested task.
+.PP
+Before
+\fIdbpack\fP(1)
+begins, the user is given a chance to abort.
+.PP
+.I Note:
+packing a
+.I FirstBase
+database makes all indexes for that database obsolete and unusable.
+Thus all indexes for that database must be regenerated after packing.
+.PP
+\fIDbclean\fP(1)
+is automatically run at the completion of the packing process to
+create a map file for the newly packed database.
+.SH FILES
+.PD 0
+.TP 10
+dbase
+default name of database.
+.TP 10
+*.cdb
+\fIFirstBase\fP database.
+.TP 10
+*.ddict
+\fIFirstBase\fP database dictionary file.
+.PD
+.SH SEE ALSO
+dbclean(1), dbedit(1), dbigen(1), dbregen(1), firstbase(5)
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br
+.SH DIAGNOSTICS
+\fIDbpack\fP(1)
+requires a database dictionary and a database. No indexes are used.
+All records are processed in database sequential order.
+Dbpack will noisily do nothing if there is no work to do (i.e. no
+deletions).
+.sp 1
+Also, \fIdbpack\fP(1) needs to be run in the same directory as the
+database (or at least on the same logical device) as temporary storage is
+used in the current working directory to build the new database.
+.br

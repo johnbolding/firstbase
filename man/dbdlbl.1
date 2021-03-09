@@ -1,0 +1,147 @@
+.TH DBDLBL 1 "12 September 1995"
+.FB
+.SH NAME
+dbdlbl \- define a \fIFirstBase\fP label dictionary
+.SH SYNOPSIS
+.B dbdlbl
+[\fB-d\fP \fIdatabase\fP] [\fB-i\fP \fIindex\fP]
+.SH DESCRIPTION
+.I Dbdlbl
+allows definition and modification of a 
+.I FirstBase 
+label dictionary via a screen oriented editor.
+The label dictionary created
+is later used by 
+\fIdblgen\fP(1)
+to create a ready to spool print image file of the labels.
+.PP
+A label dictionary consists of valid database field_names
+and other characters or words
+plugged into slots of a 5 line label template. 
+.PP
+The user has free choice of design of the label, meaning any of the 
+label's five lines can be used for any purpose.
+Oftentimes, a certain line is chosen to be the
+.I name_line
+of the label and another for the 
+.I address_line,
+etc, all the way down to the zip code.
+A
+.I header_line
+can also be specified to print at the top of each label.
+.PP
+.B Note:
+it is not necessary to use 
+\fIdbdlbl\fP(1) 
+and
+\fIdblgen\fP(1)
+strictly for mailing labels. Another idea is to use these programs to
+generate name tags or badges for conferences or meetings.
+.PP
+When creating a new label, \fIdbdlbl\fP(1) starts up in a forced automatic
+add mode, with line one (1) being the starting point. The standard end key
+signal can be used at this point to escape from this forced mode to
+the 'any change' screen.
+The header line, line zero (0), is not input
+through this forced input mode.
+.PP
+All lines of the label consists of words.  More than one word may appear
+on each line.
+If a word is a valid 
+.I field_name
+from the current database dictionary, then it is accepted with 
+no messages. 
+.PP
+If however, the word is not defined as a field_name in the dictionary, 
+the user is notified that the line contains at least one undefined symbol
+by a message displayed next to the label line.
+The undefined symbol is also marked by a 
+.I '^'
+printed below the first character in the symbol.
+.PP
+During the course of label generation, the defined words from the label
+template created using
+\fIdbdlbl\fP(1)
+are replaced with their database values.
+Undefined symbols are output exactly as seen.
+Note that long symbols are silently
+truncated to fit into a database fieldname descriptor.
+.B Note:
+All white space is left intact, although entire lines that are
+blank after any substitutions in the label generator phase are
+collapsed out of the label.
+.PP
+Optionally, a file name to store the print image of the labels can be
+input, as well as the number of labels across the top (1-4 up), the
+size in characters per label, and whether or not to left justify the
+header line (line 0).
+.PP
+A list of simple editor commands appears on the 24th line of the 
+screen at all times, with the standard help signal (<CTL>-H) displaying a
+small summary of the possible commands.
+The following is a list of valid 
+\fIdbdlbl\fP(1) commands:
+.TP 7
+.B <CTL>-H
+displays a summary of these commands.
+.TP 7
+.B ?[dfhiN]
+displays help on the database, formulas,
+user defined help files, index, or field N.
+.TP 7
+.B #
+allow changes to line #.
+.TP 7
+.B -
+standard END key \(em exits program and keeps all changes.
+.TP 7
+.B <CTL-X> 
+aborts the program. The effect is to exit without
+overwriting the file, meaning all changes are lost.
+.PP
+Upon successful completion of a label dictionary, the user is given a
+chance to run the label generator. All arguments given
+to \fIdbdlbl\fP(1) are passed on to \fIdblgen\fP(1).
+The processes are overlaid,
+meaning no new shells are generated in using this option.
+.SH FILES
+.PD 0
+.TP 10
+cdblbl
+default name for \fIFirstBase\fP labels.
+.TP 10
+dbase
+default name for the \fIFirstBase\fP database.
+.TP 10
+index
+default name for the \fIFirstBase\fP index.
+.TP 10
+*.idictl
+dictionary for \fIFirstBase\fP labels.
+.TP 10
+*.cdb
+\fIFirstBase\fP database.
+.TP 10
+*.map
+record map of \fIFirstBase\fP database.
+.TP 10
+*.idx
+\fIFirstBase\fP index.
+.TP 10
+*.lbl
+\fIFirstBase\fP label print image file.
+.PD
+.SH SEE ALSO
+dblgen(1), input(5)
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br
+.SH DIAGNOSTICS
+\fIDbdlbl\fP(1)
+will allow modification to any label dictionary file at any time. These
+label dictionary files should thus be write protected if they are not to be
+changed.
+.PP
+The defaults for the various optional fields reflect 4 up labels printed
+using 12 cpi (pitch) on 54 character wide labels.
+.br

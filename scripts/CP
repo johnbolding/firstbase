@@ -1,0 +1,74 @@
+:
+echo -n "Enter the Name of the File you want to COPY: "
+read file
+if [ -z "$file" ]
+   then
+   echo No name. Nothing Done.
+   exit
+elif [ -d "$file" ]
+   then
+   echo $file is a Directory. You cannot COPY directories with this command.
+   echo Perhaps you want the Move/Rename command?
+   echo Nothing Done.
+   exit
+elif [ ! -f "$file" ]
+   then
+   echo "File '$file' is not found. Nothing Done."
+   exit
+fi
+echo -n "Now Enter the Name of the file to COPY To : "
+read nname
+if [ -z "$nname" ]
+   then
+   echo No name to copy to. Nothing Done.
+   exit
+fi
+DIRECTORY=""
+if [ "$file" = "$nname" ]
+   then
+   echo You cannot copy a file ONTO itself. Nothing Done.
+   exit
+fi
+if [ -f "$nname" ]
+   then
+   echo "Warning: File $nname already exists. "
+   echo -n "Do you want to continue ? ('y' or 'n') "
+   read select
+   if [ "$select" != "y" ]
+      then
+      echo Nothing copied.
+      exit
+   fi
+elif [ -d "$nname" ]
+   then
+   echo "NOTE: $nname is a directory."
+   DIRECTORY="Directory"
+   if [ -d $nname/$file ]
+      then
+      echo Sorry. $nname/$file is a directory also. Use full path names.
+      echo Nothing Done.
+      exit
+   fi
+   if [ -s $nname/$file ]
+      then
+      echo Warning: File $nname/$file already exists.
+      echo -n "Do you want to continue ? ('y' or 'n') "
+      read select
+      if [ "$select" != "y" ]
+	 then
+	 echo Nothing copied.
+	 exit
+      fi
+   fi
+   echo "Continuing will COPY $file INTO directory $nname."
+   echo "$file will keep the same name within directory $nname."
+   echo -n "Do you want to continue ? ('y' or 'n') "
+   read select
+   if [ "$select" != "y" ]
+      then
+      echo Nothing copied.
+      exit
+   fi
+fi
+cp $file $nname
+echo Done. $file has been copied to $DIRECTORY $nname.

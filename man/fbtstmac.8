@@ -1,0 +1,50 @@
+.TH FBTSTMAC 8 "12 September 1995"
+.FB
+.de SF
+.nf
+.nj
+.sp 1
+.ft CW
+.in +3
+..
+.de UF
+.XF
+.sp 1
+..
+.de XF
+.ft R
+.ju
+.fi
+.in -3
+..
+.SH NAME
+fbtstmac \- interactive tool to validate syntax of \fIFirstBase\fP
+macro files
+.SH SYNOPSIS
+.B fbtstmac
+.SH DESCRIPTION
+.I Fbtstmac
+is a simple, interactive tool that allows the user to submit macro code to
+the macro parser to ensure the code is syntactically correct.
+.PP
+When invoked, \fIfbtstmac\fP responds with a \fIfbtestmacro>\fP prompt.
+The following is a list of commands that can be used at this point:
+.SF
+help           - general help
+exit           - exit 
+quit           - exit 
+^D (EOF)       - exit 
+cd             - change directory
+pwd            - print working directory
+ls             - list working directory
+!command       - submit command to UNIX shell
+filename       - submit file to macro parser
+.UF
+When a macro file parses correctly, the message "macro file parsed AOK" will
+be returned. Otherwise, a line numbered listing of the macro file and a
+display of the errors detected is shown.
+.SH SEE ALSO
+dbedit(1), dbmacro(1), macro(5)
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br

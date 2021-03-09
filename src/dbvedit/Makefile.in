@@ -1,0 +1,166 @@
+# Copyright (C) 2001 FirstBase Software, Inc. All rights reserved.
+#
+# $Id: Makefile.in,v 9.3 2001/02/16 19:42:56 john Exp $
+#
+# See the file LICENSE for conditions of use and distribution
+#
+#
+# Makefile for Firstbase src/dbvedit
+#
+
+PRODUCT = @PRODUCT@
+VERSION = @VERSION@
+
+SHELL = /bin/sh
+srcdir = @srcdir@
+VPATH = @srcdir@
+
+CC = @CC@
+CFLAGS = @CFLAGS@
+CPPFLAGS = @CPPFLAGS@
+DEFS = @DEFS@
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@ $(LIBEXTRA)
+LEXLIB = @LEXLIB@
+
+firstbasehome = @FIRSTBASEHOME@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = $(exec_prefix)/$(firstbasehome)/bin
+infodir = $(prefix)/$(firstbasehome)/info
+libdir = $(prefix)/$(firstbasehome)/lib
+mandir = $(prefix)/$(firstbasehome)/man
+docdir = $(prefix)/$(firstbasehome)/doc
+includedir = $(prefix)/$(firstbasehome)/include
+
+COMPILE = $(CC) -c $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
+LINK = $(CC) $(LDFLAGS) -o $@
+
+.SUFFIXES:
+.SUFFIXES: .c .o
+.c.o:
+	$(COMPILE) $< -o $@
+
+INCLUDES = @INCLUDES@
+LIBFB = ../lib/libfb.a
+LIBMEXPR = ../lib/libmexpr.a
+LIBMPARS = ../lib/libmpars.a
+LIBEDIT = ../lib/libedit.a
+MACRO_VEDIT = ../lib/mac_vedt.o
+MACRO_STDIO = ../lib/mac_stio.o
+
+all: dbvedit
+
+DBVEDIT= \
+dbvedit.o  \
+addfield.o \
+custom.o \
+ex_cho.o \
+ex_input.o \
+ex_disp.o \
+ex_sel.o \
+ex_limit.o \
+docmd.o \
+edit.o \
+edit_add.o \
+edt_fld.o \
+editor.o \
+initvi.o \
+newrec.o \
+scanput.o
+
+dbvedit: $(DBVEDIT)
+	@echo linking $@
+	$(LINK) $(DBVEDIT) $(LIBEDIT) $(LIBMPARS) $(LIBMEXPR) \
+		$(MACRO_VEDIT) $(LIBFB) $(LIBS) $(LEXLIB)
+
+PROGS = dbvedit
+
+install: all
+	$(INSTALL) -d $(bindir)
+	@for file in $(PROGS) ; do \
+	   $(INSTALL) $$file $(bindir) ; \
+	done
+	-/bin/rm -f $(bindir)/dbvscan
+	ln $(bindir)/dbvedit $(bindir)/dbvscan
+
+mostlyclean:
+	rm -f *.o *._c *._o core core.*
+	rm -f $(PROGS)
+
+clean: mostlyclean
+
+distclean: clean
+	rm -f Makefile
+
+realclean: distclean
+	rm -f TAGS
+
+extraclean:: distclean
+	rm -f patch* *~* *\#* *.orig *.rej *.bak core a.out
+
+Makefile: Makefile.in ../../config.status
+	cd ../.. && CONFIG_FILES=src/dbvedit/$@ CONFIG_HEADERS= ./config.status
+
+MHEADERS= \
+../include/fb.h  \
+../include/config.h \
+../include/input.h \
+../include/error.h \
+../include/message.h \
+../include/libcc.h \
+../include/libcdb.h \
+../include/libdbd.h \
+../include/libinit.h \
+../include/liblic.h \
+../include/librec.h \
+../include/libscr.h \
+../include/libwin.h \
+../include/libsec.h \
+../include/libedit.h \
+../include/libclnt.h \
+../include/interface.h \
+../include/cx.h \
+../include/fb_vars.h \
+../include/fb_ext.h \
+../include/macro.h \
+../include/macro_v.h \
+../include/dbve.h \
+../include/dbve_ext.h \
+../include/vdict.h \
+../include/vdict_e.h \
+../include/fb_vars.h \
+../include/dbve_v.h \
+../include/vdict_v.h
+
+dbvedit.o:	$(MHEADERS)
+addfield.o:	$(MHEADERS)
+custom.o:	$(MHEADERS)
+ex_cho.o:	$(MHEADERS)
+ex_input.o:	$(MHEADERS)
+ex_disp.o:	$(MHEADERS)
+ex_sel.o:	$(MHEADERS)
+ex_limit.o:	$(MHEADERS)
+docmd.o:	$(MHEADERS)
+edit.o:		$(MHEADERS)
+edit_add.o:	$(MHEADERS)
+edt_fld.o:	$(MHEADERS)
+editor.o:	$(MHEADERS)
+initvi.o:	$(MHEADERS)
+newrec.o:	$(MHEADERS)
+scanput.o:	$(MHEADERS)
+
+DISTDIR = ../../$(PRODUCT)-$(VERSION)/src/dbvedit
+DISTFILES = *.c Makefile.in
+
+dist::
+	@echo "Copying distribution files from dbvedit"
+	@for file in $(DISTFILES); do \
+	   ln $(srcdir)/$$file $(DISTDIR) 2> /dev/null \
+	      || cp -p $(srcdir)/$$file $(DISTDIR); \
+	done
+
+# Prevent GNU make 3 from overflowing arg limit on system V.
+.NOEXPORT:

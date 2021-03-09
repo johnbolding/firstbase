@@ -1,0 +1,161 @@
+# Copyright (C) 2001 FirstBase Software, Inc. All rights reserved.
+#
+# $Id: Makefile.in,v 9.2 2001/01/22 17:36:59 john Exp $
+#
+# See the file LICENSE for conditions of use and distribution
+#
+#
+# Makefile for Firstbase src/libinit
+#
+
+PRODUCT = @PRODUCT@
+VERSION = @VERSION@
+
+SHELL = /bin/sh
+srcdir = @srcdir@
+VPATH = @srcdir@
+
+CC = @CC@
+CFLAGS = @CFLAGS@
+CPPFLAGS = @CPPFLAGS@
+DEFS = @DEFS@
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@ $(LIBEXTRA)
+
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = $(exec_prefix)/bin
+
+COMPILE = $(CC) -c $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
+LINK = $(CC) $(LDFLAGS) -o $@
+
+.SUFFIXES:
+.SUFFIXES: .c .o
+.c.o:
+	$(COMPILE) $< -o $@
+
+INCLUDES = @INCLUDES@
+
+OBJECTS=\
+   acct.o \
+   addidx.o \
+   autoigen.o \
+   btalloc.o \
+   closedb.o \
+   dballoc.o \
+   dbargs.o \
+   setup.o \
+   ei_dict.o \
+   ender.o \
+   freeglob.o \
+   getargs.o \
+   getauto.o \
+   get_ddat.o \
+   get_ddic.o \
+   getdef.o \
+   get_sdic.o \
+   get_vdic.o \
+   get_idat.o \
+   get_idic.o \
+   getlink.o \
+   initlink.o \
+   ixalloc.o \
+   mk_dbase.o \
+   opendb.o \
+   openidx.o \
+   creatidx.o \
+   readmrg.o \
+   keyboard.o
+
+all: libinit
+libinit: $(OBJECTS)
+
+mostlyclean:
+	rm -f *.o *._c *._o core core.*
+
+clean: mostlyclean
+
+distclean: clean
+	rm -f Makefile
+
+realclean: distclean
+	rm -f TAGS
+
+extraclean:: distclean
+	rm -f patch* *~* *\#* *.orig *.rej *.bak core a.out
+
+Makefile: Makefile.in ../../config.status
+	cd ../.. && CONFIG_FILES=src/libinit/$@ CONFIG_HEADERS= ./config.status
+
+names:
+	@for name in $(OBJECTS) ; do \
+	   echo libinit/$$name >> ../OBJECTS ; \
+	done
+
+MHEADERS= \
+../include/fb.h  \
+../include/config.h \
+../include/input.h \
+../include/error.h \
+../include/message.h \
+../include/libcc.h \
+../include/libcdb.h \
+../include/libdbd.h \
+../include/libinit.h \
+../include/liblic.h \
+../include/librec.h \
+../include/libscr.h \
+../include/libwin.h \
+../include/libsec.h \
+../include/libedit.h \
+../include/libclnt.h \
+../include/interface.h \
+../include/cx.h \
+../include/fb_vars.h \
+../include/fb_ext.h
+
+acct.o:		$(MHEADERS) 
+addidx.o:	$(MHEADERS) 
+autoigen.o:	$(MHEADERS) 
+btalloc.o:	$(MHEADERS) 
+closedb.o:	$(MHEADERS)
+dballoc.o:	$(MHEADERS) 
+dbargs.o:	$(MHEADERS) 
+setup.o:	$(MHEADERS)  ../include/keypad.h
+ei_dict.o:	$(MHEADERS) 
+ender.o:	$(MHEADERS) 
+freeglob.o:	$(MHEADERS) 
+getargs.o:	$(MHEADERS) 
+getauto.o:	$(MHEADERS) 
+get_ddat.o:	$(MHEADERS) 
+get_ddic.o:	$(MHEADERS) 
+getdef.o:	$(MHEADERS) 
+get_sdic.o:	$(MHEADERS) 
+get_vdic.o:	$(MHEADERS)  ../include/vdict.h ../include/vdict_e.h
+get_idat.o:	$(MHEADERS)
+get_idic.o:	$(MHEADERS) 
+getlink.o:	$(MHEADERS) 
+initlink.o:	$(MHEADERS) 
+ixalloc.o:	$(MHEADERS) 
+mk_dbase.o:	$(MHEADERS) 
+opendb.o:	$(MHEADERS) 
+openidx.o:	$(MHEADERS) 
+creatidx.o:	$(MHEADERS) 
+readmrg.o:	$(MHEADERS)  ../include/mdict.h ../include/mdict_e.h
+keyboard.o:	$(MHEADERS)  ../include/keyboard.h
+
+DISTDIR = ../../$(PRODUCT)-$(VERSION)/src/libinit
+DISTFILES = *.c Makefile.in
+
+dist::
+	@echo "Copying distribution files from libinit"
+	@for file in $(DISTFILES); do \
+	   ln $(srcdir)/$$file $(DISTDIR) 2> /dev/null \
+	      || cp -p $(srcdir)/$$file $(DISTDIR); \
+	done
+
+# Tell versions [3.59,3.63) of GNU make not to export all variables.
+# Otherwise a system limit (for SysV at least) may be exceeded.
+.NOEXPORT:

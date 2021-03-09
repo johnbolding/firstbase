@@ -1,0 +1,184 @@
+.TH VIEW 5 "14 November 2000"
+.FB
+.SH NAME
+view dictionaries \- \fIFirstBase\fP view dictionaries
+.SH SYNOPSIS
+Description of \fIFirstBase\fP view dictionaries for \fIdbvedit\fP(1).
+.SH DESCRIPTION
+\fIDbvedit\fP(1) is the visual version of \fIdbedit\fP(1) \(em it is a database
+editor that allows complete control over the positioning of
+text and record fields on the viewing screen. This additional power
+is controlled by a view dictionary.
+.PP
+The view dictionary is a standard text file
+consisting of entries describing a single display unit on the
+terminal screen. Each entry is on a separate line and is basically of the
+form \fIsubject@coordinates\fP, meaning 'place subject at coordinates on the
+terminal screen'. Syntactically, each
+entry must appear in one of the following formats:
+.nf
+.nj
+.sp 1
+   a) $PAGE
+   b) "Text Text Text"@row,col
+   c) FieldName@row,col
+   d) FieldName[\fIsub1\fP-\fIsub2\fP]@row,col
+   e) FieldName[\fIdisplay_size\fP]@row,col
+   f) FieldName[\fIsub_element\fP:\fIdisplay_size\fP]@row,col
+   g) $HELP \fIhelpfile\fP
+.fi
+.ju
+.PP
+Note: blanks are not accepted in an entry except within literal quotes.
+The following list describes the parts of each entry.
+.sp 1
+.PD 0
+.TP 10
+.I subject
+The subject of a view dictionary entry is either a page marker, a
+literal text string
+or a valid database field name. A page marker will start a new edit page.
+If a literal string is used, the
+characters between the quotes must be printable, with no embedded quotes.
+.sp 1
+If a field name is used, it must exist in the formal database dictionary.
+If the true field name has embedded blanks, underscores must be used
+in the view dictionary.
+.sp 1
+A couple of special items pertain to mapping fields onto the view surface.
+One is that substring limitations may be applied to any alpha field.
+This format is shown in item (d) above.
+.sp 1
+All substrings are used in array
+style format, with an array that starts at position one. For example,
+the subject entry \fBField1[1-20]\fP will edit only the first 20 characters
+of the contents of Field1 in each record.
+.sp 1
+Another special item concerning field displays
+is that fields with sizes greater than 80 characters that are not being used
+as a substring are depicted as being only a single character wide.
+Alternately, item format (e) above shows how a display size can be set
+for use with these long fields.
+.sp 1
+These long fields are handled either by the internal editor (for those fields
+smaller than 300 characters), or by the user defined visual editor (for those
+fields greater than 300 characters). Of course, the display command ('d')
+will still display these fields.
+.sp 1
+Still yet another special item about field displays concerns \fIsub_element\fP
+display. These elements,
+described by format (f) above, are an array of elements that
+start at element 1 through the number of elements. In other words, these
+elements (attributes or sub-fields of the entire field) can be displayed
+independent of one another \(em these sub-fields are individually accessible.
+.sp
+There are two kinds of \fIsub_elements\fP: those making up a nested choice
+field, and those NEWLINE terminated lines of text from large text fields.
+.sp 1
+For example, assuming
+Field1 is a choice field with a nested choice file,
+\fBField1[3:10]\fP would return the 3rd choice attribute, and display
+it in a 10 character screen area. Or, if Field1 is a long alpha field,
+then \fBField1[3:70]\fP would return the 3rd line of text \(em as defined by
+true NEWLINE characters \(em and display it in a 70 character wide field.
+(Also, see the HINT below).
+.sp 1
+In addition, the numeric variable for \fIsub_element\fP display can be a
+negative number which translates into an element or line derived by counting
+backwards from the end of the field.
+For example, \fBField1[-5:70]\fP would return the fifth line up from
+the end of the field.
+.sp 1
+.TP 10
+.I coordinates
+The coordinate part of a view dictionary entry consists of two parts:
+the x-coordinate (row), and the y-coordinate (column). The upper left
+corner of the screen is the base position, and
+is described as row one, column one (1,1). Note that a view
+dictionary is limited to using rows 3 through 22 \(em the first two and the
+last two rows are used by dbvedit(1) for other displays.
+.PD
+.PP
+There are two additional features that are encoded into each view
+dictionary entry. In the syntax list above, a \fB@\fP character is used to
+separate the subject from the coordinates. There is another choice.
+If the \fB@\fP character is used, the entry is depicted in reverse video.
+Alternately, a \fB:\fP character can be used to display the entry in normal
+video mode.
+.PP
+The second encoded option is the ability to make a field display-only.
+This feature can be used to put a few common fields on each edit page
+in order to retain continuity. These fields could be editable on the first
+page, and display-only on the subsequent pages. To encode this
+display-only mode, make at least one of the <x,y> coordinates negative.
+For example, \fBField1@5,-1\fP.
+.PP
+HINT: A hint for editing long "visual" fields, fields edited using a UNIX
+editor. Use \fIsub_element\fP display and map some lines of the text field
+in display-only mode, one per line, 79 characters long. Then, map an
+editable copy of the same field to the first row, first column, and
+let it default to a single character wide. As in the following example:
+.nf
+.nj
+.sp 1
+.ft CW
+      "Text Field"@10,1
+      text_field@11,1
+      text_field[1:79]@11,-1
+      text_field[2:79]@12,-1
+      text_field[3:79]@13,-1
+.ft
+.fi
+.ju
+.PP
+Another idea for editing large fields on a line by line basis
+is to map each line to the screen and editing these lines in place.
+If the FirstBase EDITINPUT variable is turned ON,
+these lines can be edited using the internal interaline mechanims.
+For example:
+.nf
+.nj
+.sp 1
+.ft CW
+      "Text Field"@10,1
+      text_field[1:79]@11,1
+      text_field[2:79]@12,1
+      text_field[3:79]@13,1
+.ft
+.fi
+.ju
+.PP
+Two meta view dictionary entries also exist. \fB$PAGE\fP is used to begin
+a new view page. The first view page does not need to be marked.
+The other meta entry allows custom help files to be tied to each view page.
+The form of this meta entry is
+\fB$HELP\fP \fBhelpfile\fP, and can only be used \fIafter\fP the first
+entry of a page is used. I.E., do not place a \fB$HELP\fP after a \fB$PAGE\fP
+without some other non-meta entry in between.
+.PP
+Unlike all other \fIFirstBase\fP dictionaries,
+there is not a view dictionary editor. The
+view dictionaries are created using any text editor. The extension
+of this file must be \fI.vdict\fP, thus the default view dictionary
+is \fIdbase.vdict\fP.
+.PP
+\fBNOTE:\fP in the \fIFirstBase\fP view dictionary
+file names are used to specify helpfiles.
+When \fIdbvedit\fP(1) is invoked, if the working database is in
+a different directory, these file names are expanded to reflect the working
+directory. File names beginning with a dot (.) or a slash (/) will not be
+expanded.
+.SH FILES
+.PD 0
+.TP 16
+dbase
+default name for database view dictionary.
+.TP 16
+*.vdict
+view dictionary extension.
+.PD
+.SH SEE ALSO
+dbedit(1), firstbase(5)
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br

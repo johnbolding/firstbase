@@ -1,0 +1,82 @@
+.TH PUTREC 3 "12 September 1995"
+.FB
+.SH NAME
+putrec \- write current record to database
+.SH SYNOPSIS
+#include <firstbase/fb.h>
+.sp 1
+fb_putrec(rec, db)
+.br
+long rec;
+.br
+fb_database *db;
+.SH DESCRIPTION
+As explained in the \fIdatabase\fP(4)
+manual page, a database structure contains
+all of the elements needed for an entire database, including an array of
+field structures, all file names and descriptors, and index information.
+Altogether, the array of field structures can hold one complete record.
+.PP
+\fIGetrec\fP(3) or \fIgetxrec\fP(3)
+are used to retrieve an existing database
+record from the database into the array of field descriptors.
+Then, these field structures may be updated by using
+the \fIstore\fP(3) routine. Once a record has been modified,
+\fIfb_putrec\fP is called to physically
+write the fields of data as a single record to the database.
+.PP
+\fIFb_putrec\fP
+stores logical record \fIrec\fP into the database pointed to by \fIdb\fP.
+The map file descriptor stored in \fIdb->mfd\fP is used to determine the old
+location and length of the record within the database file
+described by the file descriptor stored in \fIdb->fd\fP.
+.PP
+\fIGetrec\fP(3)
+will place the current record number in a field inside
+of the database structure called \fIdb->rec\fP when a record is read.
+Most times this will be the
+same number used as a parameter to \fIfb_putrec\fP.
+.PP
+The records in any \fIFirstBase\fP database are indexed starting at
+physical record
+number one (1). When using \fIfb_putrec\fP,
+it is important that the record number \fIrec\fP
+represents a record already in the database, or one more than the database
+holds. I.E., the range that \fIrec\fP can take on is between 1 and
+the database record count + 1. (1 <= \fIrec\fP <= \fIdb->reccnt\fP + 1).
+In other words, new records must be assigned the next sequential
+record number in the database.
+.PP 
+If the record did not exist before, or if the record will not fit in the
+place it did exist, a new storage area is located and the old area
+is linked into a free storage list.
+New storage areas come from the free list or are allocated at
+the end of the database.
+.PP
+\fIFb_putrec\fP
+uses the database field descriptors to gather and write the fields
+to the database. These field descriptors will point into one of the
+buffers in the database structure, \fIdb->orec\fP
+or \fIdb->arec\fP depending on whether the field has been altered or not.
+.PP
+Normally, \fIfb_putrec\fP(3) will store records in a variable length format.
+However, some applications that modify the same records over and over
+might get better performance with fixed width records. By setting the
+external short integer variable cdb_fixedwidth to one (1) before calling
+\fIfb_opendb\fP, or by setting the short integer \fIfixedwidth\fP in the
+database structure after the call to \fIfb_opendb\fP,
+\fIfb_putrec\fP will pad the end of each record to create fixed width
+entries. Alternately, system wide fixed width \fIFirstBase\fP
+record storage can be defined via \fIsetup\fP(5).
+.SH CLIENT/SERVER
+The \fIfb_putrec\fP routine will transparently
+call the \fIfb_putrec_clnt\fP mechanism
+when the global \fIFirstBase\fP variable \fIcdb_use_rpc\fP is set to one.
+See \fIfb_clnt_create\fP(3) for more details.
+.SH SEE ALSO
+addrec(3), getrec(3), getxrec(3), opendb(3), store(3), database(4), setup(5).
+.SH DIAGNOSTICS
+\fIFb_putrec\fP will return the error code FB_ERROR if any of its reads,
+writes, or seeks fail, or if \fIrec\fP <= 0 or rec > db->reccnt + 1.
+An FB_AOK signal is returned on correct completion.
+.br

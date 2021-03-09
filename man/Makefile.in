@@ -1,0 +1,109 @@
+# Copyright (C) 2001 FirstBase Software, Inc. All rights reserved.
+#
+# $Id: Makefile.in,v 9.4 2001/02/17 22:01:17 john Exp $
+#
+# See the file LICENSE for conditions of use and distribution
+#
+#
+# Makefile for FirstBase man/
+#
+
+PRODUCT = @PRODUCT@
+VERSION = @VERSION@
+
+SHELL = /bin/sh
+srcdir = @srcdir@
+VPATH = @srcdir@
+@SET_MAKE@
+
+CC = @CC@
+CFLAGS = @CFLAGS@
+INSTALL = @INSTALL@
+INSTALL_DATA = @INSTALL_DATA@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+LDFLAGS = @LDFLAGS@
+
+firstbasehome = @FIRSTBASEHOME@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+homedir = $(exec_prefix)/$(firstbasehome)
+bindir = $(exec_prefix)/$(firstbasehome)/bin
+infodir = $(prefix)/$(firstbasehome)/info
+libdir = $(prefix)/$(firstbasehome)/lib
+mandir = $(prefix)/$(firstbasehome)/man
+docdir = $(prefix)/$(firstbasehome)/doc
+includedir = $(prefix)/$(firstbasehome)/include
+
+.SUFFIXES:
+.SUFFIXES: .c .o
+
+all: Makefile
+
+mostlyclean: mostlyclean-recursive mostlyclean-local
+
+clean: clean-recursive clean-local
+
+distclean: distclean-recursive distclean-local
+
+realclean: realclean-recursive realclean-local
+
+extraclean: extraclean-recursive extraclean-local
+
+mostlyclean-recursive clean-recursive distclean-recursive \
+realclean-recursive extraclean-recursive:
+
+mostlyclean-local:
+
+clean-local: mostlyclean-local
+
+distclean-local: clean-local
+	rm -f Makefile
+
+realclean-local: distclean-local
+
+extraclean-local: distclean-local
+	rm -f patch* *~* *\#* *.orig *.rej *.bak core a.out
+
+DISTFILES = Makefile.in *.1 *.3 *.4 *.5 *.8
+
+dist: $(DISTFILES)
+	@echo "Copying distribution files from man"
+	@for file in $(DISTFILES); do \
+	  ln $(srcdir)/$$file ../$(PRODUCT)-$(VERSION)/man 2> /dev/null \
+	    || cp -p $(srcdir)/$$file ../$(PRODUCT)-$(VERSION)/man; \
+	done
+
+view::
+	gview -rC1 -rD1 -man *.1 *.3 *.4 *.5 *.8
+
+man.ps::
+	groff -rC1 -rD1 -man *.1 *.3 *.4 *.5 *.8 > man.ps
+
+install:
+	$(INSTALL) -d $(mandir)/man1
+	$(INSTALL) -d $(mandir)/man3
+	$(INSTALL) -d $(mandir)/man4
+	$(INSTALL) -d $(mandir)/man5
+	$(INSTALL) -d $(mandir)/man8
+	for file in *.1 ; do \
+	   $(INSTALL_DATA) $$file $(mandir)/man1 ; \
+        done
+	for file in *.3 ; do \
+	   $(INSTALL_DATA) $$file $(mandir)/man3 ; \
+        done
+	for file in *.4 ; do \
+	   $(INSTALL_DATA) $$file $(mandir)/man4 ; \
+        done
+	for file in *.5 ; do \
+	   $(INSTALL_DATA) $$file $(mandir)/man5 ; \
+        done
+	for file in *.8 ; do \
+	   $(INSTALL_DATA) $$file $(mandir)/man8 ; \
+        done
+
+Makefile: Makefile.in ../config.status
+	cd ../ && CONFIG_FILES=man/$@ CONFIG_HEADERS= ./config.status
+
+# Tell versions [3.59,3.63) of GNU make not to export all variables.
+# Otherwise a system limit (for SysV at least) may be exceeded.
+.NOEXPORT:

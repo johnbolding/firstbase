@@ -1,0 +1,63 @@
+.TH DBLS 1 "12 September 1995"
+.FB
+.SH NAME
+dbls \- list all \fIFirstBase\fP databases and associated files in a directory
+.SH SYNOPSIS
+.B dbls
+[ \fIdirectory\fP ... ]
+.SH DESCRIPTION
+.I Dbls
+is a command that lists all \fIFirstBase\fP databases and 
+associated files in a directory. The default directory displayed is the
+current working directory.
+.PP
+Listed files include databases, database dictionaries, database maps, 
+indexes, index dictionaries, index generator dictionaries, printout
+dictionaries, screen dictionaries and view dictionaries.
+.SH FILES
+.PD 0
+.TP 10
+*.cdb
+\fIFirstBase\fP database.
+.TP 10
+*.ddict
+\fIFirstBase\fP database dictionary.
+.TP 10
+*.map
+\fIFirstBase\fP database record map.
+.TP 10
+*.idx
+\fIFirstBase\fP index.
+.TP 10
+*.idict
+\fIFirstBase\fP index dictionary.
+.TP 10
+*.idicti
+\fIFirstBase\fP index generator dictionary.
+.TP 10
+*.idictp
+\fIFirstBase\fP printout dictionary.
+.TP 10
+*.idictl
+\fIFirstBase\fP label dictionary.
+.TP 10
+*.idictc
+\fIFirstBase\fP conversion dictionary.
+.TP 10
+*.sdictc
+\fIFirstBase\fP screen dictionary.
+.TP 10
+*.vdict
+\fIFirstBase\fP view dictionary.
+.TP 10
+*.noadd
+add record lock.
+.TP 10
+*.nodel
+delete record lock.
+.PD
+.SH SEE ALSO
+firstbase(5), dictionaries(5)
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br

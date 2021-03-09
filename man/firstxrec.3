@@ -1,0 +1,80 @@
+.TH FIRSTXREC 3 "12 September 1995"
+.FB
+.SH NAME
+firstxrec, lastxrec, firstovxrec, lastovxrec \- load first/last indexed record
+.SH SYNOPSIS
+#include <firstbase/fb.h>
+.sp 1
+fb_firstxrec(db)
+.br
+fb_database *db;
+.sp 1
+fb_lastxrec(db)
+.br
+fb_database *db;
+.sp 1
+fb_firstovxrec(db)
+.br
+fb_database *db;
+.sp 1
+fb_lastovxrec(db)
+.br
+fb_database *db;
+.sp 1
+fb_currentxrec(db)
+.br
+fb_database *db;
+.PP
+.SH DESCRIPTION
+As explained in the \fIdatabase\fP(4) manual page,
+a database structure contains
+all of the elements needed for an entire database, including an array of
+field structures, all file names and descriptors, and index information.
+Altogether, the array of field structures can hold one complete record.
+.PP
+\fIFb_firstxrec\fP attempts to load the first indexed record into database
+\fIdb\fP.
+\fIFb_lastxrec\fP attempts to load the last indexed record into database
+\fIdb\fP.
+These two calls are applicable to any kind of \fIFirstBase\fP index.
+.PP
+Note: the following discussion concerns normal (flat) \fIFirstBase\fP
+indexes and does not apply to btree indexes. See \fIbtree\fP(4) for more
+details on the \fIFirstBase\fP Btree+ indexes.
+.PP
+As noted in the \fIindex\fP(4) manual page, autoindexes can have a section
+of index entries that are not sorted. This index overflow area can still be
+accessed.
+\fIFb_firstovxrec\fP attempts to load the first overflow
+record from the index into database \fIdb\fP.
+\fIFb_lastovxrec\fP attempts to load the last overflow record into database
+\fIdb\fP.
+.PP
+Note that \fInextxrec\fP(3) and \fIprevxrec\fP(3) do not care about the
+boundary between sorted and overflow index records. For example, 
+an \fIfb_nextxrec\fP after an \fIfb_lastxrec\fP is equivalent to an
+\fIfb_firstovxrec\fP.
+.PP
+Once a record number is retrieved from the index,
+each of these routines call \fIgetrec\fP(3) to
+load the record into the database structure.
+.PP
+The physical position number of the index entry, the index record number,
+is stored in the database structure \fIdb->bsrec\fP for each of these
+routines.
+If \fIdb->bsrec\fP is greater
+than \fIdb->bsend\fP, the returned record's key is stored in the overflow area
+of the index, otherwise it is stored in the binary searchable area.
+.PP
+The \fIfb_currentxrec\fP mechanism will load the current index record.
+.SH CLIENT/SERVER
+The \fIfb_firstxrec\fP and \fIfb_lastxrec\fP routines will transparently
+call \fIfb_firstxrec_clnt\fP and \fIfb_lastxrec_clnt\fP
+when the global \fIFirstBase\fP variable \fIcdb_use_rpc\fP is set to one.
+See \fIfb_clnt_create\fP(3) for more details.
+.SH SEE ALSO
+getxrec(3), getrec(3), nextxrec(3), opendb(3), database(4), index(4).
+.SH DIAGNOSTICS
+These routines will return FB_AOK on a successful call, and FB_ERROR when
+the record could not be found or loaded.
+.br

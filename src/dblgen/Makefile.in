@@ -1,0 +1,132 @@
+# Copyright (C) 2001 FirstBase Software, Inc. All rights reserved.
+#
+# $Id: Makefile.in,v 9.2 2001/01/22 17:36:52 john Exp $
+#
+# See the file LICENSE for conditions of use and distribution
+#
+#
+# Makefile for Firstbase src/dblgen
+#
+
+PRODUCT = @PRODUCT@
+VERSION = @VERSION@
+
+SHELL = /bin/sh
+srcdir = @srcdir@
+VPATH = @srcdir@
+
+CC = @CC@
+CFLAGS = @CFLAGS@
+CPPFLAGS = @CPPFLAGS@
+DEFS = @DEFS@
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@ $(LIBEXTRA)
+LEXLIB = @LEXLIB@
+
+firstbasehome = @FIRSTBASEHOME@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = $(exec_prefix)/$(firstbasehome)/bin
+infodir = $(prefix)/$(firstbasehome)/info
+libdir = $(prefix)/$(firstbasehome)/lib
+mandir = $(prefix)/$(firstbasehome)/man
+docdir = $(prefix)/$(firstbasehome)/doc
+includedir = $(prefix)/$(firstbasehome)/include
+
+COMPILE = $(CC) -c $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
+LINK = $(CC) $(LDFLAGS) -o $@
+
+.SUFFIXES:
+.SUFFIXES: .c .o
+.c.o:
+	$(COMPILE) $< -o $@
+
+INCLUDES = @INCLUDES@
+LIBFB = ../lib/libfb.a
+
+all: dbdlbl dblgen
+
+DBDLBL=		dbdlbl.o
+DBLGEN=		dblgen.o
+DBLGEN_LIB=	initlb.o
+
+dblgen: $(DBLGEN) $(DBLGEN_LIB)
+	@echo linking $@
+	$(LINK) $(DBLGEN) $(DBLGEN_LIB) $(LIBFB) $(LIBS)
+
+dbdlbl: $(DBDLBL) $(DBLGEN_LIB)
+	@echo linking $@
+	$(LINK) $(DBDLBL) $(DBLGEN_LIB) $(LIBFB) $(LIBS)
+
+PROGS = dbdlbl dblgen
+
+install: all
+	$(INSTALL) -d $(bindir)
+	@for file in $(PROGS) ; do \
+	   $(INSTALL) $$file $(bindir) ; \
+	done
+
+mostlyclean:
+	rm -f *.o *._c *._o core core.*
+	rm -f $(PROGS)
+
+clean: mostlyclean
+
+distclean: clean
+	rm -f Makefile
+
+realclean: distclean
+	rm -f TAGS
+
+extraclean:: distclean
+	rm -f patch* *~* *\#* *.orig *.rej *.bak core a.out
+
+Makefile: Makefile.in ../../config.status
+	cd ../.. && CONFIG_FILES=src/dblgen/$@ CONFIG_HEADERS= ./config.status
+
+MHEADERS= \
+../include/fb.h  \
+../include/config.h \
+../include/input.h \
+../include/error.h \
+../include/message.h \
+../include/libcc.h \
+../include/libcdb.h \
+../include/libdbd.h \
+../include/libinit.h \
+../include/liblic.h \
+../include/librec.h \
+../include/libscr.h \
+../include/libwin.h \
+../include/libsec.h \
+../include/libedit.h \
+../include/libclnt.h \
+../include/interface.h \
+../include/cx.h \
+../include/fb_vars.h \
+../include/fb_ext.h \
+../include/fb_vars.h \
+../include/dbd.h
+
+#
+# dbdlbl dblgen
+#
+
+dblgen/dbdlbl.o:	$(MHEADERS)
+dblgen/dblgen.o:	$(MHEADERS)
+dblgen/initlb.o:	$(MHEADERS)
+
+DISTDIR = ../../$(PRODUCT)-$(VERSION)/src/dblgen
+DISTFILES = *.c Makefile.in
+
+dist::
+	@echo "Copying distribution files from dblgen"
+	@for file in $(DISTFILES); do \
+	   ln $(srcdir)/$$file $(DISTDIR) 2> /dev/null \
+	      || cp -p $(srcdir)/$$file $(DISTDIR); \
+	done
+
+# Prevent GNU make 3 from overflowing arg limit on system V.:
+.NOEXPORT:

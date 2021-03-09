@@ -1,0 +1,33 @@
+:
+echo -n "Enter the file(s) you want to DELETE: "
+read file
+if [ -z "$file" ]
+   then
+   echo No file names entered. Nothing done.
+   exit
+fi
+for i in $file
+   do
+   if [ -d "$i" ] ; then
+      echo "$i is a Directory!!!"
+      echo 
+      echo "get your systems manager to help you."
+      echo Nothing deleted.
+      exit
+   elif test -f $file ; then
+      echo -n "Ready to delete \`$file'? (y/n)? "
+      read answer
+      if [ "$answer" = "y" ] ; then
+	 # you can modify the following to make it so that RM
+	 # does not really remove, but rather copies its file ...
+         # mv $file /usr/remove/$file$$
+         # echo $file has been deleted -- but can be retrieved
+         # echo before the end of the month if you need.
+	 rm $file
+      else
+	 echo Nothing deleted.
+      fi
+   else
+      echo "Cannot find file \`$file'."
+   fi
+done

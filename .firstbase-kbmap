@@ -1,0 +1,62 @@
+#
+# Cdb keyboard map for intraline editing and standard input signals.
+#
+# Each key definition is set using a line of the form
+#
+#        setkey "sequence" action
+#
+# with components separated by white space of some kind (spaces/tabs).
+# A sequence is a set of characters within double quotes.
+# An action is a Cdb action. See keyboard(5).
+#
+# meta characters: \^ = Control , \e = Escape, \\ = \  \^? = DEL
+#
+#
+# These bindings were culled from GNU Emacs and FrameMaker and are
+# released as the "standard" Cdb bindings.
+#
+
+# intraline editing commands
+setkey "\^a"	beginning-of-line
+setkey "\^e"	end-of-line
+setkey "\^d"	delete-char-forward
+setkey "\^?"	delete-char-backward
+setkey "\^u"	delete-to-beginning-of-line
+setkey "\^k"	delete-to-end-of-line
+setkey "\^f"	move-char-forward
+setkey "\^b"	move-char-backward
+setkey "\ed"	delete-word-forward
+setkey "\e\^?"	delete-word-backward
+setkey "\^w"	delete-word-backward		# overload function 
+setkey "\ef"	move-word-forward
+setkey "\eb"	move-word-backward
+setkey "\^g"	quit
+setkey "\eu"	upcase-word
+setkey "\ec"	capitalize-word
+setkey "\el"	downcase-word
+
+# standard Cdb signals
+setkey "\e-"	end
+setkey "\^h"	help
+setkey "\^c"	abort			# general abort keystroke
+setkey "\^n"	next			# next field, dbedit
+setkey "\^p"	prev			# prev field, dbedit
+setkey "\^l"	redraw
+setkey "\^v"	pagedown		# dbedit data pages, choice pages, etc.
+setkey "\ev"	pageup
+setkey "\^x\^b"	bsignal			# backward record, dbedit (also ^b)
+setkey "\^x\^f"	fsignal			# forward record, dbedit  (also ^f)
+setkey "\^x\^s" writerec		# dbedit writerec
+setkey "\^x0"	deleterec		# dbedit delete record
+
+setkey "\eh"	help
+
+# UNIX system signals
+setkey "\e\^z"	system-stop		# UNIX stop. .cdbrc controlled
+setkey "\e\^c"	system-interrupt	# UNIX interrupt. sometimes allowed
+
+# Arrow keys - may need tuning to your particular keyboard
+setkey "\e[A"	prev   			# example of an arrow key
+setkey "\e[B"	next   			# example of an arrow key
+setkey "\e[C"	move-char-forward	# example of an arrow key
+setkey "\e[D"	move-char-backward   	# example of an arrow key

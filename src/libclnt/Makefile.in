@@ -1,0 +1,165 @@
+# Copyright (C) 2001 FirstBase Software, Inc. All rights reserved.
+#
+# $Id: Makefile.in,v 9.2 2001/01/22 17:36:58 john Exp $
+#
+# See the file LICENSE for conditions of use and distribution
+#
+#
+# Makefile for Firstbase src/libclnt
+#
+
+PRODUCT = @PRODUCT@
+VERSION = @VERSION@
+
+SHELL = /bin/sh
+srcdir = @srcdir@
+VPATH = @srcdir@
+
+CC = @CC@
+CFLAGS = @CFLAGS@
+CPPFLAGS = @CPPFLAGS@
+DEFS = @DEFS@
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@ $(LIBEXTRA)
+
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = $(exec_prefix)/bin
+
+COMPILE = $(CC) -c $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
+LINK = $(CC) $(LDFLAGS) -o $@
+
+.SUFFIXES:
+.SUFFIXES: .c .o
+.c.o:
+	$(COMPILE) $< -o $@
+
+INCLUDES = @INCLUDES@
+
+OBJECTS=	lserve_c.o		\
+		opendb_c.o		\
+		closdb_c.o		\
+		getrec_c.o		\
+		getxre_c.o		\
+		getire_c.o		\
+		fetrec_c.o		\
+		gethd_c.o		\
+		fetch_c.o		\
+		store_c.o		\
+		putrec_c.o		\
+		fixflds.o		\
+		fbserv_c.o		\
+		fblock_c.o		\
+		fcntl_c.o		\
+		mkserv_c.o		\
+		lock_c.o		\
+		cmd_clnt.o		\
+		trlckd_c.o		\
+		serv_xdr.o		\
+		free_xdr.o		\
+		status_c.o		\
+		freeg_c.o		\
+		useidx_c.o		\
+		unix_c.o		\
+		cr_idx_c.o		\
+		op_idx_c.o		\
+		addidx_c.o		\
+		tune_c.o		\
+		bulk_c.o		\
+                veclib.o
+
+all: libclnt
+libclnt: $(OBJECTS)
+
+mostlyclean:
+	rm -f *.o *._c *._o core core.*
+
+clean: mostlyclean
+
+distclean: clean
+	rm -f Makefile
+
+realclean: distclean
+	rm -f TAGS
+
+extraclean:: distclean
+	rm -f patch* *~* *\#* *.orig *.rej *.bak core a.out
+
+Makefile: Makefile.in ../../config.status
+	cd ../.. && CONFIG_FILES=src/libclnt/$@ CONFIG_HEADERS= ./config.status
+
+names:
+	@for name in $(OBJECTS) ; do \
+	   echo libclnt/$$name >> ../OBJECTS ; \
+	done
+
+MHEADERS= \
+../include/fb.h  \
+../include/config.h \
+../include/input.h \
+../include/error.h \
+../include/message.h \
+../include/libcc.h \
+../include/libcdb.h \
+../include/libdbd.h \
+../include/libinit.h \
+../include/liblic.h \
+../include/librec.h \
+../include/libscr.h \
+../include/libwin.h \
+../include/libsec.h \
+../include/libedit.h \
+../include/libclnt.h \
+../include/interface.h \
+../include/cx.h \
+../include/fb_vars.h \
+../include/fb_ext.h
+
+lserve_c.o: $(MHEADERS)
+opendb_c.o: $(MHEADERS)
+closdb_c.o: $(MHEADERS)
+getrec_c.o: $(MHEADERS)
+getxre_c.o: $(MHEADERS)
+getire_c.o: $(MHEADERS)
+fetrec_c.o: $(MHEADERS)
+gethd_c.o: $(MHEADERS)
+fetch_c.o: $(MHEADERS)
+store_c.o: $(MHEADERS)
+putrec_c.o: $(MHEADERS)
+fixflds.o: $(MHEADERS)
+fbserv_c.o: $(MHEADERS)
+fblock_c.o: $(MHEADERS)
+fcntl_c.o: $(MHEADERS)
+mkserv_c.o: $(MHEADERS)
+lock_c.o: $(MHEADERS)
+cmd_clnt.o: $(MHEADERS)
+trlckd_c.o: $(MHEADERS)
+serv_xdr.o: $(MHEADERS)
+free_xdr.o: $(MHEADERS)
+status_c.o: $(MHEADERS)
+freeg_c.o: $(MHEADERS)
+useidx_c.o: $(MHEADERS)
+unix_c.o: $(MHEADERS)
+cr_idx_c.o: $(MHEADERS)
+op_idx_c.o: $(MHEADERS)
+addidx_c.o: $(MHEADERS)
+tune_c.o: $(MHEADERS)
+bulk_c.o: $(MHEADERS)
+veclib.o: $(MHEADERS)
+
+
+DISTDIR = ../../$(PRODUCT)-$(VERSION)/src/libclnt
+DISTFILES = *.c Makefile.in
+
+dist::
+	@echo "Copying distribution files from libclnt"
+	@for file in $(DISTFILES); do \
+	   ln $(srcdir)/$$file $(DISTDIR) 2> /dev/null \
+	      || cp -p $(srcdir)/$$file $(DISTDIR); \
+	done
+
+# Tell versions [3.59,3.63) of GNU make not to export all variables.
+# Otherwise a system limit (for SysV at least) may be exceeded.
+.NOEXPORT:

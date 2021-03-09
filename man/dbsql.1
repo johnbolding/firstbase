@@ -1,0 +1,939 @@
+.TH DBSQL 1 "12 September 1995"
+.FB
+.de SF
+.nf
+.nj
+.sp 1
+.ft CW
+.in +3
+..
+.de UF
+.XF
+.sp 1
+..
+.de XF
+.ft R
+.ju
+.fi
+.in -3
+..
+.SH NAME
+dbsql \- \fIFirstBase\fP Structured Query Language (SQL)
+.SH SYNOPSIS
+.TP 6
+.B dbsql
+[\fB-f\fP \fIscript_file\fP]
+[\fB-P\fP]
+[\fB-t\fP \fItemp_dir\fP]
+[\fB-p\fP \fIpage_length\fP]
+[\fB-w\fP \fIpage_width\fP]
+[\fB-h\fP]
+[\fB-i\fP \fIindent\fP]
+.br
+[\fB-m\fP\fIN\fP \fImargin_value\fP]
+[\fB-e\fP]
+[\fB-c\fP \fIchar_sep\fP]
+[\fB-n\fP]
+[\fB-q\fP]
+[\fB-v\fP]
+[\fB-H\fP]
+[\fB-HB\fP\fIN\fP]
+[\fB-HC\fP\fIN\fP]
+.SH DESCRIPTION
+.I Dbsql
+is an implementation of the standard Structured Query Language as defined by
+the International Standards Organization document
+.I ISO 9075 Database Language SQL.
+The \fIFirstBase\fP implementation emphasizes the
+data manipulation portion of the SQL standard and provides
+many powerful enhancements, including HTML output.
+.PP
+\fIDbsql\fP is a non-procedural language and command interpreter
+that allows complex database relations involving any number of databases
+to be queried, displayed, or even stored as new \fIFirstBase\fP data objects. 
+Every \fIdbsql\fP statement is executed \(em results are either
+projected (displayed) or stored.
+.PP
+Although the standard for SQL uses only uppercase, \fIdbsql\fP
+will handle both uppercase and lowercase. However, in this manual page all
+key words will still appear in uppercase.
+.PP
+In interactive mode, \fIdbsql\fP will provide a \fBdbsql>\fP prompt.
+Each statement, entered on as many lines as needed and terminated with a
+semicolon, is then executed as a \fIdbsql\fP command.
+Once the result is projected or stored, the prompt is redisplayed.
+.PP
+To exit interactive \fIdbsql\fP use an end-of-file keystroke (Control-D)
+or either the \fBquit\fP or \fBexit\fP directives. A full list of directives
+appears below.
+.PP
+Stored \fIdbsql\fP commands or scripts can be processed using the \fB-f\fP
+switch. During this batchmode processing, \fIdbsql\fP will execute each
+statement, projecting results to standard output. If this output is
+redirected, \fIdbsql\fP could run as a background process.
+.PP
+Some parts of \fIdbsql\fP default behavior are controlled by the environment.
+The pagelength and width of the display device are determined at run time
+using \fItermcap\fP(3) routines. These variables can also be controlled by
+the \fB-p\fP and \fB-w\fP switches.
+.PP
+The environment variable \fIPAGER\fP is also used
+for the \fB-P\fP option. This option, effective only in interactive mode,
+will use a standard UNIX paging tool (like \fImore\fP(1)) to display
+the results of a request. This feature is quite useful if the results to a
+query are many pages long.
+.PP
+Formatted output using \fIdbsql\fP is done using a mixture of switch settings
+and augmentations to the standard SQL SELECT statement.
+First, the \fB-h\fP must be specified to enable report headers to be generated.
+Then, indentation is controlled by \fB-i\fP.
+.PP
+Top and bottom margins are manipulated using the \fB-m\fP\fIN\fP format
+where \fIN\fP is \fB1\fP through \fB4\fP depending on which section
+the \fImargin_value\fP is going to represent: top of page to header, header
+to top of text body, bottom of text body to footer, footer to bottom of page.
+The default for each of these four margin values
+is 2 (for two lines of space in each place).
+.PP
+For more information on formatted output, see the section entitled REPORT
+GENERATION below.
+.PP
+When \fIdbsql\fP is executing statements, temporary files, databases and
+indexes are sometimes created. The default area for this storage
+is in \fI/usr/tmp\fP, but can be controlled with the \fB-t\fP switch.
+.PP
+The default output of \fIdbsql\fP is formatted in columns, if the result
+will fit horizontally on the display device. Otherwise, the output is
+displayed vertically.
+.PP
+However, by using the \fB-e\fP switch, \fIdbsql\fP can be forced to
+generate standard \fIFirstBase\fP \fIdbemit\fP(1) style output.
+This output is one record per line, with tokens separating the fields.
+The default token is a comma, though the \fB-c\fP option controls this
+character separator.
+.PP
+The \fB-H\fP option turns on HTML output mode. In this mode, all output will
+be as HTML documents with a table representing the results. The \fB-HB\fP
+option places a border around the table, with the width specified by
+any connected digits, for example \fI-HB2\fP. In a similar manner, \fB-HC\fP
+controls table cell padding.
+.PP
+To communicate with \fIdbsql\fP using a CGI (Common Gateway Interface) request,
+use \fIdbmacro\fP(1). One method is to generate the needed \fIdbsql\fP query
+into one temporary file, and the command file that executes the query
+into a different temporary file, use the \fIdbmacro\fP function \fIpopen\fP
+on the command file, read all output from the process with \fIfgets\fP
+and print this output to standard out using the \fIdbmacro\fP function
+\fIputs\fP or \fIprintf\fP.
+.PP
+Other option switches affecting the \fIdbemit\fP(1) style output
+are \fB-q\fP for
+forcing quotes around all alpha type fields and \fB-v\fP for formatting
+date and dollar type fields. The \fB-n\fP switch is used to force the
+long fields to print using the string "\\n" in place of newlines.
+This format is understood by \fIdbload\fP(1).
+.SH DIRECTIVES
+A directive is a non-sql command that \fIdbsql\fP can execute,
+with or without the terminating semicolon. The full list of
+directives is:
+.sp 1
+.PD 0
+.TP 8
+cd
+Change to directory indicated.
+.TP 8
+pwd
+Print working directory.
+.TP 8
+help
+Provide help mechanism. Help on commands and databases is displayed using this
+command. For example, \fBhelp select\fP and \fBhelp dbase\fP are two valid
+uses of the help command.
+.TP 8
+exit
+Exit from the dbsql session. Same as \fBquit\fP.
+.TP 8
+!line
+Submits line as a command to a sub shell.
+For example, \fB!mail\fP would run the UNIX \fImail\fP(1) command,
+returning to \fIdbsql\fP when completed.
+.TP 8
+#line
+Lines starting with the \fB#\fP character are ignored as comments.
+.TP 8
+version
+Print the current version number of \fIdbsql\fP.
+.PD
+.SH SQL COMMANDS
+Within \fIdbsql\fP, there are five distinct SQL or SQL type commands.
+Each of these commands is listed below, with a short explanation.
+Note that BNF notation is used to describe the commands,
+and that the full \fIdbsql\fP grammar is listed in a later section.
+.PP
+.PD 1
+.TP 8
+SELECT\ \ \ 
+The SELECT command, the basic \fI<query specification>\fP, is the
+mechanism underlying most all \fIdbsql\fP requests.
+The syntax of the the SELECT command is:
+.SF
+<query specification> ::=
+   SELECT [ ALL | DISTINCT ] <select list>
+   <from clause>
+   [ <where clause> ]
+   [ <order by clause> ]
+   [ <group by clause> ]
+   [ <having clause> ]
+   [ <header clause> ]
+   [ <footer clause> ]
+.UF
+The last six clauses are all optional \(em only the \fI<from clause>\fP
+is required to project (display) the \fI<select list>\fP.
+Each of the components of this \fI<query specification>\fP is listed in detail
+in the grammar. There are also many examples below.
+.sp 1
+The \fI<where clause>\fP is used to limit the set of records or relations
+displayed. The limitations described can be very complex, with AND/OR
+connections between sub parts. Standard math notation, set and string
+functions, and parenthesis for grouping are all supported.
+.sp 1
+The \fI<order by clause>\fP is used to display the results in a specific
+order. Either ascending or descending order can be specified. Note that
+each element of the \fI<order by clause>\fP must also appear in the
+actual \fI>select list>\fP,
+or be a numeral representing a column from this list.
+.sp 1
+The \fI<group by clause>\fP can be used to partition the set of found records
+or relations into groups. Each part of the \fI<select list>\fP for these
+requests must be single valued per group, or be a function on a field or
+column. The function, for example SUM, will be done for that one group only.
+Note that in \fIdbsql\fP, \fIgroup by\fP presumes \fIorder by\fP.
+.sp 1
+The \fI<having clause>\fP is an optional clause used to limit the groups chosen
+in the \fI<group by clause>\fP. Only those groups passing the restrictions
+in this clause will be included in the final display.
+.sp 1
+The \fI<header clause>\fP and \fI<footer clause>\fP can be used to
+specify report headers and footers. See the section on REPORT GENERATION
+below.
+.TP 8
+CREATE VIEW
+The CREATE VIEW command is used to generate a new \fIFirstBase\fP database
+from one or more existing databases. This command uses a \fI<table name>\fP
+and an optional \fI<column list>\fP, followed by a \fI<query specification>\fP
+(i.e. a SELECT command).
+.SF
+<view definition> ::=
+   CREATE VIEW <table name>
+      [ <column list> ]
+      AS <query specification>
+.UF
+The result of the CREATE VIEW is an actual \fIFirstBase\fP database complete with
+a database dictionary. The names of the fields can be controlled (and must
+be! if the \fI<select list>\fP contains expressions as opposed to simple fields
+or columns) using the optional \fI<column list>\fP .
+.TP 8
+DROP VIEW
+The DROP VIEW command will delete the listed \fIFirstBase\fP database.
+If in interactive mode, \fIdbsql\fP pauses for confirmation.
+Unlike \fIrmdb\fP(8), the database dictionary is also deleted using this
+command, i.e. all remnants of \fI<table name>\fP are deleted.
+.SF
+<drop view statement> ::=
+   DROP VEIW <table name>
+.XF
+.TP 8
+CREATE INDEX
+The CREATE INDEX command is used to generate \fIFirstBase\fP indexes using
+\fIdbsql\fP command structures. The result is a true \fIFirstBase\fP index that can
+be used with any of the other \fIFirstBase\fP tools. The syntax of the command is:
+.SF
+<index definition> ::=
+   CREATE INDEX <index name>
+   ON     <table name>
+   ( <index column> [ {,<index column>}... ] )
+   [ <where clause> ]
+
+<index column> ::=
+   <column name> [ ASC | DESC ]
+.UF
+The \fI<where clause>\fP is used to limit the selected records to
+any subset describable using standard \fIdbsql\fP expressions,
+as done in the SELECT statement.
+.sp 1
+The result of a CREATE INDEX is the index and index header portion of
+a \fIFirstBase\fP index.
+Since \fIdbigen\fP(1) is not used during this index creation, an index
+dictionary, as created by \fIdbdind\fP(1) is not used nor generated.
+.TP 8
+DROP INDEX
+The DROP INDEX command will delete the listed \fIFirstBase\fP index.
+If in interactive mode, \fIdbsql\fP pauses for confirmation.
+All remnants of \fI<index name>\fP are deleted.
+.SF
+<drop index definition> ::=
+   DROP INDEX <index name>
+.XF
+.PD
+.SH FUNCTIONS
+\fIDbsql\fP provides many additional functions for queries and reports.
+The following is a list of the additional, non-standard
+functions and what they do.
+.PD 1
+.TP 12
+ABS(x)
+Returns the absolute value of \fIx\fP.
+.TP 12
+FORMFIELD(string, type, width)
+Formats \fIstring\fP according to standard the \fItype\fP, in a field
+\fIwidth\fP characters wide. For example, \fIFORMFIELD(123456, "$", 10)\fP
+would return the string "1,234.56". Valid types are the standard \fIFirstBase\fP
+data types.
+.sp 1
+The more useful types of data to run through FORMFIELD are
+\fB$\fP for DOLLARS and \fBd\fP for DATE.
+Remember standard FirstBase format for DOLLARS is without the decimal, so
+expressions without a DOLLARS type involved will need to be multipled by 100
+before running through FORMFIELD, if type \fB$\fP is requested.
+Standard FirstBase format for DATE is MMDDYY.
+.TP 12
+LENGTH(s)
+Returns the string length of \fIs\fP.
+.TP 12
+LOWER(s)
+Returns the lowercase version of \fIs\fP.
+.TP 12
+POWER(x, y)
+Returns \fIx\fP raised to the \fIy\fPth power.
+.TP 12
+ROUND(x, y)
+Returns \fIx\fP rounded to \fIy\fP places past the decimal.
+.TP 12
+SUBSTR(s, pos, length)
+Returns the sub string within \fIs\fP starting at \fIpos\fP for \fIlength\fP
+characters. A negative \fIpos\fP marks a position at the end of the string.
+As examples, SUBSTR(s, 1, 5) and SUBSTR(s, -5, 5) each return strings
+five characters long (assuming \fIs\fP is at least five characters).
+One returns the first 5 characters of the string,
+the other returns the last 5 characters of the string.
+.TP 12
+SUBLINE(s, n, length)
+Returns a subline from a large field or string containing newlines.
+This function is used to tear apart a string line by line.
+The \fIn\fPth subline component from s is returned in a field \fIlength\fP
+characters long. For example, SUBLINE(longfield, 4, 70) returns the fourth
+line from field \fIlongfield\fP in a 70 character wide column.
+.TP 12
+SYSDATE
+A simple function that returns the current system date in standard \fIFirstBase\fP
+format, MMDDYY. SYSDATE can be used in date comparisons with other fields
+and dates, or it can be displayed using FORMFIELD.
+For example, FORMFIELD(SYSDATE, "d", 10) would return something
+like "01/16/91".
+.TP 12
+TRUNC(x, y)
+Returns \fIx\fP truncated at \fIy\fP places past the decimal.
+For example, to get the integer portion of a value, use TRUNC(value, 0).
+.TP 12
+UPPER(x)
+Returns the uppercase version of \fIs\fP.
+.PD
+.SH SECURE FUNCTIONS
+These functions are used by the Secure FirstBase system to locate records
+based on certain ownership and permission criteria.
+.sp 1
+.PD 0
+.TP 12
+GROUP
+return the group number for a record.
+.TP 12
+MODE
+return the (numeric) mode for a record.
+.TP 12
+OWNER
+return the symbolic owner name for a record.
+.PD
+.SH REPORT GENERATION
+A number of macros and features are available for use within HEADER and FOOTER
+specifications for \fIdbsql\fP. Again, the \fB-h\fP command line switch
+must be specified to generate page headers and footers.
+.PP
+Secondly, there are a number of command line switches, already mentioned
+above, that concern formatted output. The switches \fB-i\fP, \fB-p\fP
+and \fB-w\fP control the indentation, page length and page width.
+The series of \fB-m\fP\fIN\fP switches controls the four top/bottom margins.
+.PP
+Headers and footers are specified using the HEADER and FOOTER,
+as defined by the \fI<header clause>\fP and the \fI<footer clause>\fP.
+The literals themselves need to be of the
+form
+.SF
+   "'Left Part'Middle Part'Right Part'"
+.UF
+where each part is separated by an
+apostrophe. Note there is a leading apostrophe also. This feature is the
+same three part title method used by \fInroff\fP(1).
+.PP
+Using this three part header format to denote HEADER and FOOTER requests
+allows control over most all desired output styles. The left parts are
+left justified, the middle parts are centered, and the right parts
+are right justified.
+.PP
+Furthermore, separate EVEN and ODD headers and footers can be specified.
+This feature enables reports to be formatted for double sided results.
+.PP
+There are also a set of key words or macros that can be used in the
+building of the HEADER and FOOTER values. The following is a list of these
+macros.
+.sp 1
+.PD 0
+.TP 10
+$CONAME
+Returns the company name, as in \fIconame\fP(5).
+.TP 10
+$PAGE
+Returns the current page number.
+.TP 10
+$USER
+Returns the effective user name.
+.TP 10
+$DATE
+Returns the system date in MM/DD/YY format.
+.TP 10
+$TIME
+Returns the system time in HH:MM format.
+.TP 10
+$MILTIME
+Returns the system time in HH:MM:SS format.
+.TP 10
+$DAY
+Returns the day of the week, i.e. "Monday".
+.TP 10
+$MONTH
+Returns the month, i.e. "January".
+.TP 10
+$MM
+Returns the month, i.e. "January".
+.TP 10
+$DD
+Returns the numerical day within the month.
+.TP 10
+$YY
+Returns the year in two digit format.
+.TP 10
+$YYYY
+Returns the year in four digit format.
+.PD
+.SH UNIX FEATURES
+Some features of \fIdbsql\fP are not really standard SQL, but are
+quite helpful in the UNIX environment.
+.PP
+In \fIdbsql\fP, full UNIX path names are allowed in the \fI<from clause>\fP.
+But once used there, only the basename of the database (variable) is used
+in all other clauses. See the EXAMPLES below.
+.PP
+A side effect allowing UNIX pathnames is that the forward slash character,
+the `\fB/\fP' character, has two meanings: one inside of PATH names,
+the other when used as a divide symbol. Due to this dual use of the slash,
+white space of some kind must appear on each side of this character when
+used as a divide symbol.
+.PP
+Another feature of \fIdbsql\fP, partially supported by standard SQL,
+is the pattern matching mechanism of the LIKE predicate. This predicate,
+used in the \fI<where clause>\fP, implements pattern matching
+using the standard UNIX regular expression
+mechanism, with a slight modification to the allowed meta-characters.
+.PP
+Standard SQL uses only two meta-characters for its \fI<pattern>\fP,
+the \fB%\fP (percent) and \fB_\fP (underscore). The percent
+matches one or more characters, the underscore matches exactly one.
+These meta-characters work in \fIdbsql\fP, along with
+all other standard UNIX meta characters for regular expression
+pattern matching (*, ., [], etc).
+.SH EXAMPLES
+The following is a lengthy list of \fIdbsql\fP examples involving
+many different aspects of the \fIdbsql\fP database language.
+All of these examples are based on the following two databases:
+.SF
+database1:
+-- -------- ---------- ----- 
+ID Date     Item       Price 
+-- -------- ---------- ----- 
+ 1 01/02/90 book       9.00  
+ 2 12/21/89 tape       8.00  
+ 3 12/01/89 cd         9.50  
+ 4 02/03/90 tape       7.50  
+ 5 07/08/90 cd         8.99  
+ 6 09/08/90 tape       7.50  
+
+database2:
+-- ------------------------------ -------- 
+ID Title                          Quantity 
+-- ------------------------------ -------- 
+ 1 The Joy Of Spiders                    4 
+ 2 Best Of The Janes                    18 
+ 3 Jump - Off The Edge                  11 
+ 4 The Sticks - One On One              11 
+ 5 Molly McFaren - Live                  7 
+ 6 Poking Holes In A Vacuum             12 
+.UF
+Again, all \fIdbsql\fP keywords are given in uppercase even though lowercase
+keywords are also acceptable.
+.SF
+SELECT *
+FROM   database1;
+.UF
+This query displays all (*) fields of all records in database1.
+.SF
+SELECT ID, Item
+FROM   database1
+WHERE  Item = "cd";
+.UF
+This query finds all records in database1 with "cd" entered in the
+field Item, and displays the fields ID and Item.
+.SF
+SELECT *
+FROM    database1
+WHERE   Item LIKE "b%k";
+.UF
+This selects all records in the database where the Item field entry
+contains "b%k", i.e. all records with an entry in Item starting
+with a \fIb\fP, ending in a \fIk\fP, with any number of characters
+in between.
+.SF
+SELECT *
+FROM   database1
+WHERE  Item IN ("book", "tape");
+.UF
+Here all records where the Item is a book or tape will be displayed.
+.SF
+SELECT *
+FROM   database1
+WHERE  Item BETWEEN "book" AND "tape";
+.UF
+This query displays all records whose Item entry is between "book" and 
+"tape". (This would display all records with book, cd or tape in the Item
+field.)
+.SF
+SELECT Date
+FROM   database1
+WHERE  Date > "051590" AND
+       Date   < "123190";
+.UF
+The output of this query will be all Date entries between May 15, 1990
+and Dec. 31, 1990.
+.SF
+SELECT database1.*, AVG(Price)
+FROM   database1
+WHERE  Price > AVG(Price);
+.UF
+The output of this query displays all database1 records having a Price
+entry that is greater that the average value of Price. The average Price
+is also displayed.
+.SF
+SELECT *
+FROM   database2
+WHERE  NOT Quantity > AVG(Quantity);
+.UF
+This query displays all database1 records having a Price entry that is
+not greater than the average value of Price.
+.SF
+SELECT *
+FROM   database1
+ORDER BY Price;
+.UF
+Here, the contents of database1 are displayed, but the output is sorted
+(ORDER BY) Price.
+.SF
+SELECT *
+FROM   database2
+GROUP BY Quantity HAVING Quantity = "11";
+.UF
+In this example, the contents of database2 are displayed. Notice that
+only records with a Quantity  of 11 will be displayed.
+.SF
+SELECT database1.*, COUNT(*)
+FROM   database1
+GROUP BY Item HAVING COUNT(*) > 1 ;
+.UF
+This query displays the contents of database1, and a new field - COUNT(*).
+Note that Item must have a count higher than 1 to be included in the
+output.
+.SF
+SELECT Quantity, SUM(Quantity)
+FROM   database2
+GROUP BY Quantity;
+.UF
+Here, each value of the Quantity field is displayed once, and the sum
+of all quantities having that same value is displayed next to it.
+.SF
+SELECT ID, Quantity, ID + Quantity * 5 LABEL AS "Quant * 5 + ID"
+FROM   database2;
+.UF
+This query displays the ID and Quantity fields of database2 and also
+displays the value of "ID + Quantity * 5" in a field named "Quant * 5 + ID".
+Note that the math function is performed as (Quantity * 5) + ID.
+.SF
+SELECT Item, COUNT(*)
+FROM   database1
+GROUP BY Item;
+.UF
+Here, we are displaying a list of Items (GROUP BY), and the quantity 
+of each item - COUNT(*).
+.SF
+SELECT database1.Item, database2.Quantity
+FROM   database1, database2
+WHERE  database1.ID = database2.ID AND
+       database1.Item = "cd" OR
+       database2.Quantity BETWEEN 9 and 11;
+.UF
+In this example, the Item and Quantity fields are shown for all records
+where the Item is a "cd" or the Quantity is 9 - 11. The output of this
+query is the cross product of the requested fields of the 2 databases.
+.SF
+SELECT DISTINCT database1.Item, database2.Quantity
+FROM   database1, database2
+WHERE  database1.ID = database2.ID AND
+       database1.Item = "cd" OR
+       database2.Quantity BETWEEN 9 and 11
+ORDER BY database2.Quantity;
+.UF
+Here, the output is the same as the previous example, but any duplicate
+records are removed (DISTINCT). Also, the output is sorted by Quantity
+because of the ORDER BY clause.
+.SF
+SELECT database2.Title label as "Tapes"
+FROM   /usr/database/database1, ~/database2
+WHERE  database1.Item = "tape" AND
+       database1.ID = database2.ID;
+.UF
+This query searches database1 for "tape" entries in the Item field, and
+then displays their titles in the database2.Title field. Notice that
+this field has been renamed (using "label as") as Tapes. Also notice that
+the 2 databases are in different directories.
+.SF
+SELECT ID, Item
+FROM database1
+WHERE ID IN
+   (SELECT ID
+    FROM database2
+    WHERE Quantity > 10);
+.UF
+This example uses a query within a query. This is known as a subquery.
+This will find IDs and Items in database1 whose IDs are also found in database2
+with Quantity greater than 10.
+.SF
+SELECT Date, SYSDATE
+FROM database1;
+.UF
+This query displays the Date field of database1 and the SYSDATE (today's
+date). Notice that SYSDATE is not formatted.
+.SF
+SELECT Date, FORMFIELD(SYSDATE, "d", 6)
+FROM database1;
+.UF
+This produces the same result as the previous example. Notice that
+SYSDATE is now properly formatted.
+.SF
+SELECT Date
+FROM database1
+WHERE Date < SYSDATE;
+.UF
+This query displays all the date of all records whose Date entry is
+earlier than the current date.
+.SF
+SELECT ID, Item, Price
+FROM database1
+HEADER "''My Very Own Report''"
+FOOTER "'$USER'$CONAME'-$PAGE-'";
+.UF
+This query displays the ID, Item and Price fields of database1. Also
+included, are a header and footer. To display header information, the
+query must be run with the -h flag.
+.SF
+SELECT ID, Title, Quantity LABEL Amount,
+FORMFIELD(TRUNC((ID + Quantity) * 100.0, 0), "$", 10)
+LABEL "Formatted Result"
+FROM database2
+HEADER ODD "'odd header'middle part'-%-'"
+EVEN "'-%-'even header'right part"
+FOOTER ODD "'odd footer'middle part'-%-'"
+EVEN "'-%-'even footer 'right part'";
+.UF
+This query displays the ID, Title and Quantity (renamed Amount) fields
+of database2 along with a new field (ID + Quantity). This field has been
+has been truncated and formatted, after being multiplied by 100
+to place into standard FirstBase DOLLARS form.
+.SF
+CREATE VIEW database3 (OrderDate, PtNum, Tapes) 
+AS SELECT   Date, ID, Item
+FROM        database1
+WHERE       Item = "tape";
+.UF
+This query creates a new FirstBase database (database3) with fields OrderDate,
+PtNum and Tapes, using data from database1.
+.SF
+CREATE INDEX index3
+ON     database3 (OrderDate)
+WHERE  PtNum > 3;
+.UF
+This query creates a FirstBase index (index3) for database3. The index finds
+all records with a PtNum greater than 3, and sorts the resulting records
+by OrderDate.
+.SH KEY WORDS
+The following is a list of \fIdbsql\fP keywords. Again, although listed here
+in uppercase, lowercase keywords are also recognized.
+.SF
+ABS ALL AND ANY AS ASC AVG
+BETWEEN BY
+COUNT CREATE
+DESC DISTINCT DROP
+EVEN EXISTS
+FOOTER FORMFIELD FROM
+GEQ GROUP
+HAVING HEADER
+IN INDEX INTO IS
+LABEL LENGTH LEQ LIKE LOWER
+MAX MIN
+NEQ NOT NULL
+ODD OF ON OR ORDER
+POWER
+ROUND
+SELECT SOME SUBLINE SUBSTR SUM SYSDATE
+TO TRUNC
+UPPER
+VIEW
+WHERE
+.UF
+.SH OPTIMIZATION
+\fIDbsql\fP uses a few methods optimize queries. First, all
+single variable (single database) sub-components of a query are
+grouped together. Second, the individual sets of single variable
+(single database) components are solved.
+.PP
+Finally, two or more variable queries (queries involving two or more databases)
+that use an equivalence join, or \fIequijoin\fP, can be further optimized using
+standard \fIFirstBase\fP autoindexes. To utilize this feature, make sure at least
+one of the fields used in the join is a true \fIFirstBase\fP autoindex as defined
+in the database dictionary. This feature is well worth using, even if
+autoindexes need to be set up from scratch. See \fIdbdind\fP(1) and
+\fIdbigen\fP(1) for more details on autoindexes.
+.SH GRAMMAR
+The grammar used by \fIdbsql\fP to implement the
+SQL commands is listed below.
+Standard BNF form is used to describe this database language.
+.SF
+<all set function> ::=
+   { AVG | MAX | MIN | SUM } ( [ ALL ] <value expression> )
+
+<boolean factor> ::= [ NOT ] <boolean primary>
+
+<boolean primary> ::=
+   <predicate> | ( <search condition> )
+
+<boolean term> ::=
+   <boolean factor> |
+   <boolean term> AND <boolean factor>
+
+<character> ::= <digit> | <letter> | <special character>
+
+<character representation> ::= <nonquote character> | ''
+
+<character string literal> ::= '<character representation>...'
+
+<column list> ::= ( <column name> [ {,<column name>}... ] )
+
+<column name> ::= <identifier>
+
+<column specification> ::=
+   <column name> |
+   <table name>.<column name> |
+   <table name>.*
+
+<comparison operator> ::= = | <> | < | > | <= | >=
+
+<distinct set function> ::=
+   { AVG | MAX | MIN | SUM | COUNT }
+      ( DISTINCT <column specification> )
+
+<exact numeric literal> ::=
+   [ + | - ] <unsigned integer> [ .<unsigned integer> ] |
+   [ + | - ] <unsigned integer>. |
+   [ + | - ] .<unsigned integer>
+
+<factor> ::=
+   [ + | - ] <primary>
+
+<footer clause> ::=
+   FOOTER [ ODD | EVEN ] <literal> [ ODD | EVEN <literal> ]
+
+<from clause> ::=
+   FROM <table reference> [ {,<table reference>}...]
+
+<group by clause> ::=
+   GROUP BY <column specification> [ {,<column specification>}... ]
+
+<having clause> ::=
+   HAVING <search condition>
+
+<header clause> ::=
+   HEADER [ ODD | EVEN ] <literal> [ ODD | EVEN <literal> ]
+
+<identifier> ::= <letter>
+   [ { [ _ ] { <letter> | <digit> } }... ]
+
+<label>  ::=
+   LABEL [ AS ] <literal>
+
+<letter> ::=
+   <lowercase letter> | <uppercase letter>
+
+<literal> ::=
+   <character string literal> |
+   <numeric literal>
+
+<numeric literal> ::=
+   <exact numeric literal>
+
+<order by clause> ::=
+   ORDER BY <sort specification> [ {,<sort specification>}... ]
+
+<pattern> ::= <value specification>
+
+<predicate> ::=
+   <value expression> <comparison operator> <value expression> |
+   <value expression> <comparison operator> <subquery> |
+   <value expression> [ NOT ] BETWEEN <value expression>
+      AND <value expression> |
+   <value expression> [ NOT ] IN
+      ( <value expression> {,<value expression>}... ) ]
+   <value expression> [ NOT ] IN <subquery> |
+   <column specification> [ NOT ] LIKE <pattern> |
+   <column specification> IS [ NOT ] NULL |
+   <value expression> <comparison operator> ALL <subquery> |
+   <value expression> <comparison operator> ANY <subquery> |
+   <value expression> <comparison operator> SOME <subquery> |
+   EXISTS <subquery>
+
+<primary> ::=
+   <value specification> |
+   <column specification> |
+   <set function specification> |
+   <simple function specification> |
+   ( <value expression> )
+
+<query expression> ::=
+   <query term> |
+   <query expression> UNION [ ALL ] <query term>
+
+<query specification> ::=
+   SELECT [ ALL | DISTINCT ] <select list>
+   <table expression>
+   <header clause>
+   <footer clause>
+
+<query term> ::=
+   <query specification> | ( <query expression> )
+
+<search condition> ::=
+   <boolean term> |
+   <search condition> OR <boolean term>
+
+<select list> ::=
+   <value expression> [ <label> ]
+      [ {,<value expression> [ <label> ] }... ] | *
+
+<set function specification> ::=
+   COUNT(*) |
+   <distinct set function> |
+   <all set function>
+
+<sequence number> ::= <unsigned integer>
+
+<simple function specification> ::=
+   ABS(<value expression>) |
+   FORMFIELD(<value expression>, <value expression>, <value expression>) |
+   LENGTH(<value expression>) |
+   LOWER(<value expression>) |
+   POWER(<value expression>, <value expression>) |
+   ROUND(<value expression>, <value expression>) |
+   SUBSTR(<value expression>, <value expression>, <value expression>) |
+   SUBLINE(<value expression>, <value expression>, <value expression>) |
+   SYSDATE |
+   TRUNC(<value expression>, <value expression>) |
+   UPPER(<value expression>)
+
+<sort specification> ::=
+   { <sequence number> | <column specification> }
+   [ ASC | DESC ]
+
+<subquery> ::=
+   ( SELECT [ ALL | DISTINCT ] { <value expression> | * }
+   <table expression> )
+
+<table expression> ::=
+   <from clause>
+   [ <where clause> ]
+   [ <order by clause> ]
+   [ <group by clause> ]
+   [ <having clause> ]
+
+<table identifier> ::= <identifier>
+
+<table name> ::=
+   [ <authorization identifier>. ] <table.identifier>
+
+<table reference> ::= <table name>
+
+<term> ::=
+   <factor> |
+   <term> * <factor> |
+   <term> / <factor>
+
+<unsigned integer> ::= <digit>...
+
+<value expression> ::= 
+   <term> |
+   <value expression> + <term> |
+   <value expression> - <term> |
+   <value expression> | <term>
+
+<value specification> ::=
+   <parameter specification> |
+   <variable specification> |
+   <literal>
+
+<variable specification> ::= <variable name>
+
+<where clause> ::=
+   WHERE <search condition>
+.UF
+.PP
+This section describes the other four commands within \fIdbsql\fP.
+All of these commands create or destroy \fIFirstBase\fP data objects.
+.SF
+<view definition> ::=
+   CREATE VIEW <table name>
+      [ <column list> ]
+      AS <query specification>
+
+<index definition> ::=
+   CREATE INDEX <index name>
+      ON <table name>
+      ( <index column> [ {,<index column>}... ] )
+      [ <where clause> ]
+
+<index column> ::=
+   <column name> [ ASC | DESC ]
+
+<drop index definition> ::=
+   DROP INDEX <index name>
+
+<drop view statement> ::=
+   DROP VEIW <table name>
+.UF
+.SH SEE ALSO
+dbawk(1), dbemit(1), dbload(1), dbmacro(1)
+.PP
+\fIFirstBase User's Guide and Reference Manual\fP
+.br

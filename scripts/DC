@@ -1,0 +1,16 @@
+:
+echo This is the NON-Interactive version of the Desk Calculator.
+echo
+echo -n "Enter the file name containing your Desk Calculator commands: "
+read file
+if [ "$file" = "" ]
+   then
+   exit
+fi
+if [ ! -f "$file" ]
+   then
+   echo Cannot find $file.
+   exit
+fi
+dc < $file > $file.lpr
+screenprint $file.lpr

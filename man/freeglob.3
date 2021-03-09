@@ -1,0 +1,29 @@
+.TH FREE_GLOBALS 3 "12 September 1995"
+.FB
+.SH NAME
+free_globals \- free globally allocated memory
+.SH SYNOPSIS
+#include <firstbase/fb.h>
+.sp 1
+fb_free_globals()
+.PP
+.SH DESCRIPTION
+\fIFb_free_globals\fP is the mechanism used to free and reset all
+global memory allocations and resources.
+Formally, the global \fIcdb_afld\fP and \fIcdb_bfld\fP variables are freed,
+and other global cumulators are reset to zero.
+.PP
+The \fIfb_free_globals\fP function should be used when an application
+loops over many iterations of opening/closing databases. The idea is to
+open all databases, do needed database work, close databases, and then call
+\fIfb_free_globals\fP. Without this mechanism,
+looping applications will continuously increase in size.
+.SH CLIENT/SERVER
+The \fIfb_free_globals\fP routine will transparently
+call the \fIfb_freeglobals_clnt\fP mechanism
+when the global \fIFirstBase\fP variable \fIcdb_use_rpc\fP is set to one.
+See \fIfb_clnt_create\fP(3) for more details.
+.br
+.SH SEE ALSO
+opendb(3), database(4).
+.br

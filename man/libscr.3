@@ -1,0 +1,272 @@
+.TH LIBSCR 3 "12 September 1995"
+.FB
+.SH NAME
+bell,
+clear,
+clrtobot,
+clrtoeol,
+infoline,
+initscreen,
+input,
+move,
+prints,
+printw,
+redraw,
+refresh,
+reverse,
+scrhdr,
+scrlbl,
+scrstat,
+scrstat2,
+settty,
+stand
+\(em routines for manipulation of terminal screens and input
+.SH DESCRIPTION
+\fIFirstBase\fP interactive programs use a standard set of
+routines to display screens and gather terminal input.
+These routines are loosely \fIcurses\fP oriented, but do not use
+\fIcurses\fP in any way.
+.PP
+All \fIFirstBase\fP interactive screens have a similar look and feel.
+Terminal input fields use the "input dots" mechanism as described in
+Chapter 2 of the
+.I FirstBase User's Guide and Reference Manual,
+and terminal displays are all built using the library primitives listed here.
+Using these library routines, custom software can be written that has the
+standard \fIFirstBase\fP look and feel.
+.PP
+The first step is to condition the terminal using \fIfb_settty\fP and
+call \fIfb_initscreen\fP to initialize the screen display.
+Then, repeated series of calls to screen motion and printing functions
+followed by \fIfb_refresh\fP or \fIfb_input\fP calls will provide complete
+screen optimization.
+.LP
+.ft B
+.nf
+fb_bell()
+.fi
+.ft R
+.IP
+Rings the terminal bell, or uses the visual bell if applicable.
+.LP
+.ft B
+.nf
+fb_clear()
+.fi
+.ft R
+.IP
+Clear the terminal display.
+.LP
+.ft B
+.nf
+fb_clrtobot()
+.fi
+.ft R
+.IP
+Clear from the cursor to the bottom of the screen.
+.LP
+.ft B
+.nf
+fb_clrtoeol()
+.fi
+.ft R
+.IP
+Clear from the cursor to the end of the line.
+.LP
+.ft B
+.nf
+fb_infoline()
+.fi
+.ft R
+.IP
+Print the standard information line on the next to last line of the terminal
+display. This information includes database related numbers from the last
+database used in the \fIfb_scrhdr\fP call. Additionally, the user, the
+working directory, and the time/date are displayed.
+.LP
+.ft B
+.nf
+fb_initscreen()
+.fi
+.ft R
+.IP
+Called before any screen display or input functions to initialize the
+terminal display.
+.LP
+.ft B
+.nf
+fb_input(row, col, maxc, minc, fmt, addr, xecho, okend, confirm)
+int row;
+int col;
+int maxc;
+int minc;
+char fmt;
+char *addr;
+int xecho;
+int okend;
+int confirm;
+.fi
+.ft R
+.IP
+The \fIFirstBase\fP terminal input interface,
+as described in \fIinput\fP(5), uses many parameters to control
+the various nuances of this input task. The \fIrow\fP and \fIcol\fP parameters
+control the screen location that input will occur. The maximum and minimum
+allowed characters are \fImaxc\fP and \fIminc\fP. The format parameter,
+\fIfmt\fP, can be any of FB_ALPHA, FB_DATE, FB_DOLLARS, FB_FLOAT, FB_NUMERIC,
+FB_POS_NUM, FB_STRICTALPHA, FB_UPPERCASE, or FB_SLASH_NUMERIC.
+.sp 1
+The \fIaddr\fP parameter is a passed in buffer area where the input will be
+stored. If \fIxecho\fP is FB_ECHO, keystrokes will be displayed on the
+screen as typed; when set to FB_NOECHO echoing will not occur. If the value of
+\fIokend\fP is FB_OKEND, a \fIFirstBase\fP END keystroke is allowed from
+the field; when FB_NOEND this END keystroke is not allowed.
+.sp 1
+The \fIconfirm\fP parameter controls whether a RETURN is required to complete
+entry into the \fIfb_input\fP field \(em when set to FB_CONFIRM, a <RETURN>
+keystroke is required even when the field is completely filled.
+When \fIconfirm\fP is
+FB_NOCONFIRM, return from \fIfb_input\fP will occur as soon as the field is
+filled with characters, even for fields one character wide.
+.sp 1
+The standard set of parameters has a dual purpose \(em
+they also control a series of keystroke signals: HELP, DSIGNAL, NEXT/PREV,
+ESCAPE, and FSIGNAL/BSIGNAL. The default in each of these is to catch
+the signal, not allowing it to be returned by \fIfb_input\fP. However,
+when negated, certain signals are allowed to be returned by \fIfb_input\fP.
+.sp 1
+.nf
+.ft CW
+   -row  	FB_HELPKEY signal accepted, returns FB_QHELP
+   -col  	FB_DSIGNAL accepted and returned
+   -maxc	FB_NEXT/FB_PREV accepted and returned
+   -xecho	FB_ESCAPE accepted, returns FB_ESCAPE_AOK/FB_ESCAPE_END
+   -okend	FB_FSIGNAL/FB_BSIGNAL accepted and returned
+.ft
+.fi
+.LP
+.ft B
+.nf
+fb_move(row, col)
+int row;
+int mode;
+.fi
+.ft R
+.IP
+Move the cursor to display coordinates \fI<row,col>\fP where the upper left
+corner of the screen is <1,1> and the lower right corner is <24,80>.
+.LP
+.ft B
+.nf
+fb_prints(s)
+char *s;
+.fi
+.ft R
+.IP
+Print the string \fIs\fP on the terminal at the current cursor position.
+.LP
+.ft B
+.nf
+fb_printw(format, [, arg ] ... )
+char *format;
+.fi
+.ft R
+.IP
+The \fIfb_printw\fP mechanism implements the standard UNIX \fIprintf\fP(3)
+call. However, all output is written to the display terminal at the current
+cursor position.
+.LP
+.ft B
+.nf
+fb_redraw()
+.fi
+.ft R
+.IP
+Clear the screen and redraw the entire contents. This is helpful if the
+screen display becomes trashed by other software or system messages.
+.LP
+.ft B
+.nf
+fb_refresh()
+.fi
+.ft R
+.IP
+Update the screen to reflect all the display printing and screen motion
+done since the last \fIfb_refresh\fP or \fIfb_input\fP call.
+This call does implicit screen optimization.
+.LP
+.ft B
+.nf
+fb_reverse(s)
+char *s;
+.fi
+.ft R
+.IP
+Print the string \fIs\fP in reverse video on the screen display.
+.LP
+.ft B
+.nf
+fb_scrhdr(db, s)
+fb_database *db;
+char *s;
+.fi
+.ft R
+.IP
+Print the string \fIs\fP in reverse video on the screen display.
+The database \fIdb\fP (which can be (fb_database *) NULL ), will be used
+in subsequent calls to \fIfb_infoline\fP. The string \fIs\fP will be used
+in a call to \fIfb_scrstat\fP.
+.LP
+.ft B
+.nf
+fb_scrlbl(s)
+char *s;
+.fi
+.ft R
+.IP
+Clear line 2, then print the string \fIs\fP as a program label at
+coordinates <2,7>.
+.LP
+.ft B
+.nf
+fb_scrstat(s)
+char *s;
+.fi
+.ft R
+.IP
+Print the string \fIs\fP as a program status at screen coordinates <1,64>.
+.LP
+.ft B
+.nf
+fb_scrstat2(s)
+char *s;
+.fi
+.ft R
+.IP
+Print the string \fIs\fP as a secondary
+program status at screen coordinates <2,64>.
+.LP
+.ft B
+.nf
+fb_settty(mode)
+int mode;
+.fi
+.ft R
+.IP
+Controls the conditioning of the display terminal for input.
+When mode is FB_EDITMODE, the terminal is conditioned for input.
+This conditioning includes turning off normal character echoing
+as \fIFirstBase\fP handles this task internally. 
+When mode is FB_ENDMODE, the terminal is returned to its normal state.
+.LP
+.ft B
+.nf
+fb_stand(s)
+char *s;
+.fi
+.ft R
+.IP
+Print the string \fIs\fP in standout mode.
+.SH SEE ALSO
+firstbase(5), terminals(5).
+.br

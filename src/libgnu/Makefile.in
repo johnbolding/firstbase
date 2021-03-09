@@ -1,0 +1,71 @@
+# %W% %G% FB
+# Makefile for Firstbase src/libgnu -- regex and term 
+# 
+
+PRODUCT = @PRODUCT@
+VERSION = @VERSION@
+
+# regex version = 0.12
+
+CFLAGS = -g
+CFLAGS = -O
+
+LDFLAGS =
+LOADLIBES =
+
+srcdir = @srcdir@
+VPATH = @srcdir@
+
+CC = @CC@
+DEFS = @DEFS@
+
+SHELL = /bin/sh
+
+COMPILE = $(CC) -c $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
+LINK = $(CC) $(LDFLAGS) -o $@
+
+.SUFFIXES:
+.SUFFIXES: .c .o
+.c.o:
+	$(COMPILE) $< -o $@
+
+INCLUDES = @INCLUDES@
+
+OBJECTS = termcap.o tparam.o regex.o
+
+default all: $(OBJECTS)
+
+clean mostlyclean::
+	rm -f *.o
+
+distclean:: clean
+	rm -f Makefile
+
+extraclean:: distclean
+	rm -f patch* *~* *\#* *.orig *.rej *.bak core a.out
+
+makeargs = $(MFLAGS) CPPFLAGS='$(CPPFLAGS)' CFLAGS='$(CFLAGS)' CC='$(CC)' \
+DEFS='$(DEFS)' LDFLAGS='$(LDFLAGS)' LOADLIBES='$(LOADLIBES)'
+
+Makefile: Makefile.in ../../config.status
+	cd ../.. && CONFIG_FILES=src/libgnu/$@ CONFIG_HEADERS= ./config.status
+
+names:
+	@for name in $(OBJECTS) ; do \
+	   echo libgnu/$$name >> ../OBJECTS ; \
+	done
+
+DISTDIR = ../../$(PRODUCT)-$(VERSION)/src/libgnu
+DISTFILES = *.c Makefile.in AUTHORS COPYING
+
+$(OBJECTS): ../include/config.h
+
+dist::
+	@echo "Copying distribution files from libgnu"
+	@for file in $(DISTFILES); do \
+	   ln $(srcdir)/$$file $(DISTDIR) 2> /dev/null \
+	      || cp -p $(srcdir)/$$file $(DISTDIR); \
+	done
+
+# Prevent GNU make 3 from overflowing arg limit on system V.
+.NOEXPORT:

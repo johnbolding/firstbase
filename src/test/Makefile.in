@@ -1,0 +1,110 @@
+# Copyright (C) 2001 FirstBase Software, Inc. All rights reserved.
+#
+# $Id: Makefile.in,v 9.5 2002/12/29 17:23:47 john Exp $
+#
+# See the file LICENSE for conditions of use and distribution
+#
+#
+# Makefile for Firstbase src/test
+#
+
+PRODUCT = @PRODUCT@
+VERSION = @VERSION@
+
+SHELL = /bin/sh
+srcdir = @srcdir@
+VPATH = @srcdir@
+
+CC = @CC@
+CFLAGS = @CFLAGS@
+CPPFLAGS = @CPPFLAGS@
+DEFS = @DEFS@
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@ $(LIBEXTRA)
+
+INCLUDES = @INCLUDES@
+LIBFB = ../lib/libfb.a
+
+firstbasehome = @FIRSTBASEHOME@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = $(exec_prefix)/$(firstbasehome)/bin
+infodir = $(prefix)/$(firstbasehome)/info
+libdir = $(prefix)/$(firstbasehome)/lib
+mandir = $(prefix)/$(firstbasehome)/man
+docdir = $(prefix)/$(firstbasehome)/doc
+includedir = $(prefix)/$(firstbasehome)/include
+
+COMPILE = $(CC) -c $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
+LINK = $(CC) $(LDFLAGS) -o $@
+
+.SUFFIXES:
+.SUFFIXES: .c .o
+.c.o:
+	$(COMPILE) $< -o $@
+
+
+all: termtest rectest stringtest
+
+TERMTEST=termtest.o
+STRINGTEST=stringtest.o
+RECTEST=rectest.o dbread.o dbwrite.o
+
+termtest: $(TERMTEST)
+	@echo linking $@
+	$(LINK) $(TERMTEST) $(LIBFB) $(LIBS)
+
+stringtest: $(STRINGTEST)
+	@echo linking $@
+	$(LINK) $(STRINGTEST) $(LIBFB) $(LIBS)
+
+rectest: $(RECTEST)
+	@echo linking $@
+	$(LINK) $(RECTEST) $(LIBFB) $(LIBS)
+
+DBGREP=dbgrep.o
+dbgrep: $(DBGREP)
+	@echo linking $@
+	$(LINK) $(DBGREP) $(LIBFB) $(LIBS)
+
+PROGS=termtest rectest stringtest
+
+install: all
+	$(INSTALL) -d $(bindir)
+	@for file in $(PROGS) ; do \
+	   $(INSTALL) $$file $(bindir) ; \
+	done
+
+mostlyclean:
+	rm -f *.o *._c *._o core core.* *.core *~*
+	rm -f $(PROGS)
+
+clean: mostlyclean
+
+distclean: clean
+	rm -f Makefile
+
+realclean: distclean
+	rm -f TAGS
+
+extraclean:: distclean
+	rm -f patch* *~* *\#* *.orig *.rej *.bak core a.out
+	rm -f dbase.cdb dbase.map
+
+Makefile: Makefile.in ../../config.status
+	cd ../.. && CONFIG_FILES=src/test/$@ CONFIG_HEADERS= ./config.status
+
+DISTDIR = ../../$(PRODUCT)-$(VERSION)/src/test
+DISTFILES = *.c README dbase.ddict Makefile.in
+
+dist::
+	@echo "Copying distribution files from test"
+	@for file in $(DISTFILES); do \
+	   ln $(srcdir)/$$file $(DISTDIR) 2> /dev/null \
+	      || cp -p $(srcdir)/$$file $(DISTDIR); \
+	done
+
+# Prevent GNU make 3 from overflowing arg limit on system V.
+.NOEXPORT:

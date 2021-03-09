@@ -1,0 +1,78 @@
+.TH GETHEAD 3 "12 September 1995"
+.FB
+.SH NAME
+gethead, puthead \- read and write database header
+.SH SYNOPSIS
+#include <firstbase/fb.h>
+.sp 1
+fb_gethead(db)
+.br
+fb_database *db;
+.sp 1
+fb_puthead(fd, reccnt, delcnt)
+.br
+int fd;
+.br
+long reccnt;
+.br
+long delcnt;
+.PP
+.SH DESCRIPTION
+As explained in the
+\fIdatabase\fP(4) manual page, a database structure contains
+all of the elements needed for an entire database, including
+file names, descriptors and other variables.
+\fIFb_gethead\fP reads the record count and the delete count
+from a database and stores the
+results in the database structure pointed to by \fIdb\fP.
+.PP
+Formally, \fIfb_gethead\fP reads the db->reccnt and db->delcnt variables
+from the database defined by \fIdb\fP.
+.PP
+\fIFb_puthead\fP
+is the routine used to write a database header. Because there are
+tools that create databases without the use of \fIfb_opendb\fP or a formal
+database structure (fb_database *db), the \fIfb_puthead\fP mechanism uses a
+different form of arguments than \fIfb_gethead\fP.
+.PP
+The arguments to \fIfb_puthead\fP are: \fIfd\fP, usually db->fd is accurate;
+\fIreccnt\fP and \fIdelcnt\fP, again, usually db->reccnt and db->delcnt.
+NOTE: \fIputhead\fP is usually not needed unless you are generating
+FirstBase databases using buffered writes (see
+$FIRSTBASEHOME/applications/sample_src/bload.c) or something similar. 
+.SH SEE ALSO
+database(4), opendb(3).
+.SH DIAGNOSTICS
+If \fIfb_gethead\fP fails due to a read or seek error, it will return
+an FB_ERROR. An FB_AOK signal is returned on correct completion.
+.PP
+Note that neither \fIfb_gethead\fP nor \fIfb_puthead\fP
+enforces any process locking around the
+critical sections. \fIFirstBase\fP applications use the \fIfb_lock\fP
+mechanism
+to lock record zero (0), which implies the header record. To emulate this,
+thereby assuring that the header is not changing while using these routines,
+use a code fragment similar to the following:
+.nj
+.nf
+.sp
+.ft CW
+   fb_lock(0, db, FB_WAIT);
+   fb_gethead(db);
+   fb_unlock(0, db);
+.ft
+.fi
+.ju
+.sp
+.PP
+Again, this will ensure the database header is not changing
+during the actual reading of the information.
+.SH CLIENT/SERVER
+The \fIfb_gethead\fP routine will transparently
+call the \fIfb_gethead_clnt\fP mechanism
+when the global \fIFirstBase\fP variable \fIcdb_use_rpc\fP is set to one.
+See \fIfb_clnt_create\fP(3) for more details.
+.br
+.SH SEE ALSO
+opendb(3), lock(3), database(4).
+.br

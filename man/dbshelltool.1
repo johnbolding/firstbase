@@ -1,0 +1,87 @@
+.TH DBSHELLTOOL 1 "12 September 1995"
+.FB
+.SH NAME
+dbshelltool \- the \fIFirstBase\fP window shell
+.SH SYNOPSIS
+.B dbshelltool_OL
+[\fItool\fP] [\fItool\fP \fIarguments\fP]
+.SH DESCRIPTION
+.I Dbshelltool
+is the
+.I FirstBase
+OpenLook interface to the \fItool\fP selected.
+If no \fItool\fP is used, \fIdbshell\fP(1) is used on the \fIFirstBase\fP
+MAIN menu.
+.PP
+The interface provided by \fIdbshelltool\fP consists of two parts \(em a button
+panel and a standard tty subwindow. The indicated \fItool\fP,
+usually a formal \fIFirstBase\fP tool,
+is run in the tty subwindow. A button panel
+of mouse selectable signals are placed beside the running \fItool\fP.
+.PP
+During the running of many of the actual \fIFirstBase\fP tools, like
+\fIdbshell\fP(1) and \fIdbvedit\fP(1), the mouse can be used to select
+actions from the tty subwindow. However, the actual focus of the
+\fIdbshelltool\fP interface is never forced to either the mouse or keyboard --
+both are available at all times.
+.PP
+As a \fIFirstBase\fP tool is executing underneath \fIdbshelltool\fP(1),
+the button panel
+will dynamically change to display only those commands that are proper
+at the moment. Of course, the tools running under the tty subwindow can be
+used without any of the command buttons.
+.PP
+\fIDbshelltool\fP(1) will display a header denoting the
+actual \fIFirstBase\fP tool
+running in the tty subwindow, as well as a context sensitive footer that
+changes with the states of the underlying tool. This footer provides
+the user with a message about what the mouse can select at that point.
+.SH OPEN LOOK ACCELERATORS
+The following is a list of the places within the FirstBase that
+additional Open Look accelerators have been added:
+.PP
+.PD 0
+.TP 13
+\fIdbshell\fP(1)
+mouse selectable menu commands.
+\fINote\fP: the selectable
+actions must use the reverse video mechanism as outlined in \fIdbshell\fP(1).
+.TP 13
+\fIdbedit\fP(1), \fIdbvedit\fP(1), \fIdbvemit\fP(1)
+mouse selectable fields to edit, choice fields,
+nested choices, and extended choices.
+An additional button command provides a standard OpenLook menu.
+.TP 13
+\fIscrprint\fP(1)
+mouse selectable commands from the menu.
+.PD
+.SH USAGE
+\fIDbshelltool\fP(1) can be run in a number of ways, including the background.
+Here are a few simple examples:
+.br
+.nf
+.nj
+.sp 1
+.ft CW
+   dbshelltool
+   dbshelltool &
+   dbshelltool dbshell menu/MAIN
+   dbshelltool dbvedit -d dbase -i index -v view &
+   dbshelltool fblogin
+.ft
+.sp 1
+.fi
+.ju
+.PP
+Additionally, OpenLook command line arguments, such as those that
+control background colors, can be given to
+\fIdbshelltool_OL\fP. However, these command line arguments must use the
+short flag name, denoted by \fB-W\fP style arguments, and these arguments
+must be placed at the end of the list of arguments.
+.PD
+.SH SEE ALSO
+.I FirstBase User's Guide and Reference Manual.
+.SH DIAGNOSTICS
+\fIDbshelltool\fP(1) requires an Open Look (or X11) window manager.
+Formally, \fIdbshelltool_OL\fP is the Open Look version.
+.br

@@ -1,0 +1,32 @@
+.TH RMIDX 8 " 5 April 1996"
+.FB
+.SH NAME
+rmidx \- remove a \fIFirstBase\fP index
+.SH SYNOPSIS
+.B rmidx
+\fIindex\fP [\fIindex\fP ...]
+.SH DESCRIPTION
+.I Rmidx 
+is a simple shell script that removes a \fIFirstBase\fP index and one of
+its support files using the UNIX facility \fIrm\fP(1).
+.PP
+Formally, two files are removed: the index itself,
+and the index header file. The index dictionary
+is \fBNOT\fP removed.
+.SH FILES
+.PD 0
+.TP 10
+*.idx
+\fIFirstBase\fP index.
+.TP 10
+*.idict
+\fIFirstBase\fP index header file.
+.TP 10
+*.idicti
+\fIFirstBase\fP index dictionary.
+.PD
+.SH SEE ALSO
+cpidx(8), mvidx(8), rmdb(8), firstbase(5), dictionaries(5)
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br

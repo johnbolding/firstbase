@@ -1,0 +1,16 @@
+$Id: README,v 9.3 2001/01/16 18:32:48 john Exp $
+
+README file for firstbase/src/test area.
+
+This is a place for simple C programs based on FirstBase.
+
+termtest
+--------
+a simple program that tests a few display and input functions.
+
+
+rectest
+-------
+a simple program that allows adding/reading records
+to a very simple database named `dbase'.
+

@@ -1,0 +1,47 @@
+.TH DEFAULTS 5 "12 September 1995"
+.FB
+.SH NAME
+defaults \- \fIFirstBase\fP defaults
+.SH SYNOPSIS
+Discussion of \fIFirstBase\fP field defaults.
+.SH DESCRIPTION
+Field defaults within \fIFirstBase\fP are usually defined in the
+database dictionary, and are set up using \fIdbdbas\fP(1).
+However, some applications need separate default values depending on
+site location or individual user.
+.PP
+To provide this flexibility, all \fIFirstBase\fP tools optionally read a
+defaults file \fIafter\fP initializing the database. These extra defaults are
+used to override defaults from the database dictionary.
+.PP
+This flexible defaults file is named \fI.dbase_rc\fP, where the
+characters \fIdbase\fP represent the actual database name. The
+file can appear anywhere in the users PATH \(em only the first one found is
+processed.
+.PP
+For now, editing of the defaults file is done using any standard text
+editor. The format is simple \(em each line represents one field.
+(Though shown on two lines, each entry \fBmust\fP be a single line).
+.nf
+.nj
+.sp 1
+.ft CW
+Field_Name [-d default] [-c[ab] comment] [-l]
+   [-h helpfile] [-A] [-r range] [-m macro]
+.ju
+.fi
+.PP
+Note that all attributes from a database field can be modified except
+field type and length. The ordering of these lines does not matter.
+See \fIdbdbas\fP(1) and \fIddict\fP(5) for descriptions of these attributes.
+.SH FILES
+.PD 0
+.TP 10
+ \.dbase_rc
+default name of \fIFirstBase\fP database defaults file
+.PD
+.SH SEE ALSO
+dbdbas(1), ddict(5), firstbase(5)
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br

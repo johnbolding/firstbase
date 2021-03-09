@@ -1,0 +1,37 @@
+.TH DBPASSWD 1 "12 September 1995"
+.FB
+.SH NAME
+dbpasswd \- allow changes to a \fIFirstBase\fP password
+.SH SYNOPSIS
+.B dbpasswd
+[\fIdirectory\fP]
+.SH DESCRIPTION
+.I Dbpasswd
+allows users to create or change a \fIFirstBase\fP password for any directory
+where
+write permissions are allowed. If a password for the
+database directory
+already exists, \fIdbpasswd\fP(1) will prompt for the old password.
+.PP
+\fIFirstBase\fP passwords exist to keep unwanted users out of the
+database editor
+\fIdbedit\fP(1).
+\fIDbpasswd\fP(1)
+encrypts all passwords before being stored.
+.SH FILES
+.TP 10
+ .passwd
+- the \fIFirstBase\fP password file.
+.SH SEE ALSO
+dbedit(1), dbscan(1), firstbase(5)
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br
+.SH DIAGNOSTICS
+Once in place, UNIX protection of the 
+.I .passwd
+file should be invoked by write protecting the file.
+See \fIchmod\fP(1).
+This will stop users
+from deleting the password file and gaining entry to \fIdbedit\fP(1).
+.br

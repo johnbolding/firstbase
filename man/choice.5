@@ -1,0 +1,114 @@
+.TH CHOICE 5 "12 September 1995"
+.FB
+.SH NAME
+choice \- choice file for data entry
+.SH SYNOPSIS
+Layout of the \fIFirstBase\fP choice files
+.SH DESCRIPTION
+A \fIFirstBase\fP
+choice file is a file that is used from \fIdbedit\fP(1) or
+\fIdbvedit\fP(1) for providing very
+strict control over data entry of a particular field. The idea is that the
+user does not need to actually type out all of the input for a given
+field, but rather chooses a selection whose corresponding meaning is
+then inserted into the field.
+.PP
+This makes uniform data entry for fields with a set of known values
+quite easy \(em and eases the typing required for long, duplicate entries.
+.PP
+A \fIFirstBase\fP choice file consists of a series of choices, one choice per line.
+Each line is separated into three distinct areas by white space.
+These three areas are: the choice, the meaning, and comments.
+Anything past the second word (as defined by white space) is considered to
+be a comment. This comment line is displayed during the choice input also.
+.PP
+For example, the following choice file could be used to make sure that
+characters representing a color are installed into a field as opposed to
+some garbage input:
+.sp 1
+.nf
+.ft CW
+1 Red The color red.
+2 Blue The color blue.
+3 Green The color green.
+4 Yellow The color yellow.
+5 Orange The color orange.
+.ft
+.fi
+.PP
+Note that if field has a default value, then a <RETURN> is acceptable at
+the choice input screen. Otherwise, a selection must be made.
+In this simplistic example, the only valid selections are 1 through 5.
+.PP
+There are also two other types of control lines that can appear
+in a choice file that are used by \fIdbvedit\fP(1).
+Choice file lines of the form \fB"XYZ":row,col\fP will create persistent
+comments through all of the screens. Also, a line of the 
+form \fB$HELP helpfile\fP will specify an \fIadditional\fP helpfile for use
+during the actual choice input.
+.PP
+Fields that use
+nested choice files can also be built. These choice fields will allow a
+nested set of choice menus to be used for data entry. As the user goes
+through the nested levels, the values are saved and the whole string
+is returned to the user as the value of the field, with each individual
+choice or attribute separated by a '|' marker.
+.PP
+A nested choice file is a file that contains a set of individual choice
+menus linked together by the use of unique labeling. For example,
+this mechanism allows a set of distinct Version Numbers to be picked from
+for each of a list of Operating Systems.
+Such a choice file would look like:
+.sp 1
+.nf
+.ft CW
+s Sun_Microsystems
+d Digital_Equipment
+a Apple
+
+$s
+1 3.4 Version 3.4
+2 3.5 Version 3.5
+3 4.0 Version 4.0
+4 $INPUT
+
+$d
+1 2.1 Version 2.1
+2 2.2 Version 2.2
+3 2.3 Version 2.3
+
+$a
+1 9.1 Version 9.1
+2 9.2 Version 9.2
+3 9.3 Version 9.3
+.ft
+.fi
+.PP
+Note the use of the unique labels \fB$s\fP, \fB$d\fP and
+\fB$a\fP. Each menu that is to be nested must be labeled. The label
+consists of the actual typed choice, with a prepended \fB$\fP character.
+.PP
+Another feature of choice files is the ability to override any presented
+choices, entering a new string of the users choice. The special meta-token
+value, \fB$INPUT\fP \(em used in the example above \(em is used to force
+entry of a non-standard choice value.
+Additionally, by using the \fB$INPUT*\fP meta-token, these user-entered
+choice values will be marked with an asterisk (*) at the end of the field.
+.PP 1
+Note that the sub screen display mechanism can be disabled by
+using the type \fIC\fP for choice instead of \fIc\fP.
+In this case, the field editing behaves like macro expansion,
+i.e. all other choice field behavior will stay the same.
+.sp 1
+Under normal operation a selection of a value for a
+choice field fails if the choice is undefined. However, \fIdbvedit\fP(1)
+and \fIdbvemit\fP(1)
+have the ability to add new choices defined by the user during record entry
+to the proper choice file. To enable this feature, the AddChoice Flag (-A)
+for the individual field must be set from \fIdbdbas\fP(1).
+.sp 1
+.SH SEE ALSO
+dbedit(1), dbdbas(1), setup(5), xchoice(5)
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br

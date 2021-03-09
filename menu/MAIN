@@ -1,0 +1,185 @@
+
+                              $FirstBase_Main_Menu
+
+         $Database_Tools                               $Sub_Menus
+
+     $define.  Define Database                  $tools.  More Database Tools
+     $edit.    Edit a Database                  $unix.   Unix command menu
+     $scan.    Scan a Database                  $app.    Applications
+     $screen.  Define Database Screen           
+     $vedit.   Visual Edit a Database
+     $vscan.   Visual Scan a Database
+     $query.   Ad Hoc Query
+
+                 $Dictionary_Tools        $Generator_Tools
+
+                $1. Define Index       $7.  Generate Index
+                $2. Define Printout    $8.  Generate Printout
+                $3. Define Labels      $9.  Generate Labels
+                $4. Define Conversion  $10. Generate Conversion
+                $5. Define Update      $11. Generate Update
+                $6. Define Merge       $12. Generate Merge
+
+%
+$query -1
+	echo "
+		This form of the ad hoc query mechanism is done using
+		the FirstBase Tool named dbsql(1).
+
+		There are many other methods of getting at data inside
+		of FirstBase databases -- like dbmacro, dbemit, dbawk,
+                dbpgen, and dblgen.
+
+		Dbsql will now be started. Use the \"help\" command
+		from the \"dbsql>\" prompt and/or read the dbsql(1)
+		man page for more details.
+
+		Use \"exit\", \"quit\", or <CONTROL>-D to exit dbsql(1)."
+	dbsql
+
+$unix *
+	UNIX
+
+$tools *
+	TOOLS
+
+$app -1
+	fbdemo
+
+$define -1
+	dbdbas -d $DBASE -i $INDEX -s $SCREEN
+
+$edit -1
+	dbedit -d $DBASE -i $INDEX -s $SCREEN
+
+$scan -1
+	dbscan -d $DBASE -i $INDEX -s $SCREEN
+
+$vedit -1
+	dbvedit -d $DBASE -i $INDEX -v $VIEW
+
+$vscan -1
+	dbvscan -d $DBASE -i $INDEX -v $VIEW
+
+$display
+	if [ ! -f display.idicti ]
+	   then
+	   echo "No index dictionary for index named 'display'."
+	   echo "Use <Define Index> to create one."
+	   exit
+	fi
+	if [ ! -f display.idictp ]
+	   then
+	   echo "No printout dictionary for printout named 'display'."
+	   echo "Use <Define Printout> to create one."
+	   exit
+	fi
+	dbpgen -d $DBASE -i display -y -
+
+$screen -1
+	dbdscr -d $DBASE -i $INDEX -s $SCREEN
+
+$1 -1
+	dbdind -d $DBASE -i $INDEX
+
+$2 -1
+	dbdprt -d $DBASE -i $INDEX
+
+$3 -1
+	dbdlbl -d $DBASE -i $INDEX
+
+$4 -1
+	dbdcnv -d $DBASE -i $INDEX
+
+$5 -1
+	dbdupd -d $DBASE -i $INDEX
+
+$6 -1
+	echo -n "Name of file to invoke merge editor, dbdmrg(1), on ? "
+	read x
+	if [ "$x" = "" ] ; then
+	   exit
+	fi
+	dbdmrg -d $DBASE -i $INDEX $x
+
+$7 -1
+	rm -f $INDEX.idict $INDEX.idx
+	dbigen -d $DBASE -i $INDEX
+
+$8 -1
+	dbpgen -d $DBASE -i $INDEX
+
+$9 -1
+	dblgen -d $DBASE -i $INDEX
+
+$10 -1
+	dbcgen -d $DBASE -i $INDEX
+
+$11 -1
+	dbugen -d $DBASE -i $INDEX
+
+$12 -1
+	dbmerge -d $DBASE -i $INDEX
+
+$ls
+	echo -n "Directory: "
+	pwd
+	echo
+	ls -FC | more
+
+$mkdir	-1
+	MKDIR
+
+$vi	-1
+	echo -n "Name of file(s) to invoke editor on ? "
+	read x
+	vi $x
+
+$cat
+	echo -n "File(s) to display? "
+	read x
+	if test -n "$x"
+	then
+		for i in $x
+		do
+			if test ! -f "$i"
+			then	echo "File $i does not exist"
+				exit
+			fi
+		done
+		more $x
+	fi
+
+$cp	0
+	echo -n "old file(s): "
+	read x
+	if test -n "$x"
+	then
+		for i in $x
+		do
+			if test ! -f "$i"
+			then	echo "File $i does not exist"
+				exit
+			fi
+		done
+	fi
+	echo -n "new file:	"
+	read y
+	if test -z "$x"
+	then	echo ""
+		echo "Type data to be copied to the new file"
+		echo "and type control-D after the last line."
+		echo ""
+	fi
+	cat $x > $y
+
+$lpr	-1
+	echo -n "File(s) to print? "
+	read x
+	lpr $x
+
+$mv
+	MV
+
+$rm
+	RM

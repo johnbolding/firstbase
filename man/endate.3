@@ -1,0 +1,26 @@
+.TH ENDATE 3 "12 September 1995"
+.FB
+.SH NAME
+endate, dedate \- encode and decode a date string
+.br
+.SH SYNOPSIS
+#include <firstbase/fb.h>
+.sp 1
+char *fb_endate(s)
+.br
+char *s;
+.br
+.sp 1
+char *fb_dedate(s)
+.br
+char *s;
+.br
+.PP
+.SH DESCRIPTION
+\fIFb_endate\fP is a simple routine in the \fIFirstBase\fP library used to
+convert a date string into a sortable date string, usually used for indexes.
+The input string is in the form MMDDYY, the result, done in place,
+is in the format YYMMDD. The character pointer passed in is also returned.
+.PP
+\fIFb_dedate\fP is the exact opposite, returning a decoded date string.
+.br

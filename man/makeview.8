@@ -1,0 +1,27 @@
+.TH MAKEVIEW 8 "12 September 1995"
+.FB
+.SH NAME
+makeview \- create a \fIFirstBase\fP view dictionary from a \fIFirstBase\fP data
+dictionary
+.SH SYNOPSIS
+.B makeview
+\fIdatabase\fP \fIview\fP
+.SH DESCRIPTION
+.I Makeview
+is a simple shell script that creates a \fIFirstBase\fP view dictionary based
+on an existing \fIFirstBase\fP database dictionary. \fIMakeview\fP requires a valid
+\fIFirstBase\fP database dictionary and a uniquely named \fIFirstBase\fP view dictionary to run.
+.SH FILES
+.PD 0
+.TP 10
+*.ddict
+\fIFirstBase\fP database dictionary.
+.TP 10
+*.vdict
+\fIFirstBase\fP view dictionary.
+.PD
+.SH SEE ALSO
+firstbase(5), dictionaries(5), view(5)
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br

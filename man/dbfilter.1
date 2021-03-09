@@ -1,0 +1,103 @@
+.TH DBFILTER 1 " 3 April 1996"
+.FB
+.SH NAME
+dbfilter \- filter an existing \fIFirstBase\fP index into a
+new \fIFirstBase\fP index
+.SH SYNOPSIS
+.B dbfilter
+[\fB-b\fP]\ [\fB-y\fP]\
+[\fB-s\fP]\ [\fB-a\fP]\
+[\fB-d\fP\ \fIdatabase\fP]
+[\fB-i\fP\ \fIindex\fP]
+[\fB-c\fP\ \fIcolumns\fP]
+[\fB-f\fP\ \fIfilter_index\fP]
+[\fIfilter_file\fP | \fB-\fP ]
+.PD
+.SH DESCRIPTION
+.I Dbfilter
+generates a distinct new index using an existing \fIindex\fP
+and a \fIfilter_file\fP.
+Each line of the \fIfilter_file\fP, a standard text file,
+is looked up in the \fIindex\fP.
+If the referenced index entry exists, it is written to the new
+\fIfilter_index\fP. In other words, the \fIfilter_file\fP is used to filter
+\fIindex\fP into \fIfilter_index\fP.
+.PP
+The result, \fIfilter_index\fP, is a complete \fIFirstBase\fP index.
+(Note: since \fIdbigen\fP(1) is not used to generate \fIfilter_index\fP,
+no \fI*.idicti\fP file is used). Error messages are generated for
+each \fIfilter_file\fP request that cannot be referenced.
+Using \fB-a\fP finds all occurrences of each filter line, and
+\fB-s\fP sorts \fIfilter_index\fP after completion.
+.PP
+The \fB-c\fP switch allows setting the number of character columns or
+positions that will be used to generate the index search key.
+Normally, the width of the index indicates the number of character columns
+required to match during the index lookup. The \fIfilter_file\fP can be
+wider than this \(em only the first \fIcolumns\fP are used to reference the
+indexed record. The \fIcolumns\fP can also be set to less than the width of
+the index.
+.PP
+The \fB-b\fP flag will run the \fIFirstBase\fP tool in batch mode,
+suitable for shell scripts.
+This mode produces no output on the terminal, thus can also be used
+when running the process in the background.
+The \fB-y\fP flag will run the tool at the terminal without pausing to ask
+the user if existing files can be destroyed.
+.PP
+If the \fIfilter_file\fP specified is \fB-\fP, standard input (the keyboard)
+is read, and batch mode (\fB-b\fP) is set. This works also when batch mode
+is set, but no \fIfilter_file\fP is specified. For example the following
+is valid:
+.br
+.nf
+.nj
+.ft CW
+grep pattern text_file | dbfilter -d dbase -i index -f new -c 10 -b
+.fi
+.ad
+.PP
+Another interesting use of \fIdbfilter\fP can be achieved by generating
+an index (\fIdbigen\fP(1)) and using \fIdbawk\fP(1), \fIdbemit\fP(1) or
+\fIdbmerge\fP(1) to generate a \fIfilter_file\fP. This \fIfilter_file\fP
+can then be edited or filtered using other Unix tools (\fIsed\fP(1),
+\fIawk\fP(1), etc). The \fIfilter_file\fP is then used to generate
+a new \fIFirstBase\fP index, usable with existing tools and scripts.
+Remember to
+make the first part of the \fIfilter_file\fP look like the first part of
+the indexed field.
+.PP
+.I Dbfilter(1)
+provides a convenient method of filtering an existing \fIFirstBase\fP index
+into a new index that can then be used anywhere in the \fIFirstBase\fP system.
+.SH FILES
+.PD 0
+.TP 10
+dbase
+default name of database.
+.TP 10
+*.cdb
+\fIFirstBase\fP database.
+.TP 10
+*.map
+record map of \fIFirstBase\fP database.
+.TP 10
+*.ddict
+\fIFirstBase\fP database dictionary file.
+.TP 10
+FILTER
+default \fIfilter_file\fP.
+.TP 10
+filter
+default \fIfilter_index\fP.
+.PD
+.SH SEE ALSO
+dbdind(1), dbigen(1), dbawk(1), dbemit(1)
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br
+.SH DIAGNOSTICS
+\fIDbfilter\fP(1)
+will ask permission before overwriting an existing \fIFirstBase\fP index
+when not run in batch mode.
+.br

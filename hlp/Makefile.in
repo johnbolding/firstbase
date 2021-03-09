@@ -1,0 +1,87 @@
+# Copyright (C) 2001 FirstBase Software, Inc. All rights reserved.
+#
+# $Id: Makefile.in,v 9.1 2001/01/22 17:31:58 john Exp $
+#
+# See the file LICENSE for conditions of use and distribution
+#
+#
+# Makefile for Firstbase hlp
+#
+
+PRODUCT = @PRODUCT@
+VERSION = @VERSION@
+
+FIRSTBASEHOME = @FIRSTBASEHOME@
+
+SHELL = /bin/sh
+srcdir = @srcdir@
+VPATH = @srcdir@
+
+CC = @CC@
+CFLAGS = @CFLAGS@
+CPPFLAGS = @CPPFLAGS@
+DEFS = @DEFS@
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_DATA = @INSTALL_DATA@
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@ $(LIBEXTRA)
+
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = $(exec_prefix)/$(FIRSTBASEHOME)/bin
+libdir = $(prefix)/$(FIRSTBASEHOME)/lib
+mandir = $(prefix)/$(FIRSTBASEHOME)/man
+docdir = $(prefix)/$(FIRSTBASEHOME)/doc
+includedir = $(prefix)/$(FIRSTBASEHOME)/include
+hlpdir = $(prefix)/$(FIRSTBASEHOME)/hlp
+
+LIBFB = -lfb
+INCLUDES = -I$(includedir)
+
+COMPILE = $(CC) -c $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
+LINK = $(CC) $(LDFLAGS) -L$(libdir) -o $@
+
+FILES = *.hlp 
+
+.SUFFIXES:
+.SUFFIXES: .c .o
+.c.o:
+	$(COMPILE) $< -o $@
+
+all:
+
+install::
+	echo Installing to $(hlpdir)
+	$(INSTALL) -d $(hlpdir)
+	for file in $(DISTFILES) ; do \
+	   $(INSTALL_DATA) $$file $(hlpdir); \
+        done
+
+mostlyclean:
+
+clean: mostlyclean
+
+distclean: clean
+	rm -f Makefile
+
+realclean: distclean
+
+extraclean:: distclean
+	rm -f patch* *~* *\#* *.orig *.rej *.bak core a.out
+
+Makefile: Makefile.in ../config.status
+	cd ../ && CONFIG_FILES=hlp/$@ CONFIG_HEADERS= ./config.status
+
+DISTDIR = ../$(PRODUCT)-$(VERSION)/hlp
+DISTFILES = $(FILES) Makefile.in
+
+dist::
+	@echo "Copying distribution files from hlp"
+	@for file in $(DISTFILES); do \
+	   ln $(srcdir)/$$file $(DISTDIR) 2> /dev/null \
+	      || cp -p $(srcdir)/$$file $(DISTDIR); \
+	done
+
+# Prevent GNU make 3 from overflowing arg limit on system V.
+.NOEXPORT:

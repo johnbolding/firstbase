@@ -1,0 +1,49 @@
+#
+# $Id: .firstbase-init,v 9.3 2001/02/16 21:53:19 john Exp $
+#
+# Initialization settings for FirstBase tools
+#
+set DATEDISPLAY 10
+set AUTOBTREE ON
+set ASKGEN ON
+set ASKWRITE OFF
+set AUTOREGEN 0
+set CHOOSEFIELD ON
+set DIRNAME ON
+#
+# uncomment this to use the editable input mechanism
+# set EDITINPUT ON
+#
+set INFOLINE ON
+set INTERRUPT OFF
+set LOCKTIME 60
+set LOCKLEVEL 1
+set LOCKMESSAGE 2
+
+set MENUPAUSE OFF
+set NAME_LENGTH 30
+set NEGATIVE OFF
+set PGENCOLS 80
+set PUTFILE putidx
+set RECLOG OFF
+set REGEXP OFF
+set REVERSE ON
+set RUNFLAGS -y
+set SCREENPRINT ON
+#
+set SHELL /bin/sh
+set STANDOUT ON
+set TRAP_XON OFF
+set UMASK 000
+set USRLOG 0
+set VIPAUSE ON
+set WRAPSCAN ON
+# set WRITEDIR /usr/local/firstbase_writedir
+set ERRORLOG /usr/local/firstbase/fberror.log
+
+#
+# byte ordering of databases assumed to be big endian == 4321
+# if 0, byte ordering of cpu is determined on the fly, if possible
+#
+set DBASE_BYTEORDER 0
+set CPU_BYTEORDER 0

@@ -1,0 +1,134 @@
+
+                              $Basic_Unix_Utilities
+              $cat. Display Files          $mkdir. Make Directory
+              $com. Combine Files
+              $cp.  Copy Files             $mv.    Move (Rename) a File
+              $lpr. Print Files            $rm.    Remove (delete) Files
+              $ls.  List Directory         $vi.    Vi [Vee-Eye] (Edit) a File
+
+                                  $System_Tools
+                          $chmod.  Change file permissions
+                          $dc.     Desk Calculator (interactive)
+                          $dcb.    Desk Calculator (batch mode)
+                          $local.  Local Printer (Non-Standard)
+                          $nroff.  Nroff/Tbl 
+                          $passwd. Change Password
+                          $ps.     What is going on (process status)
+                          $read.   Read Mail
+                          $readm.  Read/Process a Mail Box
+                          $send.   Send Mail
+                          $who.    Who is logged on
+                          $write.  Write to a logged in User
+                          $pdfcat. PDF Concat Tool
+%
+
+$chmod
+	CHMOD
+
+$nroff
+	NROFF
+
+$dc
+	dc
+
+$dcb
+	DC
+
+$read
+	mail
+
+$readm
+	echo -n "Enter mail file folder name -- (default=mbox) ? "
+	read x
+	if [ "$x" = "" -o "$x" = "mbox" ]; then
+	   mail -f
+	else
+	   mail -f +${x}
+	fi
+
+$passwd
+	passwd
+
+$send
+ 	echo -n "Who do you want to send mail to ? "
+	read x
+	echo "Now enter mail subject and body. End with a <CTL>-D"
+	echo
+	mail $x
+
+$cat
+	echo -n "Enter file(s) to display? "
+	read x
+	if [ -n "$x" ]
+	   then
+	   for i in $x
+	      do
+	      if [ ! -f "$i" ]
+	         then 
+		 echo "File $i does not exist."
+		 exit
+	      fi
+	   done
+	   more $x
+	fi
+
+$com
+	COMBINE
+
+$who
+	who
+
+$ps
+	ps -ax
+
+$ls
+	echo -n "Do you want a Long Listing? ('y' = Yes, <RETURN> = No)? "
+	read answer
+	long=""
+	if [ "$answer" = "y" ]
+	   then
+	   long="l"
+	fi
+	echo -n "Directory: "
+	pwd
+	echo ""
+	ls -${long}FC | more
+
+$mkdir	0
+	MKDIR
+
+$vi	-1
+	echo -n "Name of file(s) to invoke editor on ? "
+	read x
+	vi $x
+
+$cp
+	CP
+
+$lpr
+	echo -n "File(s) to print? "
+	read x
+	# now choose which lpr command to use
+	lpr $x
+	# psprint $x | lpr1
+
+$local
+	echo -n "File(s) to print? "
+	read x
+	localprint $x
+
+$write
+ 	echo -n "Who do you want to Write to ? "
+	read x
+	echo "End write session with a <CTL>-D"
+	echo
+	write $x
+
+$pdfcat
+	pdfcat
+
+$mv
+	MV
+
+$rm
+	RM

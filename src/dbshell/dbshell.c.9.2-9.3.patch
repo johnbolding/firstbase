@@ -1,0 +1,59 @@
+Index: dbshell.c
+===================================================================
+RCS file: /usr6/src/cvsroot/fb/src/dbshell/dbshell.c,v
+retrieving revision 9.2
+retrieving revision 9.3
+diff -u -r9.2 -r9.3
+--- dbshell.c	2001/01/16 02:46:45	9.2
++++ dbshell.c	2001/02/12 23:25:05	9.3
+@@ -1,14 +1,14 @@
+ /*
+  * Copyright (C) 2001 FirstBase Software, Inc. All rights reserved.
+  *
+- * $Id: dbshell.c,v 9.2 2001/01/16 02:46:45 john Exp $
++ * $Id: dbshell.c,v 9.3 2001/02/12 23:25:05 john Exp $
+  *
+  * See the file LICENSE for conditions of use and distribution.
+  *
+  */
+ 
+ #ifndef LINT
+-static char Dbshell_sid[] = "@(#) $Id: dbshell.c,v 9.2 2001/01/16 02:46:45 john Exp $";
++static char Dbshell_sid[] = "@(#) $Id: dbshell.c,v 9.3 2001/02/12 23:25:05 john Exp $";
+ #endif
+ 
+ /* 
+@@ -443,11 +443,14 @@
+ 
+    set_mail()
+       {
+-         char mailfile[FB_MAXLINE];
++         char mailfile[FB_MAXLINE], *p;
+          struct stat ms;
+ 
+-         strcpy(mailfile, getenv("MAIL"));
+          mailsize = 0;
++         p = getenv("MAIL");
++         if (p == NULL)
++            return;
++         strcpy(mailfile, p);
+          if (stat(mailfile, &ms) == 0){
+             mailsize = ms.st_size;
+             }
+@@ -462,11 +465,14 @@
+  
+    test_mail()
+       {
+-         char mailfile[FB_MAXLINE];
++         char mailfile[FB_MAXLINE], *p;
+          struct stat ms;
+          off_t new_mailsize;
+ 
+-         strcpy(mailfile, getenv("MAIL"));
++         p = getenv("MAIL");
++         if (p == NULL)
++            return;
++         strcpy(mailfile, p);
+          if (stat(mailfile, &ms) == 0)
+             new_mailsize = ms.st_size;
+          else

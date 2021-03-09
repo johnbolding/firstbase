@@ -1,0 +1,166 @@
+# Copyright (C) 2001 FirstBase Software, Inc. All rights reserved.
+#
+# $Id: Makefile.in,v 9.3 2001/02/16 19:50:10 john Exp $
+#
+# See the file LICENSE for conditions of use and distribution
+#
+#
+# Makefile for Firstbase src/dbvi
+#
+
+PRODUCT = @PRODUCT@
+VERSION = @VERSION@
+
+SHELL = /bin/sh
+srcdir = @srcdir@
+VPATH = @srcdir@
+
+CC = @CC@
+CFLAGS = @CFLAGS@
+CPPFLAGS = @CPPFLAGS@
+DEFS = @DEFS@
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@ $(LIBEXTRA)
+LEXLIB = @LEXLIB@
+
+firstbasehome = @FIRSTBASEHOME@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = $(exec_prefix)/$(firstbasehome)/bin
+infodir = $(prefix)/$(firstbasehome)/info
+libdir = $(prefix)/$(firstbasehome)/lib
+mandir = $(prefix)/$(firstbasehome)/man
+docdir = $(prefix)/$(firstbasehome)/doc
+includedir = $(prefix)/$(firstbasehome)/include
+
+COMPILE = $(CC) -c $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
+LINK = $(CC) $(LDFLAGS) -o $@
+
+.SUFFIXES:
+.SUFFIXES: .c .o
+.c.o:
+	$(COMPILE) $< -o $@
+
+INCLUDES = @INCLUDES@
+LIBFB = ../lib/libfb.a
+
+all: dbvi
+
+DBVI=			\
+	cell.o		\
+	column.o	\
+	cscreen.o	\
+	dbvi.o		\
+	editor.o	\
+	edt_cell.o	\
+	edit_col.o	\
+	edit_row.o	\
+	get_cdic.o	\
+	initvi.o	\
+	makedef.o	\
+	line_opn.o	\
+	commands.o	\
+	xcommand.o	\
+	writefil.o	\
+	cformula.o	\
+	putfield.o	\
+	scanset.o
+
+dbvi: $(DBVI)
+	@echo linking $@
+	$(LINK) $(DBVI) $(LIBFB) $(LIBS)
+
+PROGS = dbvi
+
+install: all
+	$(INSTALL) -d $(bindir)
+	@for file in $(PROGS) ; do \
+	   $(INSTALL) $$file $(bindir) ; \
+	done
+
+mostlyclean:
+	rm -f *.o *._c *._o core core.*
+	rm -f $(PROGS)
+
+clean: mostlyclean
+
+distclean: clean
+	rm -f Makefile
+
+realclean: distclean
+	rm -f TAGS
+
+extraclean:: distclean
+	rm -f patch* *~* *\#* *.orig *.rej *.bak core a.out
+
+Makefile: Makefile.in ../../config.status
+	cd ../.. && CONFIG_FILES=src/dbvi/$@ CONFIG_HEADERS= ./config.status
+
+MHEADERS= \
+../include/fb.h  \
+../include/config.h \
+../include/input.h \
+../include/error.h \
+../include/message.h \
+../include/libcc.h \
+../include/libcdb.h \
+../include/libdbd.h \
+../include/libinit.h \
+../include/liblic.h \
+../include/librec.h \
+../include/libscr.h \
+../include/libwin.h \
+../include/libsec.h \
+../include/libedit.h \
+../include/libclnt.h \
+../include/interface.h \
+../include/cx.h \
+../include/fb_vars.h \
+../include/fb_ext.h \
+../include/fb_vars.h \
+../include/dbvi.h \
+../include/dbvi_v.h \
+../include/vdict.h \
+../include/vdict_v.h \
+../include/dbvi_ext.h \
+../include/vdict.h \
+../include/vdict_e.h
+
+#
+# dbvi
+#
+
+dbvi.o:		$(MHEADERS)
+cell.o:		$(MHEADERS)
+column.o:	$(MHEADERS)
+commands.o:	$(MHEADERS)
+cscreen.o:	$(MHEADERS)
+editor.o:	$(MHEADERS)
+edt_cell.o:	$(MHEADERS)
+edit_col.o:	$(MHEADERS)
+edit_row.o:	$(MHEADERS)
+get_cdic.o:	$(MHEADERS)
+initvi.o:	$(MHEADERS)
+line_opn.o:	$(MHEADERS)
+makedef.o:	$(MHEADERS)
+xcommand.o:	$(MHEADERS)
+writefil.o:	$(MHEADERS)
+putfield.o:	$(MHEADERS)
+cformula.o:	$(MHEADERS)
+scanset.o:	$(MHEADERS)
+
+
+DISTDIR = ../../$(PRODUCT)-$(VERSION)/src/dbvi
+DISTFILES = *.c Makefile.in
+
+dist::
+	@echo "Copying distribution files from dbvi"
+	@for file in $(DISTFILES); do \
+	   ln $(srcdir)/$$file $(DISTDIR) 2> /dev/null \
+	      || cp -p $(srcdir)/$$file $(DISTDIR); \
+	done
+
+# Prevent GNU make 3 from overflowing arg limit on system V.:
+.NOEXPORT:

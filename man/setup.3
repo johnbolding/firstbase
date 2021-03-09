@@ -1,0 +1,122 @@
+.TH SETUP 3 "12 September 1995"
+.FB
+.SH NAME
+setup, setup_argv \- initialize \fIFirstBase\fP environment
+.SH SYNOPSIS
+#include <firstbase/fb.h>
+.sp 1
+fb_setup()
+.sp 1
+fb_setup_argv(argc, argv)
+.br
+int argc;
+.br
+char *argv[];
+.sp 1
+fb_set_loadfail(flag)
+.br
+int flag;
+.PP
+.SH DESCRIPTION
+The basic \fIfb_setup\fP mechanism processes the initialization
+file \fI.firstbase-init\fP (\fI.fb-init\fP on some machines)
+as described in \fIsetup\fP(5).
+Normally, \fIfb_setup\fP will be called from \fIopendb\fP(3), but there
+are times when \fIfb_opendb\fP is not used at all.
+.PP
+NOTE: Due to the structure of the \fIFirstBase\fP engine, \fIsetup\fP contains
+the data space for many global variables, and therefore \fBmust\fP be called.
+In other words, if you don't use \fIopendb\fP, you must use \fIsetup\fP.
+.PP
+\fISetup\fP will initialize global variables and process
+any site and user dependent setup options.
+.PP
+To pass command line variables to \fIFirstBase\fP at run time,
+use the \fIfb_setup_argv\fP call and pass in the \fIargc\fP and \fIargv\fP
+parameters. This is the same as a call to \fIfb_setup\fP, but the command
+line (argument vector) is parsed as well as initialization files.
+.PP
+The \fIfb_set_loadfail\fP routine will set a global variable
+which controls the loading of the failure point of a \fIgetxrec\fP(3) call.
+Use a \fIflag\fP of 1 (one) to turn this feature on or 0 (zero) to turn it off.
+.SH VARIABLES
+Many of the setup variables are tunable from a C program. Unless
+otherwise indicated, these are \fBshort int\fP variables and will
+need to be externally defined in each C module as needed.
+Common ones are:
+.sp 1
+.PD 0
+.TP 15
+cdb_batchmode
+set to 1 to disable screen conditioning and displays
+.TP 15
+cdb_datestyle
+set to 1 for American date style (MMDDYY) and to 2 for European style (DDMMYY).
+.TP 15
+cdb_datedisplay
+set to 8 for display as MM/DD/YY, to 10 for MM/DD/YYYY and to 11 for
+.TP 15
+cdb_fixedwidth
+set to 1 to cause the FirstBase engine to store all records as fixed width
+records.
+.TP 15
+cdb_locklevel
+set to desired locking level. See \fIsetup\fP(5).
+.TP 15
+cdb_locktime
+set to number of seconds before a blocking lock request will time out.
+.TP 15
+cdb_lockmessage
+set to 0, 1, or 2 to control whether lock error messages will be ignored,
+printed and skipped, or fully interactive in asking for a retry.
+.TP 15
+cdb_returnerror
+set to 1 causes some functions to
+return on errors, rather than exit. Sets \fIcdb_error\fP.
+.TP 15
+cdb_rpc_retries
+represents the number of times a server connection is attempted
+before failure occurs. The default is 10.
+.TP 15
+cdb_use_rpc
+set to 1 to cause many FirstBase routines to use the client/server mechanism
+instead of the normal mechanism.
+.PD
+.SH FIRSTBASE SYMBOLS
+.PP
+The FirstBase libraries uses a canonical set of prefixes.
+The following set of symbol prefixes are used throughout \fIFirstBase\fP:
+.sp 1
+.PD 0
+.TP 15
+FB_
+\fIFirstBase\fP macro definitions.
+.TP 15
+fb_
+\fIFirstBase\fP functions.
+.TP 15
+cdb_
+\fIFirstBase\fP global variables.
+.TP 15
+CHAR_
+\fIFirstBase\fP character constants.
+.TP 15
+S_
+\fIFirstBase\fP system error message macro constants.
+.PD
+.SH CLIENT/SERVER
+.PP
+The \fIfb_setup\fP and \fIfb_setup_argv\fP
+routines will transparently initialize a \fIFirstBase\fP
+client server connection using \fIfb_clnt_create\fP(3)
+when the global \fIFirstBase\fP variable \fIcdb_use_rpc\fP is set to one.
+This means a process only needs to set the \fBshort int\fP \fIcdb_use_rpc\fP
+to one before calling \fIfb_setup\fP to begin a client server connection.
+See \fIfb_clnt_create\fP(3) for more details.
+.PP
+In addition, the \fIfb_set_loadfail\fP mechanism will properly notify
+the \fIFirstBase\fP database server of the \fIflag\fP value when
+\fIcdb_use_rpc\fP is set to one.
+.SH SEE ALSO
+opendb(3), free_globals(3), fb_exit(3).
+.br

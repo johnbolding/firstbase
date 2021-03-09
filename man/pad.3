@@ -1,0 +1,26 @@
+.TH PAD 3 "12 September 1995"
+.FB
+.SH NAME
+pad \- pad a string
+.SH SYNOPSIS
+#include <firstbase/fb.h>
+.sp 1
+char *fb_pad(to, from, size)
+.br
+char *to, *from;
+.br
+int size;
+.PP
+.SH DESCRIPTION
+\fIFb_pad\fP is a simple routine in the \fIFirstBase\fP library used to
+left justify and/or truncate a string according to a given size.
+Formally,
+the first \fIsize\fP characters of string \fIfrom\fP are left justified in
+a blank padded field. The resultant \fIto\fP string is guaranteed to be
+exactly \fIsize\fP characters long.
+.PP
+\fIFb_pad\fP returns the argument \fIto\fP.
+.br
+.SH SEE ALSO
+makess(3), rjustify(3), getxrec(3), trim(3).
+.br

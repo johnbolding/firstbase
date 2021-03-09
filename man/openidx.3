@@ -1,0 +1,52 @@
+.TH OPENIDX 3 "12 September 1995"
+.FB
+.SH NAME
+openidx, closeidx, createidx \- index manipulation mechanisms
+.SH SYNOPSIS
+#include <firstbase/fb.h>
+.sp 1
+fb_openidx(iname, db)
+.br
+char *iname;
+.br
+fb_database *db;
+.sp 1
+fb_closeidx(db)
+.br
+fb_database *db;
+.sp 1
+fb_createidx(iname, db)
+.br
+char *iname;
+.br
+fb_database *db;
+.br
+.SH DESCRIPTION
+As explained in the \fIdatabase\fP(4)
+manual page, a database structure contains
+all of the elements needed for an entire database, including a set of
+descriptors for a \fIFirstBase\fP index.
+.PP
+\fIFb_openidx\fP will initialize the index portion of
+database structure \fIdb\fP using \fIiname\fP as the index name.
+Since \fIopendb\fP(3) can initialize an index also, \fIopenidx\fP(3)
+is used mainly to switch indexes on an already opened database.
+.PP
+To properly close a database index, use \fIfb_closeidx\fP. This routine will
+close the file descriptors associated with an index. Note that \fIfb_closedb\fP
+does this as well, so specifically closing the index needs doing only when
+looping through many \fIfb_openidx\fP calls.
+.PP
+The \fIfb_createidx\fP routine will create an index, either a Btree index or a
+Flat index. All needed files will be created and initialized, but the index
+will not be opened.
+.PP
+.SH CLIENT/SERVER
+Each of these routines will transparently
+call the RPC mechanism of the similar name
+when the global \fIFirstBase\fP variable \fIcdb_use_rpc\fP
+is set to one. See \fIfb_clnt_create\fP(3) for more details.
+.SH SEE ALSO
+database(4), index(4), btree(4), dballoc(3), dbargs(3), opendb(3),
+useidx(3), autoindex(5).
+.br

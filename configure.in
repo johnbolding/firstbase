@@ -1,0 +1,208 @@
+dnl Copyright (C) 2001 FirstBase Software, Inc. All rights reserved.
+dnl
+dnl $Id: configure.in,v 9.11 2004/01/02 20:50:51 john Exp $
+dnl 
+dnl Process this file with autoconf to produce a configure script.
+dnl
+AC_INIT(src/dbedit/dbedit.c)
+AC_CONFIG_HEADER(src/include/config.h)
+
+PRODUCT="firstbase"
+VERSION=`cat VERSION`
+FIRSTBASEHOME="firstbase"
+LDFLAGS="-s"
+
+AC_DEFINE_UNQUOTED(VERSION, "$VERSION")
+AC_DEFINE_UNQUOTED(PRODUCT, "$PRODUCT")
+AC_SUBST(PRODUCT)
+AC_SUBST(VERSION)
+AC_SUBST(FIRSTBASEHOME)
+AC_CANONICAL_HOST
+
+AR_OPTS=r
+AC_SUBST(AR_OPTS)
+
+INCLUDES="-I./ -I\$(srcdir)/../include "
+AC_SUBST(INCLUDES)
+
+case "$host_os" in
+   *sco5.0.0b*)
+           AC_DEFINE_UNQUOTED(BAD_ATOF, 1)
+           AC_DEFINE_UNQUOTED(IGNORE_FPE, 1)
+           ;;
+   *bsdi*) AC_DEFINE_UNQUOTED(LONG_LONG_LSEEK, 1)
+           ;;
+   *sunos*)
+           AC_DEFINE_UNQUOTED(TEST_SUN_CMD, 1)
+           ;;
+   *darwin*)
+          AC_DEFINE_UNQUOTED(APPLE_DARWIN, 1)
+          ;;
+esac
+case "$host" in
+   *) AC_DEFINE_UNQUOTED(HOST_OS, "$host_os")
+      AC_DEFINE_UNQUOTED(HOST, "$host")
+      ;;
+esac
+AC_SUBST(HOST)
+AC_SUBST(HOST_OS)
+
+dnl Checks for programs.
+AC_PROG_YACC
+AC_PROG_CC
+case "$host_os" in
+   *darwin*)
+          CFLAGS+=" -w"
+	  LDFLAGS=""
+          ;;
+esac
+AC_PROG_LEX
+case "$LEX" in
+   flex) AC_DEFINE(FLEX, 1)
+        ;;
+   lex) AC_DEFINE(FLEX, 0)
+        ;;
+esac
+
+dnl gotta have yacc, bison, or byacc
+case "$YACC" in
+   "bison -y") ;;
+   "byacc") ;;
+   "yacc")
+      AC_CHECK_PROG(HAVE_PARSER_BUILDER, yacc, 1, 0)
+      if test "$HAVE_PARSER_BUILDER" = "0" ; then
+         AC_MSG_ERROR(
+            [You need either bison, byacc, or yacc to compile FirstBase.])
+      fi
+      ;;
+esac
+
+dnl gotta have lex or flex somehow
+AC_CHECK_PROG(HAVE_LEXICAL_ANALYZER, $LEX, 1, 0)
+if test "$HAVE_LEXICAL_ANALYZER" = "0" ; then
+   AC_MSG_ERROR("You must have either flex or lex to compile FirstBase.")
+fi
+
+AC_PROG_INSTALL
+AC_PROG_MAKE_SET
+AC_PROG_RANLIB
+AC_CHECK_PROG(HAVE_LPR, lpr, 1, 0)
+AC_DEFINE_UNQUOTED(HAVE_LPR, $HAVE_LPR)
+
+dnl gotta have ed
+AC_CHECK_PROG(HAVE_ED, ed, 1, 0)
+if test "$HAVE_ED" = "0" ; then
+   AC_MSG_ERROR("You must have \`ed\' to compile FirstBase.")
+fi
+
+AC_AIX
+AC_ISC_POSIX
+AC_MINIX
+
+dnl AC_DECL_YYTEXT
+
+dnl Checks for libraries.
+AC_CHECK_LIB(m, floor)
+AC_CHECK_LIB(crypt, crypt)
+AC_CHECK_LIB(crypt, intl)
+AC_CHECK_LIB(malloc, malloc)
+AC_CHECK_LIB(gmalloc, malloc)
+
+#
+# 180 degree turn.
+# ncurses seems to be fairly prevalent these days.
+# if ncurses is around, lets use it.
+#
+AC_CHECK_LIB(ncurses, setupterm)
+
+dnl Checks for header files.
+AC_HEADER_DIRENT
+AC_HEADER_STDC
+AC_HEADER_SYS_WAIT
+AC_HEADER_TIME
+AC_CHECK_HEADERS(setjmp.h)
+case "$host_os" in
+   *sco3.2*)
+      #
+      # do not use the termios files here
+      #
+      ;;
+   *)
+      AC_CHECK_HEADERS(termios.h)
+      ;;
+esac
+AC_CHECK_HEADERS(sys/file.h)
+AC_CHECK_HEADERS(unistd.h)
+
+dnl Checks for typedefs, structures, and compiler characteristics.
+AC_C_CONST
+AC_TYPE_OFF_T
+AC_TYPE_SIZE_T
+AC_STRUCT_TM
+AC_STRUCT_TIMEZONE
+AC_TYPE_UID_T
+
+dnl Checks for library functions.
+AC_PROG_GCC_TRADITIONAL
+AC_TYPE_SIGNAL
+AC_FUNC_VFORK
+
+AC_CHECK_FUNCS(strchr)
+AC_CHECK_FUNCS(getcwd)
+AC_CHECK_FUNCS(fcntl)
+AC_CHECK_FUNCS(getitimer)
+AC_CHECK_FUNCS(fsync)
+AC_CHECK_FUNCS(gethostname)
+AC_CHECK_FUNCS(flock)
+AC_CHECK_FUNCS(lockf)
+AC_CHECK_FUNCS(ualarm)
+AC_CHECK_FUNCS(mkstemp)
+AC_CHECK_FUNCS(random)
+AC_CHECK_FUNCS(srandom)
+AC_CHECK_FUNCS(memcpy)
+AC_CHECK_FUNCS(ttyslot)
+
+dnl check for system services
+dnl
+
+AC_OUTPUT( \
+Makefile \
+src/Makefile \
+src/dbedit/Makefile \
+src/dbigen/Makefile \
+src/dblgen/Makefile \
+src/dbmerge/Makefile \
+src/dbpgen/Makefile \
+src/dbshell/Makefile \
+src/dbsql/Makefile \
+src/dbtools/Makefile \
+src/dbugen/Makefile \
+src/dbvedit/Makefile \
+src/dbvemit/Makefile \
+src/dbvform/Makefile \
+src/dbvi/Makefile \
+src/libcc/Makefile \
+src/libcdb/Makefile \
+src/libclnt/Makefile \
+src/libdbd/Makefile \
+src/libedit/Makefile \
+src/libgnu/Makefile \
+src/libinit/Makefile \
+src/libmexpr/Makefile \
+src/libmpars/Makefile \
+src/librec/Makefile \
+src/libscr/Makefile \
+src/libsec/Makefile \
+src/libwin/Makefile \
+src/test/Makefile \
+doc/Makefile \
+man/Makefile \
+menu/Makefile \
+hlp/Makefile \
+scripts/Makefile \
+applications/Makefile \
+applications/sample_src/Makefile \
+applications/rolodex/Makefile \
+applications/phone/Makefile \
+, echo timestamp > stamp-h
+)

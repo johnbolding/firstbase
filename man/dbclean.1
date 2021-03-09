@@ -1,0 +1,93 @@
+.TH DBCLEAN 1 "12 September 1995"
+.FB
+.SH NAME
+dbclean \- clean a \fIFirstBase\fP database and create a map file
+.SH SYNOPSIS
+.I dbclean
+[\fB-b\fP] [\fB-y\fP] [\fB-f\fP]
+\fIdatabase\fP [\fIdatabase\fP ...]
+.SH DESCRIPTION
+.I Dbclean
+cleans a \fIFirstBase\fP database, removing all free and fragmented
+storage areas in the database, and creates
+a new record map for the database.
+This cleaning is done on a byte by byte
+basis, making any existing indexes for the database unusable.
+(But, see \fIdbregen\fP(1) to regenerate all indexes).
+.PP
+To determine the amount of free and fragmented space in a \fIFirstBase\fP
+database, use \fIdbcheck\fP(8).
+.PP
+The \fB-b\fP flag will run the \fIFirstBase\fP tool in batch mode,
+suitable for shell scripts.
+This mode produces no output on the terminal, thus can also be used
+when running the process in the background.
+The \fB-y\fP flag will run the tool at the terminal without pausing to ask
+the user if existing files can be destroyed and without displaying
+a 'picture' of the requested task.
+.PP
+In normal operation, cleaning is done only if a map file is lost,
+or disk space needs reclaiming. However, \fIFirstBase\fP databases should be
+cleaned once they become static or are to be taken off line.
+.PP
+The \fB-f\fP flag is used to force a \fIdbclean\fP(1) to run. Normally, if
+a database is shut down in an unknown state, i.e. becomes "dirty",
+dbclean(1) will not work. The idea is to force the use of \fIdbdump\fP(8) and
+\fIdbrestor\fP(8). However, by using the \fB-f\fP
+option, dbclean will do its best to clean up the database.
+.PP
+There are a few \fIFirstBase\fP tools that automatically run \fIdbclean\fP(1)
+when they have
+completed their tasks. These tools are
+\fIdbcgen\fP(1),
+\fIdbcat\fP(1),
+\fIdbjoin\fP(1),
+\fIdbload\fP(1),
+and \fIdbpack\fP(1).
+All of these tools, except \fIdbpack\fP(1), create
+a new database, making the cleaning necessary. \fIDbpack\fP(1) disturbs the
+order of the existing records, making post cleaning a necessity also.
+.PP
+At the end of normal processing, \fIdbclean\fP(1)
+runs \fIdbregen\fP(1) to recreate
+any autoindexes defined for the \fIFirstBase\fP database. The user only
+needs to worry
+about any indexes that are non-automatic. These will need to be
+regenerated (\fIdbregen\fP(1), \fIdbigen\fP(1)).
+.PP
+Note: since cleaning a database aligns a new data map with the data file,
+the index generators, \fIdbregen\fP(1) and \fIdbigen\fP(1) are passed
+the \fB-B\fP argument flag to enable record blocking.
+.SH FILES
+.PD 0
+.TP 10
+*.map
+\fIFirstBase\fP database map file.
+.TP 10
+dbase
+default name of database.
+.TP 10
+*.cdb
+\fIFirstBase\fP database.
+.TP 10
+*.ddict
+\fIFirstBase\fP database dictionary file.
+.TP 10
+ .DBCLN_??????
+Temporary file used to build the new database.
+.PD
+.SH SEE ALSO
+dbcheck(8), dbregen(1), dbcgen(1), dbcat(1), dbjoin(1), dbload(1),
+dbpack(1), dbdump(8), dbrestor(8)
+.PP
+\fIFirstBase User's Guide and Reference Manual\fP
+.br
+.SH DIAGNOSTICS
+Again, \fIdbclean\fP(1) will make any existing non-automatic
+indexes for the \fIFirstBase\fP database
+unusable. These indexes will need to be regenerated.
+.sp 1
+Also, \fIdbclean\fP(1) needs to be run in the same directory as the
+database (or at least on the same logical device) as temporary storage is
+used in the current working directory to build the new database.
+.br

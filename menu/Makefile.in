@@ -1,0 +1,79 @@
+# Copyright (C) 2001 FirstBase Software, Inc. All rights reserved.
+#
+# $Id: Makefile.in,v 9.0 2001/01/22 18:34:48 john Exp $
+#
+# See the file LICENSE for conditions of use and distribution
+#
+#
+# Makefile for FirstBase menu
+#
+
+PRODUCT = @PRODUCT@
+VERSION = @VERSION@
+
+SHELL = /bin/sh
+srcdir = @srcdir@
+VPATH = @srcdir@
+
+CC = @CC@
+CFLAGS = @CFLAGS@
+CPPFLAGS = @CPPFLAGS@
+DEFS = @DEFS@
+INSTALL = @INSTALL@
+INSTALL_DATA = @INSTALL_DATA@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@ $(LIBEXTRA)
+LEXLIB = @LEXLIB@
+
+firstbasehome = @FIRSTBASEHOME@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = $(exec_prefix)/$(firstbasehome)/bin
+infodir = $(prefix)/$(firstbasehome)/info
+libdir = $(prefix)/$(firstbasehome)/lib
+mandir = $(prefix)/$(firstbasehome)/man
+menudir = $(prefix)/$(firstbasehome)/menu
+docdir = $(prefix)/$(firstbasehome)/doc
+includedir = $(prefix)/$(firstbasehome)/include
+
+.SUFFIXES:
+.SUFFIXES: .c .o
+
+all:
+
+FILES = MAIN* TOOLS* UNIX*
+
+install: all
+	$(INSTALL) -d $(menudir)
+	for file in $(FILES) ; do \
+	   $(INSTALL_DATA) $$file $(menudir) ; \
+        done
+
+mostlyclean:
+
+clean: mostlyclean
+
+distclean: clean
+	rm -f Makefile
+
+realclean: distclean
+
+extraclean:: distclean
+	rm -f patch* *~* *\#* *.orig *.rej *.bak core a.out
+
+Makefile: Makefile.in ../config.status
+	cd ../ && CONFIG_FILES=menu/$@ CONFIG_HEADERS= ./config.status
+
+DISTFILES = $(FILES) Makefile.in
+DISTDIR = ../$(PRODUCT)-$(VERSION)/menu
+
+dist::
+	@echo "Copying distribution files from menu"
+	@for file in $(DISTFILES); do \
+	   ln $(srcdir)/$$file $(DISTDIR) 2> /dev/null \
+	      || cp -p $(srcdir)/$$file $(DISTDIR); \
+	done
+
+# Prevent GNU make 3 from overflowing arg limit on system V.:
+.NOEXPORT:

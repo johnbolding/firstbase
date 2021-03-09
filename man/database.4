@@ -1,0 +1,332 @@
+.TH DATABASE 4 "12 September 1995"
+.FB
+.SH NAME
+database \- \fIFirstBase\fP database files
+.SH SYNOPSIS
+Layout of \fIFirstBase\fP database structures and files
+.SH DESCRIPTION
+The first sections of this manual page cover the database structures used
+to manipulate databases and database fields. The remaining sections cover
+the actual layout of the database files.
+.SH DATABASE STRUCTURES
+A database structure contains
+all of the elements needed for an entire database, including an array of
+field structures, all file names and descriptors, and index information.
+Altogether, the array of field structures can hold one complete record.
+Here are the few relevant structure definitions from the fb.h header file:
+.nf
+.na
+.sp 1
+.ft CW
+typedef struct fb_s_link fb_link;       /* defined link */
+typedef struct fb_s_field fb_field;     /* defined field */
+typedef struct fb_s_database fb_database;/* defined database */
+
+struct fb_s_link {
+   fb_database *f_dp;                   /* pointer to linked database */
+   fb_field *f_fix;                     /* indexed value in 'from' database */
+   fb_field *f_tix;                     /* ix val in 'to' db providing link */
+   fb_field *f_ffp;                     /* field within 'from' database */
+   fb_field *f_tfp;                     /* field within 'to' database */
+   char *f_fld;                         /* storage area for field val */
+   char *f_xfld;                        /* index value creating field link */
+   fb_link *f_next;                     /* to link all flinks for searching */
+   long f_absrec;                       /* absolute record number to use */
+   fb_database *f_basedp;               /* database which referred link */
+   };
+
+struct fb_s_ixauto {                    /* auto indexed field struct */
+   char *autoname;                      /* for storing autoindex name */
+   char *dup_fld;                       /* for 'old' field value */
+   int afd, hfd;                        /* auto index and header fds */
+   short uniq;                          /* uniqness flag */
+
+   int ix_tree;                         /* btree flag */
+   fb_bseq *ix_seq, *ix_seqtmp;         /* btree sequence set */
+   fb_bidx *ix_idx, *ix_idxtmp;         /* btree index set */
+   fb_field **ix_ip;                    /* field pointers array for auto ix */
+   long ix_bsmax, ix_bsend;             /* for btrees - for auto ix array */
+   int ix_ifields;                      /* number of fields in the ix array */
+   char *ix_key_fld;                    /* key space for index entry */
+   };
+
+struct fb_s_field {                     /* a database field */
+   char *id;                            /* unique title labeling field */
+   char type;                           /* type of the field */
+   int size;                            /* maximum size of field */
+   int loc;                             /* location when arec is used */
+   char *fld;                           /* actual pointer to field */
+   int incr;                            /* to store incremental defaults */
+   char *comment, *idefault, *help, *prev, *range, *a_template, *f_macro;
+   char comloc, lock, choiceflag;       /* various flags */
+   fb_autoindex *aid;                   /* pointer to auto index data */
+   fb_link *dflink;                     /* link to other database */
+   fb_link *xflink;                     /* extended choice/link database */
+   char *mode;                          /* permissions settings per field */
+   short int f_prec;                    /* precision for field */
+   };
+
+struct fb_s_database {                  /* FB database header record */
+   char *dbase;                         /* full database path names */
+   char *dindex;
+   char *dmap;
+   char *ddict;
+   char *idict;
+   char *sdict;                         /* simple screen name */
+   char *dlog;                          /* log name of database */
+   long reccnt;                         /* full record count */
+   char dirty;                          /* dirty bit == 0 or 1 */
+   long delcnt;                         /* deleted record count */
+   long rec;                            /* current record number */
+   int recsiz;                          /* approximate record size */
+   int nfields;                         /* number of fields */
+   int fd;                              /* database file descriptor */
+   int ifields;                         /* number of index fields */
+   int ifd;                             /* index file descriptor */
+   int ihfd;                            /* index header file descriptor */
+   int logfd;                           /* log file descriptor */
+   int irecsiz;                         /* index record size */
+   long bsmax, bsend, bsrec;            /* search max/end points */
+   int mfd;                             /* record map file descriptor */
+   fb_field **kp;                       /* array of fields */
+   fb_field **ip;                       /* array of index fields */
+   char *orec;                          /* original copy of rec */
+   char *arec;                          /* alternate copy of rec */
+   char *irec;                          /* buffer for an index record */
+   char *afld;                          /* field buffers for this db */
+   char *bfld;                          /* field buffers for this db */
+   int refcnt;                          /* reference count for linktop list */
+
+                                        /* B+tree index fields */
+   int b_tree;                          /* flag set if dbase is using btrees */
+   fb_bseq *b_seq, *b_seqtmp;           /* sequence set (and temp space) */
+   fb_bidx *b_idx, *b_idxtmp;           /* index set (and temp space) */
+   fb_autoindex **b_autoindex;          /* autoindex ptr array */
+   int b_maxauto;                       /* max number of auto index */
+   int b_curauto;                       /* cur number of auto index array */
+   short int fixedwidth;                /* fixed width flag */
+
+   int b_sid;                           /* server id - open via server */
+   };
+.ft
+.sp 1
+.fi
+.ad
+.PP
+When a database is opened, the entire database structure is initialized.
+The elements of the database structure are fairly straightforward.
+The beginning contains all of the needed file names making initialization
+from C programs an easier task (see \fIopendb\fP(3)).
+.PP
+The array of key pointers, or field descriptors, is allocated on the
+fly to contain as many fields as defined in the database dictionary, plus
+the additional field for marking deleted records. The base of this array
+is located in the database structure variable \fIkp\fP.
+These fields are indexed
+within \fIkp\fP starting at 0, and going through \fInfields\fP, another
+element of the database structure. Again, \fIkp[0]\fP is the first
+field, \fIkp[1]\fP is the second field,
+etc. \fIkp[nfields]\fP is the undefined field used for
+marking a deleted record.
+.PP
+Each field descriptor is a structure itself. These structures
+contain the name of the field, its type and size, as well as various
+pointers to comments, help files, and defaults.
+The actual values of a database field are stored within the field structure
+in a character pointer, \fIfld\fP.
+.PP
+When a record is read in using \fIgetrec\fP(3), the database structure
+area \fIorec\fP is used to store the entire original record. Each field
+descriptor is set up to point into the \fIorec\fP area to individual
+null terminated fields.
+.PP
+When a field is changed using \fIstore\fP(3),
+the field descriptor pointer \fIfld\fP
+is modified to point into the alternate record area of the database
+structure, \fIarec\fP. Modified fields are always stored in arec in a
+fixed length manner to prevent fields from overwriting one another.
+.PP
+Finally, when \fIputrec\fP(3) is called, the contents of each field are
+copied into the \fIarec\fP area, with each field placed
+end to end. Only a single NULL byte is stored
+between fields. This
+complete unit is written to the disk, with the length and byte position
+numbers stored in the database map (see below).
+.PP
+Note that in the case of BINARY fields, the entire field is ALWAYS fixed
+length, and there is NEVER a NULL byte stored between a BINARY field and
+a neighboring non-BINARY field. Furthermore, it is up to the programmer using
+\fIstore\fP(3) to make sure the object being stored is the same byte size as
+the field length in the database dictionary.
+.SH DATABASE FILES
+A \fIFirstBase\fP database consists of three components with each one
+stored in a
+separate file: the database dictionary, the database map and the
+database data or records. All three will be discussed here, along with the
+C structures used to access the components of a \fIFirstBase\fP database.
+.SH DATABASE DICTIONARY
+A database dictionary consists of 
+a series of text lines representing
+field descriptors. Each field descriptor contains at least
+three field attributes: \fIfield_name\fP,  \fIfield_type\fP,
+and \fIfield_size\fP. All uses of these attributes and the other optional
+pieces of a field descriptor are discussed in \fIdbdbas\fP(1)
+and in \fIddict\fP(5).
+.PP
+Again, each field descriptor is on a line by itself, with
+each attribute separated by white space. The optional attributes are
+represented as switch settings and are defined on a field by field basis.
+The following represents an entire field attribute:
+.sp 1
+.nf
+.ft CW
+   Field_Name Field_Type Field_Size [-c[ab] comment] 
+      [-d default] [-h helpfile] [-a[u] autoindex]
+.ft
+.fi
+.sp 1
+.PP
+There are two switches that have options within themselves:
+If a comment is desired, the \fBa\fP
+or the \fBb\fP can be used to specify that the comment be placed after or
+before the actual field. Also, the optional \fBu\fP in the \fB-a\fP
+switch will make the database editor enforce unique values for all values
+entered into the associated field.
+.PP
+Again, see the manual page \fIdbdbas\fP(1)
+for more details on what each switch is used for.
+.SH DATABASE MAP
+The database map is used to store the byte offset and record length of
+each record for the database. Actually, the database map is really a fixed
+length mini-database. This means that the \fIFirstBase\fP system knows exactly where
+in the database map to look for the details about a requested database
+record.
+.PP
+The database map is laid out as pairs of numbers, each one of type long.
+These numbers are written to the disk as raw data, each one taking up
+exactly sizeof(long) bytes.
+.PP
+The database map also contains two important variables that are needed
+for variable length record storage: avail, representing the next available
+byte location in the database, and free, representing any free space
+within the database. \fIAvail\fP points to the end of the database,
+while \fIfree\fP points to the head of the free list. Note that
+this free list may be empty.
+.PP
+Free storage can accumulate when a short record is replaced with a longer
+record \(em for example, when a 5 character field is replaced with a 10
+character field. In this case, \fIputrec\fP(3)
+will free up the old storage area,
+adding this to the head of the free list, and use \fIavail\fP to allocate
+a new storage area at the end of the database file.
+.PP
+These two variables, avail and free, are said to be the 0th record of the
+database map, i.e. the database map header information.
+The rest of the database map file aligns itself exactly to the database file
+itself \(em record one of the map contains the 'coordinates' of record one
+of the database data, etc.
+.PP
+As mentioned, within each of the map records there is a pair of numbers of
+type long. These numbers represent the data record position, rpos, and the
+data record length, rlen. \fIRpos\fP is an absolute byte offset into the
+database file itself, and \fIrlen\fP is the exact number of bytes used by
+the record.
+.PP
+Pictorially, the database map looks like this:
+.nf
+.na
+.ft CW
+
+             _________________________
+             |   Field 1   Field 2   |
+             |  __________________   |
+             |                       |
+ Map Rec 0   |    avail     free     |
+             |                       |
+ Map Rec 1   |    rpos      rlen     |  For Data Record 1
+             |                       |
+ Map Rec 2   |    rpos      rlen     |  For Data Record 2
+
+                  ...       ...
+
+ Map Rec N   |    rpos      rlen     |  For Data Record N
+             |_______________________|
+.ft
+.fi
+.ad
+.PP
+.SH DATABASE DATA
+The database data itself is written to the database file as
+complete records with null bytes stored between each field
+(except in the case of BINARY fields).
+Like the database map, the database data file also has header
+information at the very beginning of it. Unlike the database map, the
+database data header information is written as printable characters.
+This serves as a sanity check of sorts.
+.PP
+The database data header consists of three separate numbers, all written
+as printable characters, not as raw data. The first is a 4 character
+number representing the database sequence number. This number is used as a
+consistency check between a database and an index. When indexes are created,
+the same sequence number of the database is placed in the index header,
+making this index usable only with its matching database. The database
+sequence number is bumped by one for each new database created, and wraps
+back to 1001 after hitting 9999.
+.PP
+The second number is a ten digit number representing the database record
+count. This is the actual number of records in the database, including
+any records marked for deletion.
+The third number is a ten digit number that represents that number of
+records that have been deleted.
+.PP
+Altogether, the database data file header takes up exactly 24 bytes,
+with each byte being a printable character.
+.SH DATABASE RECORDS
+As mentioned, each record is stored in the database file as a sequence of
+NULL separated fields 
+(except in the case of BINARY fields, which are ALWAYS fixed length).
+A special \fIend-of-record\fP marker, ^E, is used to
+mark the end of the record. The artificially created
+delete field, the last field
+of each record, is forced to have a blank in it to begin with. This field
+is treated exactly like every other field \(em it too is terminated
+with a NULL byte.
+.PP
+When a record N is replaced with a new record smaller than the record
+length of N, \fIputrec\fP(3) will fill in the resulting void with
+a fill character, ^X, and terminate this fill area with a fill-area-end
+character, ^Y. This space is NOT linked into a free list. Again, once a
+space is defined in the database map file as being R characters
+long (rlen), it remains R characters long. This space is called fragmented
+space, and can be reclaimed using the \fIFirstBase\fP tool \fIdbclean\fP(1).
+.PP
+When a record N is replaced with a new record that is larger than the
+record length of N, \fIputrec\fP(3) will place the new record in a different
+area in the database file. This new area is either at the end of the file,
+or a first-fit area from the free list is found. If the old area is large
+enough, it will be placed on the top of the free list in the following manner.
+.PP
+The first byte of the newly freed area is marked with a free marker, ^F.
+Next, two sizeof(long) byte areas are used, and raw numbers are written
+there. These numbers represent the length of the free area, and a byte
+pointer to the next free area. Any additional free area is filled in
+as if it were fragmented space using the fill character, ^X, and the
+fill-area-end character, ^Y.
+.SH FILES
+.PD 0
+.TP 10
+dbase
+default \fIFirstBase\fP database name.
+.TP 10
+*.cdb
+\fIFirstBase\fP database.
+.TP 10
+*.map
+record map of \fIFirstBase\fP database.
+.TP 10
+*.ddict
+\fIFirstBase\fP database dictionary.
+.PD
+.SH SEE ALSO
+getrec(3), opendb(3), putrec(3), btree(4), index(4), firstbase(5).
+.br

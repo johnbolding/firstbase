@@ -1,0 +1,13 @@
+
+
+
+
+
+	The database you are attempting to use was not properly shut down. 
+	Most likely, this happened due to a machine failure during the use 
+	of the FirstBase database editor, dbedit.
+
+	To recover this database, you may try using dbclean(1), or  
+        dbdump(8) and dbrestor(8).
+
+	We suggest reading the FirstBase User's Guide for further information.

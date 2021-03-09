@@ -1,0 +1,31 @@
+                                Dbedit/Dbscan
+                              Extra Long Field
+
+               Answer 'y' (yes) to make changes to the long field.
+               Then enter input in segments. Use <CTL>-X to 'pull'
+               the text from the original segment into the new
+               input area.
+
+       <CTL>H   will bring you to this Help file.
+
+       <CTL>X   ends the long field input session and ignore changes.
+
+       <anykey> any other key, not a 'y', ends long field input session
+                and keeps changes.
+
+       ?d<RET>  displays a general field list.
+
+       ?f<RET>  displays a field list that also shows formula fields.
+
+       ?h<RET>  displays a field list that also shows user defined 
+		help fields
+
+       ?i<RET>  displays the index help screen. This is a list of
+                all fields in the current index. The total number of
+		index entries is also displayed.
+
+       ?N<RET>  (where N is a number representing a field in the 
+		database), displays the user defined help file (if
+		it exists) for the field. Each field can have its own
+		help file.
+

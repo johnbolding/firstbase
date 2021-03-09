@@ -1,0 +1,27 @@
+.TH MKSTR 3 "12 September 1995"
+.FB
+.SH NAME
+mkstr \- allocate a store a memory string
+.SH SYNOPSIS
+fb_mkstr(addr, s)
+.br
+char **addr;
+.br
+char *s;
+.SH DESCRIPTION
+\fIFb_mkstr\fP is used to allocate space and store a string value in the new
+space. This mechanism can be used to provide efficient use of
+memory without having to pre-allocate space for strings.
+.PP
+The address passed in, \fIaddr\fP, will first be deallocated
+using \fIfree\fP(3). Note: Because of this attempt at freeing \fIprevious\fP
+memory allocations, \fIaddr\fP \fBmust\fP be equal to \fBNULL\fP for the first
+call to \fIfb_mkstr\fP.
+.PP
+After any old memory is freed, new space is allocated using \fImalloc\fP(3)
+and tied to \fIaddr\fP. The new memory is made to fit exactly the
+length of the passed in string, \fIs\fP.
+.PP
+Once the space is allocated, the string \fIs\fP is copied into the
+new address space, and a pointer to the new space is returned.
+.br

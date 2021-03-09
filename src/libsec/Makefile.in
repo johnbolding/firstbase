@@ -1,0 +1,125 @@
+# Copyright (C) 2001 FirstBase Software, Inc. All rights reserved.
+#
+# $Id: Makefile.in,v 9.2 2001/01/22 17:37:02 john Exp $
+#
+# See the file LICENSE for conditions of use and distribution
+#
+#
+# Makefile for firstbase/libsec
+#
+
+PRODUCT = @PRODUCT@
+VERSION = @VERSION@
+
+SHELL = /bin/sh
+srcdir = @srcdir@
+VPATH = @srcdir@
+
+CC = @CC@
+CFLAGS = @CFLAGS@
+CPPFLAGS = @CPPFLAGS@
+DEFS = @DEFS@
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@ $(LIBEXTRA)
+
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = $(exec_prefix)/bin
+
+COMPILE = $(CC) -c $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
+LINK = $(CC) $(LDFLAGS) -o $@
+
+.SUFFIXES:
+.SUFFIXES: .c .o
+.c.o:
+	$(COMPILE) $< -o $@
+
+INCLUDES = @INCLUDES@
+
+OBJECTS=\
+catch.o \
+getlogin.o \
+getgid.o \
+getuid.o \
+pwd.o \
+setecho.o \
+ttyslot.o
+
+OLD_OBJECTS= rlogin.o rlogout.o
+
+all: libsec
+libsec: $(OBJECTS)
+
+mostlyclean:
+	rm -f *.o *._c *._o core core.*
+
+clean: mostlyclean
+
+distclean: clean
+	rm -f Makefile
+
+realclean: distclean
+	rm -f TAGS
+
+extraclean:: distclean
+	rm -f patch* *~* *\#* *.orig *.rej *.bak core a.out
+
+Makefile: Makefile.in ../../config.status
+	cd ../.. && CONFIG_FILES=src/libsec/$@ CONFIG_HEADERS= ./config.status
+
+names:
+	@for name in $(OBJECTS) ; do \
+	   echo libsec/$$name >> ../OBJECTS ; \
+	done
+
+MHEADERS= \
+../include/fb.h  \
+../include/config.h \
+../include/input.h \
+../include/error.h \
+../include/message.h \
+../include/libcc.h \
+../include/libcdb.h \
+../include/libdbd.h \
+../include/libinit.h \
+../include/liblic.h \
+../include/librec.h \
+../include/libscr.h \
+../include/libwin.h \
+../include/libsec.h \
+../include/libedit.h \
+../include/libclnt.h \
+../include/interface.h \
+../include/cx.h \
+../include/fb_vars.h \
+../include/fb_ext.h
+
+UTMP=../include/dbutmp.h
+PWD=../include/dbpwd.h
+
+catch.o:		$(MHEADERS)
+getlogin.o:	$(MHEADERS) $(UTMP)
+getgid.o:	$(MHEADERS) $(PWD) $(UTMP)
+getuid.o:	$(MHEADERS) $(PWD) $(UTMP)
+pwd.o:		$(MHEADERS) $(PWD)
+setecho.o:	$(MHEADERS) $(PWD) $(UTMP)
+rlogin.o:	$(MHEADERS) $(PWD) $(UTMP)
+rlogout.o:	$(MHEADERS) $(PWD) $(UTMP)
+setecho.o:	$(MHEADERS) $(PWD) $(UTMP)
+ttyslot.o:	$(MHEADERS) $(PWD) $(UTMP)
+
+DISTDIR = ../../$(PRODUCT)-$(VERSION)/src/libsec
+DISTFILES = *.c Makefile.in
+
+dist::
+	@echo "Copying distribution files from libsec"
+	@for file in $(DISTFILES); do \
+	   ln $(srcdir)/$$file $(DISTDIR) 2> /dev/null \
+	      || cp -p $(srcdir)/$$file $(DISTDIR); \
+	done
+
+# Tell versions [3.59,3.63) of GNU make not to export all variables.
+# Otherwise a system limit (for SysV at least) may be exceeded.
+.NOEXPORT:

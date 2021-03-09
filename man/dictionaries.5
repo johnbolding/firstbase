@@ -1,0 +1,126 @@
+.TH DICTIONARIES 5 "12 September 1995"
+.FB
+.SH NAME
+dictionaries \- \fIFirstBase\fP dictionaries
+.SH SYNOPSIS
+Brief discussion of internal \fIFirstBase\fP dictionaries.
+.SH DESCRIPTION
+The entire \fIFirstBase\fP system is dictionary driven. This means that each
+tool's understanding of a data object
+in the system depends on the contents of these dictionaries.
+Thus, changing a dictionary is all that is needed to change the behavior
+of the \fIFirstBase\fP tool.
+Again, the dictionaries provide a soft mechanism for
+structuring all data objects in the \fIFirstBase\fP system.
+.PP
+All dictionaries in the \fIFirstBase\fP system are represented as ascii files,
+with the exception of the index header dictionary which has some binary
+bytes of header information at the top. This means that most dictionaries
+in the \fIFirstBase\fP system can be printed or edited using standard UNIX
+tools.
+.PP
+While printing or catting a dictionary is fine, editing
+of a dictionary using a UNIX tool, as opposed to the
+provided \fIFirstBase\fP dictionary editors,
+is quite dangerous if you do not know what you are doing. In general,
+do not use a UNIX editor to edit a dictionary. Period.
+.PP
+Note that in all dictionaries, embedded blanks in the field
+names or in defaults, etc, are replaced with an underscore.
+.PP
+The following is a list of dictionary files that the \fIFirstBase\fP system will
+create and use for databases and data objects. Only the extensions are
+listed here \(em the database and index names are presumably provided by the
+user.
+.sp 1
+.PD 0
+.TP 10
+.I ddict
+the database dictionary - lists all fields and all information for a
+database, defaults, help files, choice files, locks, etc.
+Most every tool in the \fIFirstBase\fP system reads this file to determine
+the size and shape of the database. Created by using \fIdbdbas\fP(1).
+.sp 1
+Sometimes it is advantageous to have a single
+database dictionary file in one directory, and the actual data files
+in a different directory. To accomplish
+this, all \fIFirstBase\fP tools will understand the \fB-dd\fP argument line
+option which can be used as described. For example:
+.sp 1
+.nf
+.nj
+dbvedit -d dbase -dd /usr/lib/dict/data -i index
+.sp 1
+.fi
+.ju
+would invoke the database editor as if a \fIdbase.ddict\fP file existed in
+the current directory. See \fIddict\fP(5) for a description of the database
+dictionary layout.
+.sp 1
+.TP 10
+.I sdict
+the screen dictionary - lists all fields that will be displayed when using
+the database editor \fIdbedit\fP(1). This dictionary provides the physical
+to logical mapping of a database to a screen. If not present, the entire
+ddict file is used. Created by using \fIdbdscr\fP(1).
+.sp 1
+.TP 10
+.I vdict
+the view dictionary - maps text and fields to the screen. For use only
+with the visual database editor, \fIdbvedit\fP(1). These dictionaries are
+created by using any standard text editor. See \fIview\fP(5) for more details.
+.sp 1
+.TP 10
+.I idict
+the index dictionary - lists all the fields in the applicable dictionary,
+as well as stores the index record and organized counts.
+This is the only dictionary file that contains non printable
+ascii characters \(em the two needed index header numbers. The
+record count and the organized record count numbers are stored as binary.
+This dictionary type file is created by \fIdbigen\fP(1) itself \(em users never
+interact with this file directly.
+.sp 1
+.TP 10
+.I idicti
+the index generator dictionary - lists all of the fields that the
+index generator \fIdbigen\fP(1) will use when
+making an index, as well as all of the selection criteria and the logical
+connectors used to create selective indexes.
+Created by \fIdbdind\fP(1). See \fIidicti\fP(5) for a description of the
+index dictionary file layout.
+.sp 1
+.TP 10
+.I idictp
+the printout generator dictionary - lists all of the attributes that the
+printout generator \fIdbpgen\fP(1) will use when creating a printout.
+Created by \fIdbdprt\fP(1).
+.sp 1
+.TP 10
+.I idictl
+the label generator dictionary - lists all of the attributes that the
+label generator \fIdblgen\fP(1) will use when creating a labels.
+Created by \fIdbdlbl\fP(1).
+.sp 1
+.TP 10
+.I idictc
+the conversion generator dictionary - lists all of the attributes that the
+conversion generator \fIdbcgen\fP(1)
+will use when creating a converted database.
+Created by \fIdbdcnv\fP(1).
+.sp 1
+.TP 10
+.I idictu
+the update generator dictionary - lists all of the attributes that the
+update generator \fIdbugen\fP(1) will use when updating a \fIFirstBase\fP database.
+Created by \fIdbdupd\fP(1).
+.sp 1
+.TP 10
+.I auto
+automatic index maintenance list. Created with any text editor.
+See \fIautoindex\fP(5).
+.PD
+.SH SEE ALSO
+firstbase(5)
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br

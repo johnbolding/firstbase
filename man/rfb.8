@@ -1,0 +1,52 @@
+.TH RFB 8 "12 September 1995"
+.FB
+.SH NAME
+rfb \- remote tool execution
+.SH SYNOPSIS
+.B rfb \fIserver\fP \fIdirectory\fP \fIbatch-command\fP
+.SH DESCRIPTION
+\fIRfb\fP
+will remotely execute a \fIFirstBase\fP \fIbatch-command\fP.
+The command will be executed in \fIdirectory\fP on machine \fIserver\fP.
+.PP
+The \fIrfb\fP process will start the process on another machine,
+then listen for network notification of the batch-command completion.
+The status returned by \fIrfb\fP is the high order 8 bits from the
+status as returned from the execution of the \fIbatch-command\fP on the server.
+.PP
+For example, to generate an index that physically resides on
+another machine, the NFS or network overhead and time expense can be
+removed by using a remote firstbase execution request. In this case, the command
+would look something like
+.nf
+.nf
+.sp 1
+.ft CW
+   rfb jaybe /usr/data dbigen -d customers -i company -b
+.ft
+.sp 1
+.fi
+.ju
+.PP
+As another example, \fIrfb\fP is used in the following to execute
+\fIdbawk\fP(1) on machine \fIjaybe\fP. Note the use of the quotes to
+actually pass the entire string to \fIrfb\fP:
+.nf
+.nf
+.sp 1
+.ft CW
+   rfb jaybe /usr/data \\
+      "dbawk -d customers -i company -f script.awk > output.prt"
+.ft
+.sp 1
+.fi
+.ju
+.PP
+Note: if using the \fIFirstBase\fP Floating License system, a license is
+required before \fIrfb\fP will execute.
+.PP
+.SH SEE ALSO
+fbgetlicense(8)
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br

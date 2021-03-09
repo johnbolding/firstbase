@@ -1,0 +1,25 @@
+.TH ISDELETED 3 "12 September 1995"
+.FB
+.SH NAME
+#include <firstbase/fb.h>
+.sp 1
+isdeleted \- test for record deletion
+.SH SYNOPSIS
+fb_isdeleted(dp)
+.br
+database *dp;
+.PP
+.SH DESCRIPTION
+\fIFb_isdeleted\fP is a simple function that examines the current record and
+determines if the record has been deleted or not. Remember, in \fIFirstBase\fP,
+records are only \fImarked\fP for deletion. If the record is deleted,
+\fIfb_isdeleted\fP will return one (1). If not deleted, a zero (0) is returned.
+.SH CLIENT/SERVER
+The \fIfb_isdeleted\fP routine will transparently call the RPC
+version of \fIfetch\fP(3) to detect deleted records among
+client/server processes
+when the global \fIFirstBase\fP variable \fIcdb_use_rpc\fP
+is set to one. See \fIfb_clnt_create\fP(3) for more details.
+.SH SEE ALSO
+getrec(3), database(4).
+.br

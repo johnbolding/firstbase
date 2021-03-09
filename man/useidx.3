@@ -1,0 +1,81 @@
+.TH USEIDX 3 " 4 April 1996"
+.FB
+.SH NAME
+useidx, addidx, subidx \- manipulate autoindexes within a database
+.SH SYNOPSIS
+#include <firstbase/fb.h>
+.sp 1
+fb_useidx(i, db)
+.br
+int i;
+.br
+fb_database *db;
+.sp 1
+fb_addidx(iname, db)
+.br
+char *iname;
+.br
+fb_database *db;
+.sp 1
+fb_subidx(iname, db)
+.br
+char *iname;
+.br
+fb_database *db;
+.br
+.PP
+.SH DESCRIPTION
+As explained in the \fIdatabase\fP(4)
+manual page, a database structure contains
+all of the elements needed for an entire database, including an array of
+automatic Btree+ indexes, as defined by \fIautoindex\fP(5).
+The routines described here manipulate the \fIb_autoindex\fP array
+inside database \fIdb\fP at runtime.
+.PP
+The best method for using multiple indexes is via the \fIautoindex\fP(5) file.
+Using this method, a group of indexes can be used and kept current.
+After opening a database, each of the autoindexes is stored as an entry in
+the b_autoindex array. For example, the following code prints each
+autoindex name:
+.nf
+.nj
+.sp 1
+.ft CW
+      fb_database *db;
+      int i;
+
+      db = fb_dballoc();
+      fb_dbargs("test", NIL, db);
+      fb_opendb(db, READWRITE, FB_ALLINDEX, FB_OPTIONAL_INDEX);
+
+      for (i = 0; i < db->b_maxauto; i++)
+         printf("%s", db->b_autoindex[i]->autoname);
+.ft
+.fi
+.ju
+.sp 1
+.PP
+The idea is to open the database without a \fIcurrent\fP index, but with
+all of its autoindexes. Then, as each autoindex is needed, it can be
+made the \fIcurrent\fP index using \fIfb_useidx\fP, which
+will initialize pointers inside \fIdb\fP, enabling \fIgetxrec\fP(3) calls to
+search different indexes.
+.PP
+The argument \fIi\fP is the subscript into the autoindex
+array, from 0 to \fIdb->b_maxauto\fP - 1.
+The integer variable \fIdb->b_maxauto\fP stores the total number
+of automatic indexes. The return status is either FB_AOK or FB_ERROR.
+.PP
+Additional autoindexes can be added at run time
+using \fIfb_addidx\fP. The parameter \fIiname\fP is
+the name of the index. Indexes can also be removed from the array of
+autoindexes using \fIfb_subidx\fP.
+.SH CLIENT/SERVER
+Each of these routines will transparently
+call the RPC mechanism of the similar name
+when the global \fIFirstBase\fP variable \fIcdb_use_rpc\fP
+is set to one. See \fIfb_clnt_create\fP(3) for more details.
+.SH SEE ALSO
+database(4), index(4), btree(4), dballoc(3), dbargs(3), opendb(3),
+openidx(3), autoindex(5).
+.br

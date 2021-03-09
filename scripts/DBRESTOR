@@ -1,0 +1,66 @@
+:
+: DBRESTOR - shell script used to restore a dirty database.
+:          The idea is to move the good, backup copies of the
+:          dbase.cdb and dbase.map files from their storage area,
+:          either off line, or on the disk somewhere, BACK to the
+:          original location.
+:
+:          Then, the dbrestor program can use the database log
+:          to recover the database almost to the crash point.
+:
+:          If this script is changed, the matching DBDUMP script
+:          will need modifications also.
+:
+:          Assumption is that the backup copies of the database are
+:          very clean and passed a dbcheck before storage.
+clear
+echo "****** Restore a Cdb Database ****** "
+if [ $# -eq 0 ]
+   then
+   echo -n "Enter Database Name: "
+   read BASENAME
+else
+   BASENAME=$1
+fi
+
+DBASE=${BASENAME}.cdb
+MAP=${BASENAME}.map
+BAK_DBASE=${BASENAME}.BKfirstbase
+BAK_MAP=${BASENAME}.BKmap
+
+if [ ! -s $BAK_DBASE ]
+   then
+   echo
+   echo "Database $BAK_DBASE does not exist."
+   exit 1
+fi
+if [ ! -s $BAK_MAP ]
+   then
+   echo
+   echo "Database Map $BAK_MAP does not exist."
+   exit 1
+fi
+echo "
+Make sure no one else is using Database $BASENAME !!!
+After restoring database, all indexes for
+that database will require regeneration."
+
+echo; echo; echo
+
+echo -n "Ready to Restore Database $BASENAME (y/<no>) ? "
+read answer
+if [ "$answer" != "y" ]
+   then
+   echo
+   echo Database Restore Aborted.
+   exit
+fi
+
+echo -n "Copying Backed Up Database to Live Area..."
+cp $BAK_DBASE $DBASE
+cp $BAK_MAP $MAP
+echo
+echo -n "Running Database Restore Program..."
+dbrestor $DBASE -y
+echo
+echo Database Restoration Complete.

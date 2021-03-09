@@ -1,0 +1,898 @@
+.TH DBEDIT 1 " 4 April 1996"
+.FB
+.SH NAME
+dbedit \- full screen \fIFirstBase\fP database editor
+.br
+dbvedit \- visual screen \fIFirstBase\fP database editor
+.SH SYNOPSIS
+.TP 8
+.B dbedit
+[\fB-d\fP \fIdatabase\fP] [\fB-i\fP \fIindex\fP] [\fB-s\fP \fIscreen\fP]
+[\fB-a\fP] [\fB-w\fP] [\fB-C\fP] [\fB-N\fP]
+.TP 8
+.B dbscan
+[\fB-d\fP \fIdatabase\fP] [\fB-i\fP \fIindex\fP] [\fB-s\fP \fIscreen\fP]
+[\fB-w\fP] [\fB-C\fP] [\fB-N\fP]
+.sp 1
+.TP 8
+.B dbvedit
+[\fB-d\fP \fIdatabase\fP] [\fB-i\fP \fIindex\fP] [\fB-v\fP \fIview\fP]
+[\fB-a\fP [\fIcount\fP]] [\fB-w\fP]
+[\fB-e\fP \fINrec\fP] [\fB-ex\fP \fIpattern\fP] 
+.br
+[\fB-s\fP \fIscreen\fP] [\fB-c\fP \fIseparator\fP] 
+[\fB-f\fP] [\fB-C\fP] [\fB-N\fP] [\fB-V\fP]
+.TP 8
+.B dbvscan
+[\fB-d\fP \fIdatabase\fP] [\fB-i\fP \fIindex\fP] [\fB-v\fP \fIview\fP]
+[\fB-w\fP]
+[\fB-e\fP \fINrec\fP] [\fB-ex\fP \fIpattern\fP] 
+.br
+[\fB-s\fP \fIscreen\fP] [\fB-c\fP \fIseparator\fP] 
+[\fB-f\fP] [\fB-C\fP] [\fB-N\fP] [\fB-V\fP]
+.SH DESCRIPTION
+.I Dbedit
+allows interactive screen editing and scanning of a \fIFirstBase\fP database.
+\fIDbedit\fP is completely multi user \(em 
+the databases and their dictionaries can be shared by groups or users.
+Database records may be added or deleted, 
+and fields within records may be modified.
+.PP
+\fIDbedit\fP(1) and \fIdbvedit\fP(1) are similar in most all respects \(em any
+feature that \fIdbedit\fP(1)
+contains is also a feature of \fIdbvedit\fP(1). In fact, unless
+otherwise noted, all of the following comments apply equally 
+to \fIdbvedit\fP(1) and \fIdbvscan\fP(1).
+.PP
+But, there is one major difference between these \fIFirstBase\fP tools:
+the screen displays.
+\fIDbedit\fP(1)
+will display fields of a database record in a fixed manner, one per
+line, double spaced. 
+\fIDbvedit\fP(1) allows the added dimension of customizing
+the display of fields and text on the screen. This additional feature requires
+a view dictionary that defines the visual screen requirements for that
+database. See \fIview\fP(5) for details.
+.PP
+Furthermore, \fIdbvedit\fP(1) allows the use of larger than normal windows
+to be used as the display screen.
+Using a larger window allows subscreens
+within \fIdbvedit\fP(1) to display more text per page.
+See \fIterminals\fP(5).
+.PP
+The \fB-a\fP option is used to force \fIdbedit\fP(1) to automatically begin
+add mode (as described below). In other words, with the use of the \fB-a\fP
+flag, only new records are entered and edited. In this case, exit from
+add mode will exit out of the editor completely. Note that for
+\fIdbvedit\fP(1), the \fB-a\fP can also be used to add exactly \fIcount\fP
+records before automatically exiting.
+.PP
+The \fB-e\fP option is used to force \fIdbvedit\fP(1) to automatically begin
+editing record number \fINrec\fP. 
+The \fB-ex\fP option is used to force \fIdbvedit\fP(1) to automatically begin
+editing the first indexed record matching the given \fIpattern\fP.
+Exit from record level using either of these options will exit out of the 
+editor completely.
+.PP
+The \fB-w\fP flag is used to suppress the warning message generated when
+the editor is used without an index.
+.PP
+If an index is present, very fast record searching allows
+real time information scanning. Dbedit attempts to verify that
+the index being used was generated from the indicated database.
+If an identification error occurs, or \fIdbedit\fP(1) is invoked without a
+\fIFirstBase\fP index, \fIdbedit\fP(1) will warn that there is 'no index',
+but will proceed. Sequential searching for records can occur without an index.
+.PP
+\fIDbscan\fP and \fIdbvscan\fP are the exact same as \fIdbedit\fP and
+\fIdbvedit\fP except that records cannot be created or updated
+with either of the scanners.
+If a password file exists (\fI.passwd\fP), 
+\fIdbedit\fP(1) and \fIdbvedit\fP(1)
+prompt for a password before access is allowed.
+.PP
+\fIDbedit\fP(1)
+begins by displaying an empty window of
+field names, field types and field sizes
+as defined by the 
+.I FirstBase 
+database dictionary. (See 
+\fIdbdbas\fP(1)
+for details).
+.PP
+The field at the top of the screen
+is the first database field 
+as defined in the index dictionary. If an
+index dictionary is 
+not present, \fIdbedit\fP(1) assumes there is no index and 
+the field at the top is 
+the first field of the database as defined in the database dictionary.
+.PP
+With the use of the screen file and the \fB-s\fP option,
+\fIdbedit\fP(1) will use a \fIFirstBase\fP
+screen file to possibly change the order of the fields as they are being
+displayed. This mechanism is used as a physical-to-logical mapping.
+See \fIdbdscr\fP(1) for more details.
+.PP
+The cursor is placed on the field at the top of the screen awaiting
+user commands. A summary of these 'command level' commands appears below:
+.TP 7
+.B <CTL>-H
+the standard help signal,
+displays a summary of these commands.
+Also <FUNCTION>-HELP.
+.TP 7
+.B ?d
+displays the database help screen. This is a listing of all the names 
+of all the fields
+in the database, their type, size, and
+default, and includes the corresponding field
+number. This field number is usable as an address for the page containing
+that field.
+.TP 7
+.B ?f
+displays the user defined formulas describing any virtual fields
+from the database dictionary.
+.TP 7
+.B ?h
+displays the user defined help files that are bound to the database
+fields via the database dictionary.
+.TP 7
+.B ?i
+displays the index help screen. This is a listing of all the fields that
+appear in the current index. The total number of index entries is also
+displayed.
+.TP 7
+.B ?N
+where N is a number representing a field in the database, displays
+the user defined help file (if it exists) as defined by the database
+dictionary. Each field may have a separate help file in this manner.
+.TP 7
+.B !command
+submits command to the UNIX shell (operating system).
+For more details, see below.
+.TP 7
+.B .
+displays the current record as defined by the index pointer. This is much
+akin to the 
+.B dot
+of 
+\fIedit\fP(1).
+.TP 7
+.B %
+edits the first record defined in the current index.
+.TP 7
+.B $
+edits the last record defined in the current index.
+.TP 7
+.B >[N]
+pushes the current index pointer onto the pointer
+stack, and positions the cursor on
+the next indexed field as defined by the index dictionary. Further scans
+are sequential searches, and are done using this field.
+.sp 1
+If the editor was invoked without an index, the \fB>\fP command will
+move the \fIsequential search field\fP to the next field on the screen.
+Further searches will be done using this new field.
+The optional \fBN\fP argument is used to jump straight to field number
+\fBN\fP.
+.sp 1
+The screen is redrawn to reflect the new search field selected.
+.TP 7
+.B <
+pops the pointer stack into the current index pointer and repositions the
+.B dot.
+The index field that was on the stack becomes the new focus of scanning, 
+and the screen is redrawn to reflect this format.
+.sp 1
+If the editor was invoked without an index, the \fB<\fP command will
+move the \fIsequential search field\fP to the previous field on the screen.
+Further searches will be done using this new field. The \fBdot\fP does
+not change.
+.TP 7
+.B @#
+allows absolute addressing of records relative to the actual location
+in the \fIFirstBase\fP database file. No scanning is done (i.e. no index is
+used).
+This makes a 'put' (see below) for this record impossible.
+.TP 7
+.B @
+starts auto 
+.I add mode,
+unless a '.noadd' file is found in the working directory.
+In this mode, records can be continually created and
+edited, one after another. 
+.sp 1
+First, a new record is created and the user is allowed
+to enter data into each 
+database field (even if the field is defined as locked \(em 
+see 
+\fIdbdbas\fP(1)
+for details). Fields longer than 300 require some kind of a visual
+UNIX editor, for instance \fIvi\fP(1).
+The user will be asked whether to go into
+visual mode now or not. If not, that field remains empty.
+.sp 1
+If at any time the user wants to keep this record, but not enter
+the rest of the fields in the database, a special
+.I autodefault
+mode can be signaled using
+.B <CTL>-D
+(control-D). This signal will put the defaults described in the database
+dictionary into each field without asking questions. However, if any fields
+are defined as 
+.I forced entry 
+from the user, then 
+\fIdbedit\fP(1) 
+pauses briefly for
+this entry before continuing with its autodefault assignment.
+Autodefault works for only one record at a time.
+.sp 1
+The special editing features of the Auto Field Level (described
+in this manual page under the commands used for record level mode)
+apply while in Add Mode. These commands are very useful for correcting
+simple typos not seen until after a <RETURN> is hit. The major win is that
+you do not have to wait until the end of the record to make your corrections.
+Again, see Auto Field Level below.
+.sp 1
+After all fields are completed, the user is given a chance to
+modify and correct any fields within this new record
+via the record level command set (see below).
+When this record level is ended, add mode takes over, a new record is
+created, and the process starts again.
+.sp 1
+The standard
+.I END
+signal
+.B (-) 
+from the first field of a record within add mode ends add mode.
+These records will be appended to the
+database, but have no effect on any existing simple indexes.
+However, autoindexes will be updated to reflect new record entries,
+although such indexes will not be reorganized.
+<FUNCTION>-END works also.
+.TP 7
+.B <RETURN>
+(or enter) causes the dot to be advanced one index
+record. This allows single-step scanning. Also the same
+as \fB<CTL>-E\fP, \fB<CTL>-N\fP, \fB<CTL>-F\fP, and \fB<FUNCTION>-NEXT\fP.
+.TP 7
+.B <CTL>-Y
+causes the dot to be moved backwards exactly one index
+record, i.e. the previous indexed record.
+This allows single-step backwards scanning. \fB<CTL>-P\fP, \fB<CTL>-B\fP
+and \fB<FUNCTION>-PREV\fP work here as well.
+.TP 7
+.B /[pattern]
+searches forward (beyond the dot to the end of the index)
+for an occurrence of the pattern, or
+the remembered pattern if one is not given.
+Numerics are blank padded before searching.
+.sp 1
+If a pattern is provided, the record search behaves exactly like that listed
+below for <pattern> (without the '/').
+.sp 1
+Alternately, <CTL>-S can be used to to search forward for the remembered
+pattern.
+.TP 7
+.B \\\\[pattern]
+searches backward (above the dot to the top of the index) 
+for an occurrence of the pattern or
+the remembered pattern if one is not given.
+Numerics are blank padded before searching.
+.sp 1
+.B Note:
+here, as in all searches, the uppermost record, i.e. the record
+that is first in the index, is returned.
+.TP 7
+.B <CTL>-X
+repositions the
+.I dot
+to the top of the index. Also <FUNCTION>-ABORT. Since \fIdbedit\fP(1)
+will wrap in its searches for an
+indexed record, this command is usually not used.
+However, when using the database editors without an index, this command
+is helpful in restarting searches from the top of the database.
+.TP 7
+.B <CTL>-X\ <CTL>-X
+allows input of extended commands. Also <FUNCTION>-ABORT <FUNCTION>-ABORT.
+Most of these commands set a \fIFirstBase\fP environment variable.
+The commands are:
+.nf
+.nj
+.sp 1
+   pwd - print current working directory
+   set variable value
+      variable is one of PUTFILE, REGEXP, VIPAUSE, 
+      WRAPSCAN and value is as defined in \fIsetup\fP(5).
+.sp 1
+.fi
+.ju
+.PP
+.TP 7
+.B -
+(standard 
+.I END 
+signal) ends the editor session if the current index level pointer
+is at level one.
+If not, it repositions the dot like <CTL>-X.
+Also <FUNCTION>-END.
+.TP 7
+.B <pattern>
+any other characters are used in a search of the index looking for a match.
+If the search is on the first index field, a binary search is performed.
+Secondary index fields use a sequential search.
+.sp 1
+If the editor is invoked without an index, all record searches are
+sequential, and can be painfully slow. The standard UNIX <INTERRUPT>
+signal can be used during these sequential searches to regain control of the
+editor. Note that sequential searches are necessary for regular expression
+pattern location anyway, i.e. for interactively searching very large 
+text fields. See the \fB>\fP, \fB<\fP and \fB<CTL>-X <CTL>-X\fP
+commands for more information on this topic.
+.sp 1
+When using the regular expression mathing facility (REGEXP=ON),
+the \fB-C\fP flag can be used for \fIcase-insensitive\fP searching.
+All tests for string matches are done using
+UPPERCASE so that matches are case insensitive.
+.sp 1
+Note that during regular expression matching, some
+machines allow the meta character '.' to match a newline character and some
+do not. Typically, BSD UNIX allows this match and UNIX System V does not.
+The \fB-N\fP flag can be used to force \fIFirstBase\fP
+to map newlines to blanks so that the '.' within regular expressions
+\fIwill\fP match a newline.
+.sp 1
+Searches will wrap at the top or bottom of the file by default.
+This means that forward searching will not stop at the bottom of the database
+if the record is not found, but will continue searching from the top
+of the database.
+.sp 1
+This wrapping feature can be turned off by setting the environment 
+variable "WRAPSCAN" to 0.
+.sp 1
+Note that
+numeric fields are blank padded before the search. Also, if a date field is
+to be searched and is given six (6) characters, then it is 
+formatted into the YYMMDD format before the search since this is how date
+indexes are generated. If less than six characters are given, the scan
+uses the pure form, meaning that years are searched, then months, then
+days.
+.PP
+If a record is found through a search or other means of addressing, it is
+pulled from the database
+for display.
+The current index field is used as the top of the
+page, and one page of the current record is displayed.
+.PP
+If using 
+\fIdbedit\fP(1),
+the record is write locked at this point. Of course, others using
+\fIdbscan\fP(1)
+can still access the record.
+.PP
+In this completed display window
+field names, types, and sizes are seen, as well as
+the contents of the fields on that 'page'.
+If a field has non-white characters beyond the edge of the display
+window, it is marked with a '\\'.
+These extra long fields may be viewed
+by typing the number of the field if the field is less than 300 characters
+long. Otherwise, visual mode must be used (see below).
+.PP
+At this point of record display, 
+\fIdbedit\fP(1)
+is allowed to modify database fields, where
+\fIdbscan\fP(1)
+is not given this privilege.
+If the record has been marked as deleted, the user is given a chance to
+restore the record (if in 
+\fIdbedit\fP(1)), and control goes back to the command level.
+.PP
+Otherwise, 
+the cursor is placed on the 24th line along with a simple 
+list of commands, and
+the editor awaits commands at this record level.
+The following is a summary of commands available for use when
+editing/scanning a particular database record. Again, this is
+called "record level" mode.
+.TP 7
+.B <CTL>-H
+(control H), the standard help signal,
+displays a summary of these commands.
+Also <FUNCTION>-HELP.
+.TP 7
+.B ?[dfhiN]
+displays appropriate help screen (see outer level command summary).
+.TP 7
+.B b
+page backward. Displays the previous page of this records fields.
+Wrapping from page one to the last page occurs if needed.
+Also \fB<FUNCTION>-PAGEUP\fP.
+.TP 7
+.B d
+display any long field to the screen, page by page.
+This command
+accepts an optional field number, but will prompt if not given one.
+Note: a special hook to this command is available from the question/prompt
+when the \fIFirstBase\fP VIPAUSE setup variable is used. See \fIsetup\fP(5).
+.TP 7
+.B f
+(same as <RETURN>) page forward. Displays the next page of this records
+fields. If no more fields exist, wrapping occurs to the first page.
+Also \fB<FUNCTION>-PAGEDOWN\fP.
+.TP 7
+.B p#
+(\fIdbvedit\fP(1) only) - change to page number #.
+.TP 7
+.B [vx]
+invoke 
+\fIvisual\fP or \fIexternal filter\fP 
+command on a field. These commands
+accept optional field numbers, but will prompt if not given one.
+Then security is checked: The file
+.I .visual_lck
+is checked for existence in the system directory \fI/usr/lib/firstbase\fP
+(not the \fIFirstBase\fP home directory), and then in the local database
+directory. If either exists, users are denied
+access to the visual/filter commands.
+Filter behaves in the same way, except the lock file is
+.I .filter_lck.
+.sp 1
+If visual/filter is not locked, 
+\fIdbedit\fP(1) 
+tries to get the visual/filter command from
+a simplified path sequence of directories. First the database directory 
+is searched, then the users home directory, then the system directory.
+If a file named 
+.I .visual 
+exists in any of these places, the first line
+is read and used as the visual command 
+(or 
+.I .filter
+for the filter command).
+.sp 1
+Alternately, the standard UNIX environment
+variable \fIEDITOR\fP can be used to override
+the \fI.visual\fP file.
+.sp 1
+After successfully reading the command, 
+\fIdbedit\fP(1) 
+places the field
+into a temporary file.
+.B Note:
+\fIdbscan\fP(1)
+puts the field in a read-only file. Then the
+command with this temporary file name as an argument
+is submitted to the system. If using
+\fIdbedit\fP(1), the contents of the temporary file are 
+reformatted and placed back into the proper field upon completion of the 
+visual/filter command.
+.sp 1
+For example, if 
+.I /usr/ucb/vi
+was in the 
+.I .visual
+file, then
+the command 
+.I v2
+would invoke the UNIX editor 
+\fIvi\fP(1)
+on field two.
+After the user is done with vi, all changes are put back into the field.
+.sp 1
+Filter/Visual commands not only provide a mechanism for using any
+text editor on any database field, but also
+allow a convenient method of pumping 
+selected data from a \fIFirstBase\fP data file through user defined programs
+that
+can change or modify
+the data before it is placed back into the \fIFirstBase\fP record.
+.sp 1
+One handy use of the filter command, and the default setting, is to
+invoke a standard UNIX paging tool on a visual field, like \fImore\fP(1).
+The default \fIFirstBase\fP filter, as defined
+in \fI$FIRSTBASEHOME/.filter\fP, is
+\fIfb_pager\fP. Note that the filter command substitutes in standard
+UNIX environment variables if needed.
+.TP 7
+.B !command
+submits the 'command' to the UNIX system shell. Like the visual and filter
+command locks, the system and local locks
+.I .cshell_lck
+are looked for. If either
+exists, then no sub-processes capabilities will be given to the user.
+.sp 1
+If no command is given, one is asked for. If the command is itself an
+exclamation mark (as in csh history), then the most recent command is
+re-submitted.
+.TP 7
+.B <CTL>-X
+abort record.
+If changes have been made to the current record, the user
+is required to verify that aborting is desired. If verified,
+all changes made to the current record are discarded.
+Control is returned to the command level.
+\fB<CTL>-C\fP and \fB<FUNCTION>-ABORT\fP have the same effect.
+.TP 7
+.B -
+(standard 
+.I END 
+signal). Returns control to the command level.
+If in 
+\fIdbedit\fP(1)
+and the record has been modified, it is written back to the
+database, and the record is unlocked. If the environment
+variable ASKWRITE is ON, then the user must respond with a 'y' to the
+prompt before the record will be written.
+.sp 1
+Before writing the record, \fIdbedit\fP(1) will check for fields that are not
+allowed to be empty. If any are found, \fIdbedit\fP(1) will complain
+and remain in Record Level. In this case, \fIdbedit\fP(1) will also
+fall into Field Level editing on the first field that needs to be edited.
+<FUNCTION>-END works also.
+.TP 7
+.B #
+field number. If in 
+\fIdbedit\fP(1)
+and the field addressed is on the screen,
+(and it is not locked \(em see \fIdbdbas\fP(1)),
+then the cursor is moved to that field and input is allowed.
+This is called "field level" mode.
+.sp 1
+However, in \fIdbvedit\fP(1)
+each page has its own set of numbered, addressable
+fields, starting with the number '1'. These numbers are derived from the
+physical ordering of fields in the view dictionary. Using this ordering,
+and the entered "field number", a field on the current page will be edited.
+As in \fIdbedit\fP(1), the cursor is moved to that field and input is allowed.
+Again, this is called "field level" mode.
+.sp 1
+At this point, a standard help signal (<CTL>-H or <FUNCTION>-HELP)
+will display
+any user defined help file (see \fIdbdbas\fP(1)). When done,
+\fIFirstBase\fP continues allowing user input into the field. At any time
+input may be aborted using \fB<CTL>-X\fP, \fB<CTL>-C\fP or 
+<FUNCTION>-ABORT (see \fIinput\fP(5)), and the field will not be
+altered.
+.sp 1
+Extra long fields that will not fit into the 
+\fIdbedit\fP(1)
+display window
+are given special attention. Such fields are longer than 50 or 80
+characters (\fIdbedit\fP(1) or \fIdbvedit\fP(1)),
+and less than or equal to 300 characters. These fields can
+be seen in their
+entirety by addressing them from this inner "record level" command line.
+(Or by using the 'd' command. And
+for even longer fields, use the visual command).
+.sp 1
+On the 
+.I long field screen,
+a special display area is shown with the full contents
+of the field (maximum is 300 characters). Then the user is 
+asked about making changes to this field (y=yes, any other character
+means no). Standard help (<CTL>-H) and abort (<CTL>-X)
+signals are available here, also.
+Modifications using this \fIlong field screen\fP
+allowable only in 
+\fIdbedit\fP(1)
+.sp 1
+During modifications of these long fields, the user is allowed to enter
+input into the field in segments. The first segment is what will appear
+within the normal \fIdbedit\fP(1) display window.
+.sp 1
+A <CTL>-X during this entry will
+pull the matching line from the display area (if it exists) into the
+input area, thus allowing pieces of the field to be changed without
+having to retype the entire mess. 
+.sp 1
+Normally, \fIdbedit\fP(1) will store a blank between each line of input from
+these long fields. To override this feature, use the backslash character
+as the last character on the previous line. This will put the two lines
+together without a separating
+blank when the field and record are written to the
+database.
+.sp 1
+To 
+.I END
+out of input into a long field without filling the field, 
+a <RETURN> is required on the first column of one of the input segments.
+.sp 1
+If entry to a field is allowed to be defaulted (see \fIdbdbas\fP(1))
+then entering a <RETURN> during the input of a field will enter
+the default into the field.
+.sp 1
+However, if RECORD_LEVEL is OFF, then a <RETURN> will only behave this way
+if the field is empty \(em otherwise it behaves like <FUNCTION>-NEXT.
+If a \fIdefault\fP value is truly required, use <FUNCTION>-DEFAULT.
+.sp 1
+A few meta-defaults are defined, allowing incrementing of a numeric field,
+pulling in the previous entry to that field, 
+defaulting to today's date, or even to the current time.
+.sp 1
+If the field requested is of type \fIchoice\fP or \fIextended choice\fP
+(see \fIdbdbas\fP(1), \fIchoice\fP(5), \fIxchoice\fP(5), and the chapter
+on \fIdbedit\fP(1) in the \fIFirstBase User's Guide and Reference Manual\fP),
+then a sub screen will be displayed.
+This screen will allow the user to enter a single
+choice, and the meaning of that choice will then be input into the
+field by \fIdbedit\fP(1).
+.sp 1
+Note that the sub screen display can be disabled by
+using the type \fIC\fP for choice instead of \fIc\fP.
+In this case, the field editing behaves like macro expansion,
+i.e. all other choice field behavior will stay the same.
+.sp 1
+Under normal operation a selection of a value for a
+choice field fails if the choice is undefined. However, \fIdbvedit\fP(1)
+has the ability to add new choices defined by the user during record entry
+to the proper choice file.
+To enable this feature, the AddChoice Flag (-A)
+for the individual field must be set from \fIdbdbas\fP(1).
+.sp 1
+If the field requested
+is not on the screen, the page with that field on it
+is displayed.
+.sp 1
+Of course, formula fields cannot be edited, as they are merely calculated
+from the contents of other fields.
+.B Note:
+If the contents of an indexed field is changed, the index is not
+updated (unless it is an autoindex).
+.sp 1
+The behavior of this "field level" mode can be modified
+by using a \fBmacro\fP field definition. This feature allows fields
+to contain very complex defaults, or be used as trigger fields,
+providing conditional editing of \fIother\fP fields. See \fImacro\fP(5).
+.TP 7
+.B @#
+where
+.B #
+is any field number (default is 1) starts up Auto Field Level.
+Auto Field Level is just like Field Level (described above),
+except that when you are done entering one field a <RETURN> moves to the
+next field. The END keystroke is used to exit from Auto Field Level.
+(Also <FUNCTION>-END).
+.sp 1
+There are also other keystrokes that are used to move around while
+in Auto Field Level. \fB<CTL>-X\fP and \fB<CTL>-C\fP will
+move past a field. \fB<CTL>-E\fP, \fB<CTL>-N\fP, \fB<TAB>\fP,
+and <FUNCTION>-NEXT will move to the next field,
+and \fB<CTL>-Y\fP, \fB<CTL>-P\fP and <FUNCTION>-PREV
+will move to the previous field.
+Each of these keystrokes will not disturb any field data already in place.
+.sp 1
+If you get to the end of the record, Auto Field Level will stop, and the
+editor will go back into Record Level Mode.
+.TP 7
+.B #x
+where \fI#\fP is a digit and \fIx\fP
+is any character not a digit causes \fIdbedit\fP(1) to briefly pop into a
+calculator mode for that particular field. For example, 
+.I 2+
+would pop to calculator mode for field two (2).
+Positive or negative numbers may
+be entered on the 24th line. This number is then added to the numeric
+data in the field and redisplayed. Upon user approval, the new value
+of the field is stored. Calculator mode works for numeric, dollar, and 
+float type data fields.
+.TP 7
+.B put
+writes to a local file,
+.I putidx,
+the current index entry for a record arrived at
+through the use of the index scanning mechanism in \fIdbedit\fP(1).
+The \fIput\fP
+command interactively
+allows selected records to be gathered into a bucket for later use.
+.I Puts 
+stack up across sessions as long as the putidx.idict file is kept
+intact.
+.sp 1
+.B Note:
+the put command attempts to verify that previous 'puts' came from the same
+database, but no effort is made to verify that the index being written to
+is the same size and shape of the current index.
+This index can later be used for printouts, or any
+other place a \fIFirstBase\fP index is used.
+.sp 1
+The name of the file that the put command deposits the index references 
+defaults to "putidx". This name can be changed using by setting
+the environment variable "PUTFILE" to some other file name.
+However, do not use any file name extensions.
+.sp 1
+Note that unlike autoindexes, the put mechanism does not create an
+index dictionary, but only an index and an index header.
+.TP 7
+.B del
+delete this record. Only from 
+\fIdbedit\fP(1)
+or \fIdbvedit\fP(1),
+and only if no '.nodel' file is found.
+The user is given a chance to
+back out of this once chosen. Control always returns to the command level.
+Also <FUNCTION>-DELETEREC.
+.B Note:
+References to this record are not removed from any existing indexes.
+However, new indexes will not reference this record.
+.TP 7
+.B <CTL>-B
+(control B), go to record level on the previous record
+This is the same action as END and <CTL>-P in a single keystroke.
+.TP 7
+.B <CTL>-F
+(control F), go to record level on the next record.
+This is the same action as END and <RETURN> in a single keystroke.
+.TP 7
+.B <CTL>-E
+(Also \fB<CTL>-N\fP).
+starts autofield level mode on first field of current page.
+Also <FUNCTION>-NEXT.
+.TP 7
+.B <CTL>-Y
+(Also \fB<CTL>-P\fP).
+starts autofield level mode on last field of current page.
+Also <FUNCTION>-PREV.
+.TP 7
+.B <CTL>-Q
+(control Q), search for all records containing the remembered pattern
+and report how many matches there are and where in the matching series
+the current record occurs. Note: this feature only works when an index
+is being used. Same as <CTL>-V.
+.TP 7
+.B <CTL>-S
+(control S), search for the next record containing the remembered pattern.
+This is the same action as END and /<pattern> in a single keystroke.
+Same as <CTL>-/.
+.TP 7
+.B <FUNCTION>-WRITEREC
+\fIDbvedit\fP(1) only \(em writes the current record but does not exit
+from the current database editing level.
+.TP 7
+.B <FUNCTION>-PRINT
+\fIDbvedit\fP(1) only \(em function key driver for executing
+a \fIcustom command\fP named \fBprint\fP.
+.TP 7
+.B CCOMMAND
+CCOMMAND stands for \fIcustom command\fP \(em a mechanism to tie user defined
+commands to the Record Level screen of \fIdbvedit\fP(1). Using this
+extensible feature, complex custom commands can be combined with the ease
+of looking up records from \fIdbvedit\fP(1).
+.sp 1
+The idea is to set one of the ten environment variables, CCOMMAND0 through
+CCOMMAND9, to be the name of an executable file. Naming of commands
+is done using the standard methods of tuning the \fIFirstBase\fP environment.
+See \fIsetup\fP(5) for more.
+.sp 1
+When invoked from the Record Level of \fIdbvedit\fP(1), a CCOMMAND will
+cause two temporary files to be generated for use by the designated
+executable: a token-separated  version of the current database record
+(along the lines of \fIdbemit\fP(1)), and a tiny \fIFirstBase\fP index
+representing the current record. NOTE: The invocation of \fIdbvedit\fP(1)
+must also use a \fIFirstBase\fP index of some kind.
+.sp 1
+The two temporary file names are passed on to the executable file
+as command line parameters. For example, if CCOMMAND=print was
+set up in the command line or in the setup file, then using the
+keystrokes \fBprint\fP from Record Level will invoke the \fIprint\fP script
+file from the CCOMMAND working directory with proper arguments.
+In shell parlance, $1 will be the data file, $2 the index file.
+.sp 1
+Both temporary files are deleted when the executable exits and
+control returns to Record Level. Explicit control is given over the
+working and home directories of the CCOMMAND. See \fIsetup\fP(5) for more.
+.sp 1
+Also, the \fB-s\fP option for \fIdbvedit\fP(1) can be used to impose 
+a screen dictionary layout to the emission of the temporary datafile.
+Other controls over this data file include
+the \fB-c\fP option to control the field separator,
+and the \fB-f\fP and \fB-V\fP options to produce formula fields and verbose
+formatting of dollar/date fields.
+.sp 1
+Note: if needed, the current record will be written to disk \fIbefore\fP
+the custom command is run.
+.PP
+\fIDbedit\fP(1)
+does interactive error checking on all input. Simple editor commands
+for the current command level
+are displayed on the 24th screen line at all times, with a full summary
+only a help signal away (<CTL>-H).
+.SH VARIABLES
+Many environment variables exist that control the behavior of
+\fIdbedit\fP(1) and \fIdbvedit\fP(1).
+For the entire list, see \fIsetup\fP(5).
+.PP
+One of the tunable features supported by
+\fIdbvedit\fP(1) is a blended record level and
+autofield level that in effect hides record level during editing.
+This feature, enabled by turning RECORD_LEVEL OFF, means that some
+of the functionality of record level is disabled, but the effect is a more
+modeless editing environment.
+.SH FILES
+.PD 0
+.TP 16
+dbase
+default name for database.
+.TP 16
+index
+default name for index.
+.TP 16
+*.ddict
+dictionary for database.
+.TP 16
+*.sdict
+screen dictionary for database (\fIdbedit\fP).
+.TP 16
+*.vdict
+view dictionary for database (\fIdbvedit\fP).
+.TP 16
+*.idict
+dictionary for index.
+.TP 16
+*.cdb
+\fIFirstBase\fP database.
+.TP 16
+*.map
+\fIFirstBase\fP database map - logical to physical mapping and record locking file.
+.TP 16
+*.log
+\fIFirstBase\fP database log - used to trace all record updates in case recovery is
+needed.
+.TP 16
+*.idx
+\fIFirstBase\fP index.
+.TP 16
+*.noadd
+add record lock. locks the database from having new records added to it.
+.TP 16
+*.nodel
+delete record lock. locks the database from having records deleted from it.
+.TP 16
+ .coname
+company name.
+.TP 16
+ .passwd
+password file.
+.TP 16
+ .visual
+visual command.
+.TP 16
+ .visual_lck
+visual process lock.
+.TP 16
+ .filter
+filter command.
+.TP 16
+ .filter_lck
+filter process lock.
+.TP 16
+ .cshell_lck
+sub process lock.
+.TP 16
+SEQF
+used to provide a unique Id number to each database.
+.PD
+.SH SEE ALSO
+dbshelltool(1), dbdbas(1), dbdind(1), dbigen(1), dbregen(1), choice(5),
+firstbase(5), input(5), macro(5), screens(5), setup(5), view(5), xchoice(5),
+dbdump(8), dbrestor(8)
+.PP
+.I FirstBase User's Guide and Reference Manual
+.SH DIAGNOSTICS
+\fIDbedit\fP(1)
+does not require an index. However, much of
+its power comes from indexes. If no index is present, a warning is issued,
+and processing continues as
+if an empty index using the first database field was given.
+.br
+.PP
+The database editors (and \fIFirstBase\fP tools in general) must have write
+access to the \fImap\fP file since this file is used as the lock file.
+\fINote\fP: this lock file also applies to the database
+scanners, \fIdbscan\fP(1) and \fIdbvscan\fP(1).
+A different segment of the \fImap\fP file is used to lock each record.
+The record header information is also locked using the \fImap\fP file.
+So, to enable cooperating processes to properly block each other on lock
+requests, the \fImap\fP file must have write permissions.
+.br

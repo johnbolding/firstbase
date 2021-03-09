@@ -1,0 +1,178 @@
+# Copyright (C) 2001 FirstBase Software, Inc. All rights reserved.
+#
+# $Id: Makefile.in,v 9.5 2001/11/18 18:10:45 john Exp $
+#
+# See the file LICENSE for conditions of use and distribution
+#
+#
+# Makefile for firstbase src/
+#
+
+PRODUCT = @PRODUCT@
+VERSION = @VERSION@
+
+SHELL = /bin/sh
+srcdir = @srcdir@
+VPATH = @srcdir@
+@SET_MAKE@
+
+CC = @CC@
+CFLAGS = @CFLAGS@
+INSTALL = @INSTALL@
+INSTALL_DATA = @INSTALL_DATA@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@  $(LIBEXTRA)
+RANLIB = @RANLIB@
+AR = ar
+AR_OPTS = @AR_OPTS@
+
+firstbasehome = @FIRSTBASEHOME@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = $(exec_prefix)/$(firstbasehome)/bin
+infodir = $(prefix)/$(firstbasehome)/info
+libdir = $(prefix)/$(firstbasehome)/lib
+mandir = $(prefix)/$(firstbasehome)/man
+docdir = $(prefix)/$(firstbasehome)/doc
+includedir = $(prefix)/$(firstbasehome)/include
+
+MDEFINES = CC='$(CC)' CFLAGS='$(CFLAGS)' LDFLAGS='$(LDFLAGS)' \
+LIBS='$(LIBS)' \
+prefix='$(prefix)' exec_prefix='$(exec_prefix)' \
+bindir='$(bindir)' infodir='$(infodir)'  LIBEXTRA='$(LIBEXTRA)'
+
+LIBDIRS = libcc libcdb libclnt libdbd libinit \
+	librec libscr libwin libsec libgnu
+
+MACRODIRS = libmpars libmexpr
+
+EDITDIR = libedit
+
+PROGDIRS = test dbedit dbigen dblgen dbmerge dbpgen dbshell \
+	dbsql dbtools dbugen dbvedit dbvemit dbvform dbvi
+
+LIBFB = lib/libfb.a
+LIBRARIES = $(LIBFB) lib/libmexpr.a lib/libmpars.a lib/libedit.a
+
+.SUFFIXES:
+.SUFFIXES: .c .o
+
+all: Makefile $(LIBRARIES) progs
+
+libs:: $(LIBRARIES)
+
+lib:: $(LIBRARIES)
+
+install: install_local install_recursive
+
+install_local:
+	@echo installing libraries
+	$(INSTALL) -d $(libdir)
+	@for lib in $(LIBRARIES) ; do \
+	   $(INSTALL_DATA) $$lib $(libdir) ; \
+        done
+	@echo installing header files
+	$(INSTALL) -d $(includedir)
+	@for file in include/*.h ; do \
+	   $(INSTALL_DATA) $$file $(includedir) ; \
+	done
+
+install_recursive:
+	@for subdir in $(PROGDIRS) ; do \
+	   echo making install in $$subdir; \
+	   (cd $$subdir && $(MAKE) $(MDEFINES) install) || break; \
+	done
+
+libfb.a: $(LIBFB)
+$(LIBFB)::
+	@for subdir in $(LIBDIRS) ; do \
+	   echo making all in $$subdir; \
+	   (cd $$subdir && $(MAKE) $(MDEFINES) all) || break; \
+	done
+	@echo generating OBJECTS list
+	@echo > OBJECTS
+	@for subdir in $(LIBDIRS) ; do \
+	   (cd $$subdir && $(MAKE) names) || break; \
+	done
+	if [ ! -d lib ] ; then mkdir lib; fi
+	/bin/rm -f $(LIBFB)
+	$(AR) $(AR_OPTS) $(LIBFB) `cat OBJECTS`
+	$(RANLIB) $(LIBFB)
+
+libmexpr.a: lib/libmexpr.a
+lib/libmexpr.a::
+	   (cd libmexpr && $(MAKE) $(MDEFINES) all)
+
+libmpars.a: lib/libmpars.a
+lib/libmpars.a::
+	   (cd libmpars && $(MAKE) $(MDEFINES) all)
+
+libedit.a: lib/libedit.a
+lib/libedit.a::
+	(cd libedit && $(MAKE) $(MDEFINES) all)
+
+progs: $(LIBRARIES)
+	@for subdir in $(PROGDIRS) ; do \
+	   echo making all in $$subdir; \
+	   (cd $$subdir && $(MAKE) $(MDEFINES) all) || break; \
+	done
+
+info:
+	cd doc && $(MAKE) $@
+
+tags:
+	etags */*.c include/*.h
+
+mostlyclean: mostlyclean-recursive mostlyclean-local
+
+clean: clean-recursive clean-local
+
+distclean: distclean-recursive distclean-local
+
+realclean: realclean-recursive realclean-local
+
+extraclean: extraclean-recursive extraclean-local
+
+mostlyclean-recursive clean-recursive distclean-recursive \
+realclean-recursive extraclean-recursive:
+	@for subdir in $(LIBDIRS) $(PROGDIRS) $(MACRODIRS) $(EDITDIR) ; do \
+ 	  target=`echo $@ | sed 's/-recursive//'`; \
+	  echo making $$target in $$subdir; \
+	  (cd $$subdir && $(MAKE) $$target) || exit 1; \
+	done
+
+mostlyclean-local:
+	-rm -f lib/* OBJECTS
+	-rmdir lib
+
+clean-local: mostlyclean-local
+
+distclean-local: clean-local
+	rm -f Makefile include/config.h
+
+realclean-local: distclean-local
+
+extraclean-local: realclean-local
+	rm -f patch* *~* *\#* *.orig *.rej *.bak core a.out include/*~*
+
+Makefile: Makefile.in ../config.status
+	cd ../ && CONFIG_FILES=src/$@ CONFIG_HEADERS= ./config.status
+
+DISTFILES = Makefile.in
+
+dist:
+	@for file in $(DISTFILES); do \
+	  ln $(srcdir)/$$file ../$(PRODUCT)-$(VERSION)/src 2> /dev/null \
+	    || cp -p $(srcdir)/$$file ../$(PRODUCT)-$(VERSION)/src; \
+	done
+	@for subdir in $(LIBDIRS) $(MACRODIRS) $(EDITDIR) $(PROGDIRS); do \
+	  echo making $@ in $$subdir; \
+	  mkdir ../$(PRODUCT)-$(VERSION)/src/$$subdir; \
+	  chmod 777 ../$(PRODUCT)-$(VERSION)/src/$$subdir; \
+	  (cd $$subdir && $(MAKE) $@) || exit 1; \
+	done
+
+# Tell versions [3.59,3.63) of GNU make not to export all variables.
+# Otherwise a system limit (for SysV at least) may be exceeded.
+.NOEXPORT:

@@ -1,0 +1,151 @@
+# Copyright (C) 2001 FirstBase Software, Inc. All rights reserved.
+#
+# $Id: Makefile.in,v 9.2 2001/01/22 17:36:59 john Exp $
+#
+# See the file LICENSE for conditions of use and distribution
+#
+#
+# Makefile for Firstbase src/libmexpr
+#
+
+PRODUCT = @PRODUCT@
+VERSION = @VERSION@
+
+SHELL = /bin/sh
+srcdir = @srcdir@
+VPATH = @srcdir@
+
+CC = @CC@
+CFLAGS = @CFLAGS@
+CPPFLAGS = @CPPFLAGS@
+DEFS = @DEFS@
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@ $(LIBEXTRA)
+RANLIB = @RANLIB@
+AR = ar
+AR_OPTS = @AR_OPTS@
+
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = $(exec_prefix)/bin
+
+COMPILE = $(CC) -c $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
+LINK = $(CC) $(LDFLAGS) -o $@
+
+.SUFFIXES:
+.SUFFIXES: .c .o
+.c.o:
+	$(COMPILE) $< -o $@
+
+INCLUDES = @INCLUDES@
+
+OBJECTS=\
+mac_array.o  \
+mac_date.o \
+mac_expr.o \
+mac_fb.o \
+mac_func.o \
+mac_html.o \
+mac_html2.o \
+mac_load.o \
+mac_verify.o \
+mac_lib.o \
+mac_math.o \
+mac_sec.o \
+mac_str.o \
+mac_stmt.o \
+mac_file.o
+
+MACRO_VEDIT=mac_vedt.o
+MACRO_STDIO=mac_stio.o
+
+all: libmexpr.a $(MACRO_VEDIT) $(MACRO_STDIO)
+	cp $(MACRO_VEDIT) $(MACRO_STDIO) ../lib
+
+LIBMEXPR=../lib/libmexpr.a
+libmexpr.a: $(OBJECTS)
+	@echo making library $@
+	@/bin/rm -f $(LIBMEXPR)
+	@$(AR) $(AR_OPTS) $(LIBMEXPR) $(OBJECTS)
+	@$(RANLIB) $(LIBMEXPR)
+
+mostlyclean:
+	rm -f *.o *._c *._o core core.*
+
+clean: mostlyclean
+
+distclean: clean
+	rm -f Makefile
+
+realclean: distclean
+	rm -f TAGS
+
+extraclean:: distclean
+	rm -f patch* *~* *\#* *.orig *.rej *.bak core a.out
+
+Makefile: Makefile.in ../../config.status
+	cd ../.. && CONFIG_FILES=src/libmexpr/$@ \
+		CONFIG_HEADERS= ./config.status
+
+MHEADERS= \
+../include/fb.h  \
+../include/config.h \
+../include/input.h \
+../include/error.h \
+../include/message.h \
+../include/libcc.h \
+../include/libcdb.h \
+../include/libdbd.h \
+../include/libinit.h \
+../include/liblic.h \
+../include/librec.h \
+../include/libscr.h \
+../include/libwin.h \
+../include/libsec.h \
+../include/libedit.h \
+../include/libclnt.h \
+../include/interface.h \
+../include/cx.h \
+../include/fb_vars.h \
+../include/fb_ext.h \
+../include/macro_e.h \
+../include/macro.h
+
+VE_EXT=\
+../include/dbve.h \
+../include/dbve_ext.h \
+../include/vdict.h \
+../include/vdict_e.h
+
+libmexpr/mac_array.o:	$(MHEADERS)
+libmexpr/mac_date.o:	$(MHEADERS)
+libmexpr/mac_expr.o:	$(MHEADERS)
+libmexpr/mac_fb.o:	$(MHEADERS)
+libmexpr/mac_func.o:	$(MHEADERS)
+libmexpr/mac_html.o:	$(MHEADERS)
+libmexpr/mac_html2.o:	$(MHEADERS)
+libmexpr/mac_load.o:	$(MHEADERS)
+libmexpr/mac_verify.o:	$(MHEADERS)
+libmexpr/mac_lib.o:	$(MHEADERS)
+libmexpr/mac_math.o:	$(MHEADERS)
+libmexpr/mac_sec.o:	$(MHEADERS)
+libmexpr/mac_str.o:	$(MHEADERS)
+libmexpr/mac_stmt.o:	$(MHEADERS)
+libmexpr/mac_file.o:	$(MHEADERS)
+libmexpr/mac_vedt.o:	$(MHEADERS) $(VE_EXT)
+
+DISTDIR = ../../$(PRODUCT)-$(VERSION)/src/libmexpr
+DISTFILES = *.c Makefile.in
+
+dist::
+	@echo "Copying distribution files from libmexpr"
+	@for file in $(DISTFILES); do \
+	   ln $(srcdir)/$$file $(DISTDIR) 2> /dev/null \
+	      || cp -p $(srcdir)/$$file $(DISTDIR); \
+	done
+
+# Tell versions [3.59,3.63) of GNU make not to export all variables.
+# Otherwise a system limit (for SysV at least) may be exceeded.
+.NOEXPORT:

@@ -1,0 +1,162 @@
+2012-04-14    <john.bolding@epona.horseweb.com>
+
+	* modified libscr/input.c -- read_kcheck -- to avoid a problem when:
+	     EDITINPUT is OFF
+	     two (2) ESCAPE's were hanging in read_kcheck
+
+2011-09-29    <john.bolding@epona.horseweb.com>
+
+	* added fflush(-1) to dbmacro via libmexpr/mac_file.c
+
+2009-02-25    <john.bolding@epona.horseweb.com>
+
+	* changed src/dbsql/tokenscript to allow for space between # and define.
+
+2006-09-19  John  <john@cerebus.horseweb.com>
+
+	* complete rewrite of libcc/subline.c to NOT write on the passed in s.
+
+2003-03-29  John Bolding  <john@firstbase.com>
+
+        * tweaked libmpars/tokenscript and dbsql/tokenscript
+          to accomodate the bison output "# define" instead of "#define".
+
+2001-09-01  John Bolding  <john@firstbase.com>
+
+        * tweaked configure.in to not use termios.h if OS is sco3.2
+	* src/libmexpr/mac_func.c
+	* src/libmexpr/mac_str.c
+	  augmented dbmacro to include
+	     crypt(string, salt), returns an encrypted string ala crypt(3)
+
+2001-03-19  John Bolding  <john@firstbase.com>
+
+	* src/libmexpr/mac_sec.c: 
+	* src/libmexpr/mac_func.c: 
+	* src/libmexpr/mac_file.c: 
+	* src/include/macro.h:
+	  modified dbmacro functions as follows:
+	  - modified mf_creat() to do a chmod on the file if it already exists.
+	  - added an mf_mkstemp() that really calls mf_mktemp()
+	    (since mf_mktemp really uses mkstemp(2), it closes the fd.
+	     a real mf_mkstemp would modify the array passed in for
+	     the user to keep. that did not happen this go around)
+	  - renamed all the firstbase secure record functions to 
+            r_owner() r_group() r_mode() r_chown() r_chgrp() r_chmod()
+	  - added an mf_chmod() command
+
+2001-03-18  John Bolding  <john@firstbase.com>
+
+	* src/dbtools/dbmacro.c: fixed path_trans to be null before
+	  its used. fixed to only look at extension of file name, .cgi,
+	  to determine whether to go cgi mode. this is so that i can
+	  test with program names like ndbmacro.cgi.
+
+	* src/libcdb/cgi.c: modified cgi_read_get to FB_ERROR out
+	  if the QUERY_STRING env variable is not set.
+
+	* src/libcdb/System.c: seems linux system() call is a bit
+	  flaky at times on some versions, so fb_system() has been
+	  modified to not use the system() call at all.
+	  now it uses execvp. in addition, changed to waitpid()
+	  to try and get better response from cgi dbmacro scripts that
+	  use the macro call system(). and, now pays attention to
+	  status from waitpid() and exits if its strange.
+
+2001-02-23  John Bolding  <john@firstbase.com>
+
+	* src/libscr/screen.c: modified visible bell area to
+	  use a ^G if its not defined.
+	  this was a terminfo only bug --- termcap was already working.
+
+2001-02-17  John Bolding  <john@firstbase.com>
+
+	* release 9.3.1
+	* man pages for section 4 were missing from distribution.
+	  (finally noticed by <garak_dracul@hotmail.com>).
+
+2001-02-16  John Bolding  <john@firstbase.com>
+
+	* man.ps target now in man/Makefile
+
+	* fixed use of mktemp and gets system wide
+
+	* src/libinit/setup.c:
+	  changed default behaviour. these are now default:
+	     MENUPAUSE OFF
+	     MAKEINDEX OFF
+	     DECIMAL ON
+
+	* quite a few bugs regarding #if clauses and FSYNC/FCNTL
+	  these should have been HAVE_FSYNC or HAVE_FCNTL.
+	  some were wrong. some were using FSYNC instead of HAVE_FSYNC.
+	  this might have caused multiuser problems with records
+	  stored across slow devices (NFS, etc).
+	  all of these were introduced when firstbase went autoconf.
+	
+	* src/libcdb/System.c:
+	  - added \" to list of characters that cause a complete system() call
+	  - make return status better for those that fork and wait
+
+	* a number of little bugs concering the full screen display
+	  for devices bigger than 24 x 80.
+	
+	* 180 degree about face regarding TERMCAP vs TERMINFO:
+	  since ncurses seems to be pretty common on Linux/FreeBSD/Etc,
+	  the default is now to use the ncurses library and if this
+	  is not found the HAVE_LIBNCURSES is undef'ed in
+	  src/include/config.h.
+
+	  Although I am not a TERMINFO fan, perhaps this will be good.
+	  At some point, the firstbase screen libraries could
+	  make better use of ncurses to optomize screen motion, etc.
+	  Perhaps even support for colors, pop-up style ncurses items, etc.
+
+	  So, TERMINFO via ncurses is the default.
+	  And, TERMCAP is done only if necessary.
+
+2001-02-05  John Bolding  <john@firstbase.com>
+
+	* src/libscr/input.c: 
+	* src/libscr/e_input.c: both of these were modified to handle
+	  windows that change sizes while being used, ala SIGWINCH.
+
+	* src/libscr/refresh.c: 
+	* src/libscr/scrhdr.c: 
+	* src/libscr/scrstat.c: 
+	* src/libscr/scrtime.c: 
+	* src/libinit/ender.c: 
+	* src/libcdb/screrr.c:
+	  all of these were modified to better handle standard
+	  screen messages on surfaces bigger than 24 x 80,
+	  and to restore headers and footers when the frame size changes.
+
+	* src/libcdb/winsize.c: modified to handle different frame/window
+	  sizes using an ioctl() call with TIOCGWINSZ or TIOCGSIZE,
+	  then allowing environment variables LINES and COLUMNS to
+	  override all else. (Thanks to <vanonim@dial.eunet.ch>).
+
+	  finally, sanity checks are done to make sure
+	  nothing interactive less than 24 x 80 gets through.
+
+	* src/libinit/getargs.c: took out code that was getting in the way
+	  of the new fb_winsize(). all sanity checks are now done at
+	  screen setup time.
+
+	* src/libscr/screen.c: force all columns and lines determinations
+	  to be done inside of winsize, newly named fb_winsize().
+
+2001-02-02  John Bolding  <john@firstbase.com>
+
+	* src/libinit/setup.c: removed the LINES setup variable,
+	     (also force makeindex to be OFF at startup).
+
+2001-02-02  John Bolding  <john@firstbase.com>
+
+	* .visual: changed to /usr/bin/vi (was /usr/ucb/vi).
+
+	* configure.in (INCLUDES): made `ed' and one of `flex' or `lex'
+	  and one of `bison', `byacc', or `yacc' required in order
+	  to complete ./configure.
+
+$Id: ChangeLog,v 9.9 2006/09/19 17:46:07 john Exp $

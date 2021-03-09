@@ -1,0 +1,21 @@
+LastName a 30 -d _
+FirstName a 15 -d _
+Company a 35 -d _
+HomePhone a 17 -d _
+WorkPhone a 17 -d _
+Addr1 a 40 -d _
+Addr2 a 40 -d _
+City a 15 -d _
+State a 2 -d _
+Zip a 10 -d _
+TYPE a 1 -r 1,2
+S_LastName a 1 -d _ -r 1,2
+S_FirstNam a 1 -d _ -r 1,2
+S_Company a 1 -d _ -r 1,2
+S_HomePhon a 1 -d _ -r 1,2
+S_WorkPhon a 1 -d _ -r 1,2
+S_Addr1 a 1 -d _ -r 1,2
+S_Addr2 a 1 -d _ -r 1,2
+S_City a 1 -d _ -r 1,2
+S_State a 1 -d _ -r 1,2
+S_Zip a 1 -d _ -r 1,2

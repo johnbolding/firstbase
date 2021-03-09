@@ -1,0 +1,176 @@
+# Copyright (C) 2001 FirstBase Software, Inc. All rights reserved.
+#
+# $Id: Makefile.in,v 9.8 2001/02/16 20:27:43 john Exp $
+#
+# See the file LICENSE for conditions of use and distribution
+#
+#
+# Top Level Makefile for FirstBase package
+#
+
+PRODUCT = @PRODUCT@
+VERSION = @VERSION@
+
+SHELL = /bin/sh
+srcdir = @srcdir@
+VPATH = @srcdir@
+@SET_MAKE@
+
+CC = @CC@
+CFLAGS = @CFLAGS@
+INSTALL = @INSTALL@
+INSTALL_DATA = @INSTALL_DATA@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+LDFLAGS = @LDFLAGS@
+
+# you can override CFLAGS to optimize, use -Wall, etc.
+# CFLAGS = -g
+CFLAGS = -w
+# CFLAGS = -O
+
+# Ditto for LDFLAGS and LOADLIBES.
+# LDFLAGS =
+
+firstbasehome = @FIRSTBASEHOME@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+homedir = $(exec_prefix)/$(firstbasehome)
+bindir = $(exec_prefix)/$(firstbasehome)/bin
+infodir = $(prefix)/$(firstbasehome)/info
+libdir = $(prefix)/$(firstbasehome)/lib
+mandir = $(prefix)/$(firstbasehome)/man
+docdir = $(prefix)/$(firstbasehome)/doc
+includedir = $(prefix)/$(firstbasehome)/include
+
+INSTALLFILES = INSTALL AUTHORS LICENSE README \
+   .coname .filter .firstbase-init .firstbase-kbmap* .visual
+
+FILES = Makefile.in configure.in configure acconfig.h VERSION \
+   install-sh config.sub config.guess $(INSTALLFILES)
+
+LIBEXTRA = 
+
+LIBS = @LIBS@ $(LIBEXTRA)
+
+MDEFINES = CC='$(CC)' CFLAGS='$(CFLAGS)' LDFLAGS='$(LDFLAGS)' LIBS='$(LIBS)' \
+prefix='$(prefix)' exec_prefix='$(exec_prefix)' \
+bindir='$(bindir)' infodir='$(infodir)' LIBEXTRA='$(LIBEXTRA)'
+
+SUBDIRS = src doc man menu scripts hlp applications
+
+.SUFFIXES:
+.SUFFIXES: .c .o
+
+all: Makefile
+	@for subdir in $(SUBDIRS); do \
+	  echo making $@ in $$subdir; \
+	  (cd $$subdir && $(MAKE) $(MDEFINES) $@) || exit 1; \
+	done
+	@echo Done with top level $@
+
+install: all
+	@echo installing FIRSTBASEHOME files
+	$(INSTALL) -d $(homedir)
+	@for file in $(INSTALLFILES); do \
+	   $(INSTALL) $$file $(homedir) ; \
+        done; \
+	$(INSTALL) -m 0666 SEQF $(homedir)
+	@for subdir in $(SUBDIRS); do \
+	  echo making $@ in $$subdir; \
+	  (cd $$subdir && $(MAKE) $(MDEFINES) $@) || exit 1; \
+	done
+	@echo Done with top level $@
+
+info:
+	cd doc && $(MAKE) $@
+
+tags:
+	ctags */*.c include/*.h
+
+mostlyclean: mostlyclean-recursive mostlyclean-local
+
+clean: clean-recursive clean-local
+
+distclean: distclean-recursive distclean-local
+
+realclean: realclean-recursive realclean-local
+
+extraclean: extraclean-recursive extraclean-local
+
+mostlyclean-recursive clean-recursive distclean-recursive \
+realclean-recursive extraclean-recursive:
+	@for subdir in $(SUBDIRS); do \
+ 	  target=`echo $@ | sed 's/-recursive//'`; \
+	  echo making $$target in $$subdir; \
+	  (cd $$subdir && $(MAKE) $$target) || exit 1; \
+	done
+
+mostlyclean-local:
+
+clean-local: mostlyclean-local
+
+distclean-local: clean-local
+	rm -f Makefile config.cache config.status config.log stamp-h
+	rm -f stamp-h.in SUMO
+
+realclean-local: distclean-local
+
+extraclean-local:: realclean-local
+	rm -f patch* *~* *\#* *.orig *.rej *.bak core a.out
+	rm -f firstbase-*.tar.gz
+
+DISTFILES = $(FILES) SEQF
+
+dist: $(DISTFILES)
+	rm -rf $(PRODUCT)-$(VERSION)
+	mkdir $(PRODUCT)-$(VERSION)
+	chmod 777 $(PRODUCT)-$(VERSION)
+	@for file in $(DISTFILES); do \
+	  ln $(srcdir)/$$file $(PRODUCT)-$(VERSION) 2> /dev/null \
+	    || cp -p $(srcdir)/$$file $(PRODUCT)-$(VERSION); \
+	done
+	@for subdir in $(SUBDIRS); do \
+	  echo making $@ in $$subdir; \
+	  mkdir $(PRODUCT)-$(VERSION)/$$subdir; \
+	  chmod 777 $(PRODUCT)-$(VERSION)/$$subdir; \
+	  (cd $$subdir && $(MAKE) $@) || exit 1; \
+	done
+	@echo "Copying firstbasehome/src include directory"
+	@/bin/rm -f $(srcdir)/src/include/config.h
+	@(cd $(PRODUCT)-$(VERSION)/src; ln -s ../../src/include .)
+	chmod -R a+r $(PRODUCT)-$(VERSION)
+	tar -c -h -o --gzip -f $(PRODUCT)-$(VERSION).tar.gz --exclude CVS \
+		$(PRODUCT)-$(VERSION)
+	tar -c -h -o --bzip2 -f $(PRODUCT)-$(VERSION).tar.bz2 --exclude CVS \
+		$(PRODUCT)-$(VERSION)
+	rm -rf $(PRODUCT)-$(VERSION)
+
+# For an explanation of the following Makefile rules, see node
+# `Automatic Remaking' in GNU Autoconf documentation.
+Makefile: Makefile.in config.status
+	CONFIG_FILES=$@ CONFIG_HEADERS= ./config.status
+
+config.status: configure
+	./config.status --recheck
+
+configure: configure.in
+	cd $(srcdir) && autoconf
+
+config.h src/include/config.h: stamp-h
+stamp-h: src/include/config.h.in config.status
+	CONFIG_FILES= CONFIG_HEADERS=src/include/config.h ./config.status
+
+src/include/config.h.in: stamp-h.in
+stamp-h.in: configure.in acconfig.h
+	cd $(srcdir) && autoheader
+	date > $(srcdir)/stamp-h.in
+
+SUMO checksum::
+	@echo checksum of entire directory
+	find . -type f -exec cksum {} \; | sed -e '/\/CVS\//d' | \
+	   sed -e '/Makefile$$/d' > SUMO
+	sort -t ' ' +2 -o SUMO SUMO
+
+# Tell versions [3.59,3.63) of GNU make not to export all variables.
+# Otherwise a system limit (for SysV at least) may be exceeded.
+.NOEXPORT:

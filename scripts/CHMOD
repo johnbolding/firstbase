@@ -1,0 +1,96 @@
+:
+clear
+echo "
+	This command is used to change the permissions of
+	a file or directory. The computer will make sure
+	that you are Allowed to make such changes.
+
+	It is assumed that you understand file permissions
+	at least a little bit.  Here is a refresher though:
+
+	File permissions are divided into three categories:
+	'r' for Read, 'w' for Write and 'x' for Execute.
+	Any file can be any combination of the above three categories.
+	NOTE: Directories MUST be Executable ('x') to be Used.
+
+	To confuse things a bit more, there are three classes of
+	protection, 'User' 'Group' and 'Public'. Each of these classes
+	has a value for each of the three categories 'r' 'w' and 'x'.
+
+	This makes a total of 9 slots for protection:
+	   'rwx' for User
+	   'rwx' for Group
+	   'rwx' for Public
+	"
+echo -n "	Do you want to continue ('<RETURN>' = Yes, 'n' = No) ? "
+read answer
+if [ "$answer" = "n" ]
+   then
+   exit
+fi
+clear
+while true
+   do
+   clear
+   echo -n "	Enter FileName you want to make permission changes to: "
+   read file
+   if [ "$file" = "" ]
+      then
+      echo
+      echo "	No file entered. Exiting with no permission changes."
+      exit
+   fi
+   if [ -s $file ]
+      then
+      break
+   fi
+   echo "	That file does not exist. "
+   echo
+   echo -n "	Enter <RETURN> To Continue:"
+   read garbage
+   done
+while true
+   do
+   clear
+   echo Target FileName is: $file
+   echo Current permissions are as follows:
+   echo
+   ls -ld $file
+   echo "-^^^^^^^^^"
+   echo "-UUUGGGPPP -- U = User, G = Group, P = Public"
+   user=""
+   group=""
+   public=""
+   echo "
+	For the following permissions, enter any combinations of
+	'rwx' as you Need/Want.
+
+	To completely Protect a File/Directory, do not enter
+	Any Permissions for Group AND Public.
+
+	You must Enter ALL Needed Permissions. 
+	Typically, 'rw' for User at the very minimum.
+	"
+   echo -n "	Enter new User Permissions:   "
+   read user
+   echo -n "	Enter new Group Permissions:  "
+   read group
+   echo -n "	Enter new Public Permissions: "
+   read public
+   chmod u=$user $file
+   chmod g=$group $file
+   chmod o=$public $file
+   clear
+   echo
+   echo New permissions are as follows:
+   echo
+   ls -ld $file
+   echo "-^^^^^^^^^"
+   echo "-UUUGGGPPP"
+   echo -n "	Do you want to continue? 'y' = Yes, <RETURN> = No "
+   read answer
+   if [ "$answer" != "y" ]
+      then
+      break
+   fi
+   done

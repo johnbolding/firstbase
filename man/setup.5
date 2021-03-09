@@ -1,0 +1,1043 @@
+.TH SETUP 5 "15 February 2001"
+.FB
+.SH NAME
+setup \- the setup (rc) file
+.SH SYNOPSIS
+ .firstbase-init
+.sp
+ .fb-init
+.SH DESCRIPTION
+The setup file is used to define most all environment variables that
+can be used to tune \fIFirstBase\fP. Global and local setup
+files are
+supported. The name of a setup file is \fI.firstbase-init\fP on machines
+that support arbitrary length file names,
+and \fI.fb-init\fP on those that do not.
+All \fIFirstBase\fP programs process any setup files before running. 
+.PP
+One environment variable, $FIRSTBASEHOME, must be a true UNIX environment
+variable. This variable, usually set in either the \fI.cshrc\fP or
+the \fI.login\fP, along with the $PATH,
+controls the location of the \fIFirstBase\fP home directory.
+.PP
+The \fIFirstBase\fP home directory contains the global setup file.
+After processing the global setup file, \fIFirstBase\fP programs can process
+other setup files.
+These local setup files can be used to override or augment
+the definitions from the global setup file.
+.PP
+As another alternative, and for those situations where global or local
+setup files do not provide the needed flexibility, all \fIFirstBase\fP tools
+will accept command line environment commands of the form
+ENV_VARIABLE=VALUE. This is handy in situations where NOADDREC or
+REGEXP might be needed for a single database application only.
+.PP
+Note that processing of the local setup files and of the command line
+environment commands can be disabled by turning the LOCALRC variable to
+OFF in the global setup file.
+.PP
+The location of any local
+setup files is determined as follows:
+one setup file from the user's HOME directory or PATH list, and one from the
+working database directory. Either or both of these files will be
+processed if they exist.
+(Note: '.' must be in
+your PATH if you expect a 'current directory' setup file to be processed).
+.PP
+The lines of the setup files are of the form:
+.sp 1
+\fBset\fP \fIvariable\fP \fIvalue\fP
+.sp 1
+\fINote:\fP To store embedded blanks in a string \fIvalue\fP, use
+underscores.
+.PP
+Here is the sample setup file distributed with \fIFirstBase\fP:
+.ft CW
+.sp 1
+set ASKGEN         ON
+.br
+set ASKWRITE       OFF
+.br
+set CHOOSEFIELD    ON
+.br
+set DIRNAME        ON
+.br
+set INFOLINE       ON
+.br
+set INTERRUPT      OFF
+.br
+set LOCKLEVEL      2
+.br
+set LOCKMESSAGE    2
+.br
+set LOCKTIME       60
+.br
+set MAKEINDEX      ON
+.br
+set MENUPAUSE      ON
+.br
+set NAME_LENGTH    18
+.br
+set NEGATIVE       OFF
+.br
+set PGENCOLS       132
+.br
+set PUTFILE        putidx
+.br
+set RECLOG         OFF
+.br
+set REGEXP         OFF
+.br
+set REVERSE        ON
+.br
+set RUNFLAGS       -y
+.br
+set SHELL          /bin/sh
+.br
+set STANDOUT       ON
+.br
+set USRLOG         0
+.br
+set VIPAUSE        ON
+.br
+set VIADDPAUSE     ON
+.br
+set WRAPSCAN       ON
+.sp 1
+.ft
+.PP
+The following is a description of each of the setup variables and the
+values used for controlling the variables.
+.PD 1
+.TP 10
+ASKGEN
+Accepted values are \fION\fP and \fIOFF\fP (default).
+Controls the "Do you want to Run" questions at the end of
+most \fIFirstBase\fP dbd dictionary editors. Set to OFF, no process chaining is ever done.
+.TP 10
+ASKWRITE
+Accepted values are \fION\fP and \fIOFF\fP (default).
+Controls the "Write Record Now" question at the end of
+Record Level Mode within the \fIFirstBase\fP tools \fIdbedit\fP(1) and \fIdbvedit\fP(1).
+.TP 10
+BLOCKSIZE
+Accepted values are positive integers, usually in multiples of 1024.
+Defines the size of the block buffer used by \fIblockeach\fP(3) to process
+as many records in as few disk reads as possible. The default is 1024.
+The \fIblockeach\fP mechanism is also used by all \fIFirstBase\fP generators
+that accept the \fB-B\fP command line flag. For example, \fIdbigen\fP(1).
+.TP 10
+CENTURYMARK
+Accepted values are integers between 0 and 99. This value, representing
+the last two digits of a year, marks a point in time that helps define
+which century a given 6-digit \fIFirstBase\fP date occurs in.
+.sp 1
+Internally, \fIFirstBase\fP dates are represented as MMDDYY. When dates into the
+\fInext\fP century are required, DATEDISPLAY can be set to 10, and
+all dates will be logically viewed as MMDDCCYY.
+.sp 1
+The following formula determines the value of CC, the century value:
+.sp 1
+.nf
+.nj
+	if (YY > CENTURYMARK)
+	   CC = CENTURYBASE
+	else
+	   CC = CENTURYNEXT
+.fi
+.ju
+.sp 1
+The default value for CENTURYMARK is 50, CENTURYBASE is 19, and
+CENTURYNEXT is 20. All of these \fIFirstBase\fP setup variables are settable
+in the normal manner.
+.TP 10
+CHOICEADDPAUSE
+Accepted values are \fION\fP and \fIOFF\fP (default).
+Controls whether or not \fIdbedit\fP(1)
+will pause before displaying the choicefield
+during new record entry only.
+.TP 10
+CHOICEPAUSE
+Accepted values are \fION\fP and \fIOFF\fP (default).
+Controls whether or not \fIdbedit\fP(1)
+will pause before displaying the choicefile.
+However, pausing on new records is controlled
+by the CHOICEADDPAUSE variable.
+.TP 10
+CHOICEPAUSE_MSG
+String value used in \fIdbvedit\fP(1) as the prompt 
+during the CHOICEPAUSE question. The default is
+.br
+.ft CW
+.nf
+.nj
+Edit Choice Field `FieldName' Now? (y=yes, <other>=no):
+.fi
+.ju
+.ft
+.TP 10
+CHOOSEFIELD
+Accepted values are \fION\fP and \fIOFF\fP (default).
+Normally, field names are used to build selection criteria in
+the dictionary editors.
+However, if the CHOOSEFIELD environment variable is ON, fields can be selected
+from a list of numbered entries. This feature works only with \fIdbdind\fP(1),
+\fIdbdprt\fP(1), and \fIdbdupd\fP(1),
+.TP 10
+CCOMMAND
+Actual environment variables are CCOMMAND0 through CCOMMAND9. These
+environment variables allow the tying of custom executable commands to the
+Record Level of \fIdbvedit\fP(1). Each CCOMMAND is fed a set of data files
+from the current record. See \fIdbedit\fP(1) from more details.
+See also the HOME_CCOMMAND and WDIR_CCOMMAND environment variables.
+.TP 10
+CCOMMAND_PROMPT
+Actual environment variables are CCOMMAND_PROMPT0 through
+CCOMMAND_PROMPT9.
+These environment variables allow the tying of custom 
+prompt strings to each of the 
+executable custom commands as defined via CCOMMAND.
+These prompt strings will be printed as the custom command is executed.
+.TP 10
+CCOMMAND_SHELL
+This variable controls the shell used by \fIdbvedit\fP(1) during custom
+command execution.
+Accepted values are full path names of UNIX command interpreter shells,
+with the default being \fI/bin/sh\fP.
+Note that a value of \fI/bin/csh_-f\fP could be used to execute
+the Cshell with the \fI-f\fP argument for fast startup.
+The default shell is /bin/sh.
+.TP 10
+CPU_BYTEORDER
+This variable controls whether the CPU uses big endian or little endian
+byte ordering. The value 4321 is used for big endian and 1234 for little
+endian. If set to 0, an attempt is made to determine the native byte
+ordering by reading the file $FIRSTBASEHOME/BIGE.
+In conjunction with DBASE_BYTEORDER, this variable can be used to enable
+a database to be shared among computers with different byte orderings.
+The general idea is to pick one database ordering, set that
+in the .firstbase-init file in the database directory, then
+set CPU_BYTEORDER to 0 in a global file.
+.TP 10
+DATEDISPLAY
+Accepted values are 8 (default), 10 and 11.
+Defines how \fIFirstBase\fP will display dates.
+A value of 8 indicates MM/DD/YY displays, 10 means MM/DD/CCYY. A value of 11
+means "DD Mon CCYY", as in "16 Feb 1993".
+See also CENTURYMARK and DATESTYLE.
+.sp 1
+Note that all manner of \fIFirstBase\fP date behavior is affected by changing
+this environment variable, including index generation, index searches,
+and the dates displayed in all \fIFirstBase\fP output tools and generators.
+.TP 10
+DATESTYLE
+Accepted values are 1 and 2.
+This variable controls the style of dates within \fIFirstBase\fP:
+a value of 1 (default) indicates American style dates (MM/DD/YY), a value of
+2 indicates European style dates (DD/MM/YY).
+.TP 10
+DBASE
+Accepted values are normal file names \(em with no extensions.
+The file name will be used as the default database name, instead of the
+internal default \fIdbase\fP. Similar \fBset\fP commands can be used for
+\fBINDEX\fP, \fBSCREEN\fP, and \fBVIEW\fP.
+.TP 10
+DBASE_BYTEORDER
+This variable controls whether the database is using big endian or
+little endian byte ordering. The value 4321 is used for big endian and 1234
+for little
+endian. If set to 0, an attempt is made to determine the native byte
+ordering by reading the file $FIRSTBASEHOME/BIGE.
+In conjunction with DBASE_CPUORDER, this variable can be used to enable
+a database to be shared among computers with different byte orderings.
+The general idea is to pick one database ordering, set that
+in the .firstbase-init file in the database directory, then
+set CPU_BYTEORDER to 0 in a gloabl file.
+.TP 10
+DBSHELL_CHECKMAIL
+Numeric value used in \fIdbshell\fP(1) as the time in seconds
+before a check for incoming email is done. Email is checked
+using the size of the file pointed to by the
+$MAIL environment variable. A setting of 0 means no check is done.
+The default is 60.
+.TP 10
+DBSHELL_ECOMMAND
+toggles the ability to use the \fIdbshell\fP(1) environment control screen.
+Accepted values are \fION\fP (default) and \fIOFF\fP.
+.TP 10
+DBSHELL_PSTRING
+String value used in \fIdbshell\fP(1) as the prompt string.
+The default is
+.br
+.ft CW
+.nf
+.nj
+Enter Selection:
+.fi
+.ju
+.ft
+.TP 10
+DBSHELL_PLOC
+String value used in \fIdbshell\fP(1) to control the prompt location.
+For example, a value of \fB17,5\fP would use row 17, column 5 as the
+location for the prompt. The prompt \fIstring\fP (DBSHELL_PSTRING) 
+is accounted for before the actual input location is determined.
+The default coordinates are row 24, column 1.
+.TP 10
+DBSHELL_PILENGTH
+Numeric value used in \fIdbshell\fP(1) as the prompt input length,
+the maximum number of characters allowed to be typed at the prompt.
+The default is 15.
+.TP 10
+DBSHELL_SHELL
+This variable controls the shell that \fIdbshell\fP(1) uses when executing
+command scripts.
+Accepted values are full path names of UNIX command interpreter shells,
+with the default being \fI/bin/sh\fP.
+Note that a value of \fI/bin/csh_-f\fP could be used to execute
+the Cshell with the \fI-f\fP argument for fast startup.
+.TP 10
+DBVEDIT_REC_PLOC
+String value used in \fIdbvedit\fP(1) to control the prompt location
+for record level.
+For example, a value of \fB17,5\fP would use row 17, column 5 as the
+location for the prompt. The prompt \fIstring\fP (PROMPT_RECORDMSG)
+is accounted for before the actual input location is determined.
+The default is 24,1.
+.TP 10
+DBVEDIT_REC_PILENGTH
+Numeric value used in \fIdbvedit\fP(1) as the record level prompt input
+length, the maximum number of characters allowed to be typed at the prompt.
+The default is 8.
+.TP 10
+DBVEDIT_CHO_PLOC
+String value used in \fIdbvedit\fP(1) to control the prompt location
+for choice and extended choice screens.
+For example, a value of \fB17,5\fP would use row 17, column 5 as the
+location for the prompt. The prompt \fIstring\fP (PROMPT_CHOICEMSG)
+is accounted for before the actual input location is determined.
+The default is 24,1.
+.TP 10
+DBVEDIT_CHO_PILENGTH
+Numeric value used in \fIdbvedit\fP(1) as the prompt input
+length for choice and extended choice screens. Prompt input length is
+the maximum number of characters allowed to be typed at the prompt.
+The default is 10.
+.TP 10
+DBVEDIT_CHO_FIRSTLINE
+Numeric value used in \fIdbvedit\fP(1) as the first line of display
+for all extended choice screen displays.
+The default is 3.
+.TP 10
+DECIMAL
+Accepted values are \fION\fP and \fIOFF\fP (default).
+Controls the style of \fIdollar\fP input.
+The default is ON.
+.sp 1
+If DECIMAL is turned ON, then \fIdollar\fP input accepts a decimal,
+and provides trailing zeros for the pennies value if no decimal is input.
+If DECIMAL os OFF, during DOLLAR input, the user is forced
+to enter all penny values.
+.TP 10
+DIRNAME
+Accepted values are \fION\fP (default) and \fIOFF\fP.
+Controls the display of the directory name in the information line
+which foots all the screens of the \fIFirstBase\fP tools.
+.TP 10
+EDITINPUT
+Accepted values are \fION\fP and \fIOFF\fP.
+Controls the use of the editable input mechanism described in
+\fIinput\fP(5) and \fIkeyboard\fP(5). Since this setting triggers an
+extensible set of keyboard signals, the default is \fIOFF\fP.
+To enable the full editable input mode throughout the FirstBase,
+change this value to \fION\fP.
+.TP 10
+ERRORLOG
+Controls the logging of \fIFirstBase\fP system error messages.
+To turn the error logging on, set ERRORLOG to a writeable file name,
+for example \fI/usr/adm/firstbase.error\fP. When a \fIFirstBase\fP error
+occurs of any kind (except the most trivial) the error is logged in the
+indicated file. The default is not to log system error messages.
+.TP 10
+EX_CHOICEADDPAUSE
+Accepted values are \fION\fP and \fIOFF\fP (default).
+Controls whether or not \fIdbvedit\fP(1)
+will pause before displaying the extended choice database selections
+during new record entry only.
+.TP 10
+EX_CHOICEPAUSE
+Accepted values are \fION\fP and \fIOFF\fP (default).
+Controls whether or not \fIdbvedit\fP(1)
+will pause before displaying the extended choice database selections.
+However, pausing on new records is controlled
+by the EX_CHOICEADDPAUSE variable.
+.TP 10
+EX_CHOICEPAUSE_MSG
+String value used in \fIdbvedit\fP(1) as the prompt 
+during the EX_CHOICEPAUSE question.
+The default is
+.br
+.ft CW
+.nf
+.nj
+Edit Extended Choice Field `FieldName' Now? (y=yes, <other>=no):
+.fi
+.ju
+.ft
+.TP 10
+.TP 10
+EX_FORCEONE
+Accepted values are \fION\fP and \fIOFF\fP.
+Controls the forced selection of a single extended choice when there
+are no other choices available.
+The default, OFF, means the user must select a choice even
+when the choice list has only a single entry.
+.TP 10
+EX_FULLKEY
+Accepted values are \fION\fP and \fIOFF\fP.
+Flag to control whether all filter fields are used as the extended choice
+filters. The default, OFF, means that characters beyond an empty filter
+field are not considered during the record searching.
+.TP 10
+EX_REVERSE
+Accepted values are \fION\fP and \fIOFF\fP.
+Flag to control whether extended choice selections are displayed
+in reverse video or not. Default is ON.
+.TP 10
+FIXEDWIDTH
+Accepted values are 0 (default) and 1. When set to 1 causes the
+\fIFirstBase\fP engine
+to store records in a fixed width manner as opposed to the normal variable
+length format. See also \fIputrec\fP(3).
+.TP 10
+FORCEAUTOINCR
+is used to force the <RETURN> keystroke when AUTOINCR fields are being
+edited using \fIdbedit\fP(1) or \fIdbvedit\fP(1).
+Accepted values are \fION\fP and \fIOFF\fP (default).
+This feature can be used to further force the automatic numbering of records.
+.sp 1
+However, use of this
+environment variable means that the contents of the AUTOINCR field cannot be
+overridden by the user. Specifically, if the field being incremented needs
+to be \fIseeded\fP, FORCEAUTOINCR will need to be OFF for the creation
+of the first record. It can then be turned back ON.
+.TP 10
+FUNCTIONKEYS
+Accepted values are \fION\fP (default) and \fIOFF\fP.
+Toggles the use of extended terminal (\fItermcap\fP(5)) function keys.
+Turn this ON to enable arrow and function keys.
+Used only when EDITINPUT is OFF.
+.TP 10
+HITANYKEY
+String value used as the simple and fatal error message prompt within
+all \fIFirstBase\fP tools.
+The default message/prompt is:
+.br
+.ft CW
+.nf
+.nj
+**_HIT_ANY_KEY_TO_CONTINUE_**_.
+.fi
+.ju
+.ft
+.TP 10
+HOME_CCOMMAND
+Controls the home directory of the CCOMMAND custom commands.
+The default is \fI$FIRSTBASEHOME/ccommand\fP. 
+.TP 10
+INFOLINE
+Accepted values are \fION\fP (default) and \fIOFF\fP.
+Controls the display of the information line.
+.TP 10
+INTERRUPT
+Accepted values are \fION\fP and \fIOFF\fP (default).
+Most all generators (except \fIdbcgen\fP(1)
+and \fIdbigen\fP(1)) will allow themselves
+to be interrupted, no matter what they are doing, if you have the
+INTERRUPT variable set to 'ON'. Otherwise, all interrupt
+and quit signals are ignored.
+.sp 1
+In addition, dbload and dbrload will follow this firstbase environment
+variable. However, if either of these database load tools is interrupted,
+the database and index objects being updated should be deleted.
+See \fIrmdb\fP(8).
+.TP 10
+KEYPAD
+\fINote:\fP the following are used only when EDITINPUT is OFF.
+.sp 1
+These are a series of variables that control the signals assigned to the
+internal \fIFirstBase\fP \fBkeypad\fP or \fBk\fP slots. The numbered function
+key slots, \fBk0\fP through \fBk9\fP are defined using KEYPAD\fIN\fP.
+These correspond directly to the function key strings allowed in
+\fItermcap\fP(5).
+.sp 1
+When a function key is pressed, \fIFirstBase\fP determines what position,
+or \fIk-slot\fP, was used. Then, a search of the \fIFirstBase\fP KEYPAD\fIN\fP
+definitions is done. If a match is found, the signal defined is emitted
+by the internal \fIFirstBase\fP data input mechanism.
+.sp 1
+For example, if the \fItermcap\fP(5) definition lists \fIk4=\\E227z\fP,
+then ANY keyboard
+key that emits this sequence when depressed is known to
+the \fIFirstBase\fP system
+as \fIKEYPAD4\fP. Continuing, say that the \fI.firstbase-init\fP file contains
+a \fIset KEYPAD4 WRITEREC\fP line, then this function key will
+generate the internal \fIFirstBase\fP WRITEREC signal.
+.sp 1
+These are some other keystrokes that can be defined for use
+with \fIFirstBase\fP.
+These keys are assigned signals using KEYPAD_\fIKEY\fP where
+\fIKEY\fP is one of DOWN, UP, LEFT, RIGHT, ESCAPE, or TAB.
+For these, only the first four need \fItermcap\fP(5) entries:
+\fIkd\fP, \fIku\fP, \fIkl\fP, and \fIkr\fP.
+.sp
+These keys are assinged just like the other function keys.
+For example, \fIset KEYPAD_LEFT PREV\fP would align the internal
+\fIFirstBase\fP signal \fIPREV\fP with the left arrow (assuming \fIkl\fP is
+properly set in \fItermcap\fP(5)).
+.sp 1
+The valid internal \fIFirstBase\fP signals that each of
+these KEYPAD\fIN\fP and KEYPAD\fI_KEY\fP slots can generate are assigned
+using one of ABORT, DEFAULT, DELETEREC, END, HELP, NEXT,
+PAGEUP, PAGEDOWN, PRINT, PREV, CLEARFIELD, or WRITEREC.
+.TP 10
+LINES
+Accepted values are >= 24. This environment variable is used to control
+the number of screen lines \fIdbvedit\fP(1) will use as a display window.
+This value is initially read from the terminal definition file, and then
+from the local window structure if applicable, but LINES can
+be used to force \fIdbvedit\fP(1) and \fIdbshell\fP(1)
+to use a 24 line window \(em like all other
+\fIFirstBase\fP tools do anyway \(em even when the terminal definition has
+the lines at a different setting.
+.TP 10
+LOCALRC
+Accepted values are \fION\fP and \fIOFF\fP, the default is \fION\fP.
+When this variable is set to \fIOFF\fP, users local \fI.firstbase-init\fP files
+are not processed during the startup of \fIFirstBase\fP. In other words,
+turning this variable off disables users overriding global \fIFirstBase\fP
+settings.
+.TP 10
+LOCKDAEMON
+Accepted values are \fION\fP and \fIOFF\fP, the default is \fIOFF\fP.
+When set to OFF, record and file locking
+(in a network environment) are done using \fIfcntl\fP and the
+standard NFS lock daemon, \fIrpc.lockd\fP.
+.sp 1
+When LOCKDAEMON is set to ON, record and file locking will be
+done using RPC calls to
+\fIfblockd\fP(8), the \fIFirstBase\fP lock daemon. The lock daemon should be
+running on the machine named in the SERVER variable (see below).
+Additionally, the \fIdblockmgr\fP(8) tool can be used to monitor, set and clear
+these file and record locks.
+.TP 10
+LOCKDERROR
+This variable controls the name of a file that is tied to the
+UNIX stream \fIstderr\fP during the running of \fIfblockd\fP(8).
+If not specified, the file \fIfblockd.err\fP in $FIRSTBASEHOME is used.
+.TP 10
+LOCKLEVEL
+Accepted values are 0, 1, and 2. This environment variable is used to control
+the amount of record locking that takes place throughout the \fIFirstBase\fP
+system.
+.sp 1
+If the LOCKLEVEL is 0, then no locking takes place at all. Level 1
+indicates that only simple record locking among the database editors will take
+place. Level 2, the highest level of record locking, indicates that all
+\fIFirstBase\fP tools will use record locking.
+.sp 1
+Note that even when using LOCKLEVEL 2, \fIFirstBase\fP tools that read some
+record N will request only a read lock on record N \(em not a write lock.
+So, although some process may have record N open for writing, other
+processes can read these records. LOCKLEVEL 2 does guarantee that even these
+records are \fInot\fP \fIchanging\fP during this read access.
+.TP 10
+LOCKMESSAGE
+Accepted values are 0, 1, and 2 (default).
+This environment variable is used to control
+the return method of the lock procedure when a non-blocking write
+lock is requested.
+.sp 1
+A value of 0 will cause no response error message at all.
+A value of 1 will cause a simple screen error. A value of 2 will cause the
+\fIFirstBase\fP tool to ask whether the user wants try again to satisfy the
+lock request. This environment affects only those tools that write to records:
+\fIdbedit\fP(1), \fIdbvedit\fP(1), \fIdbugen\fP(1), and \fIdbrload\fP(1).
+.TP 10
+LOCKTIME
+Accepted values are positive integers, default is 60.
+This environment variable is used to control the amount of seconds
+a \fIFirstBase\fP process will block before aborting a blocking lock request.
+If the timeout signal is received, the entire process is halted
+with an appropriate error message.
+.TP 10
+LSERVER
+This environment variable controls the use of
+the \fIFirstBase Floating License\fP
+system, and is used to point to the server, the machine running the
+\fIfblserver\fP(8) process.
+.sp 1
+Normally, this variable is not set for Fixed CPU Licenses.
+However, if it is set, the UNIX environment variable FIRSTBASE_FIXEDNODE
+can be defined. If this UNIX variable exists, then the fixed node license
+for FirstBase will be used.
+.TP 10
+LSERVERERROR
+This variable controls a file that is tied to the UNIX stream \fIstderr\fP
+during the running of \fIfblserver\fP(8). If not specified, the the file
+\fI/usr/adm/fblserver.err\fP is used.
+.TP 10
+LSERVERLOG
+This variable controls whether a \fIFirstBase Floating License\fP activity log
+will be written, and where the file will be kept. Use a full path name, for
+example \fI/usr/adm/fblserver.log\fP. Again, if this \fIFirstBase\fP
+variable is not set, the activity log file will \fInot\fP be kept.
+.TP 10
+MAKEINDEX
+Accepted values are \fION\fPand \fIOFF\fP (default).
+Controls the automatic regeneration of
+indexes by most generators. If set to "OFF", regeneration 
+of indexes is not automatic.
+.TP 10
+MENUMATCH
+Accepted values are \fION\fP and \fIOFF\fP.
+Controls whether or not \fIdbshell\fP(1) will force exact matches of
+commands before executing them. The default is OFF, meaning that
+dbshell will execute commands if given just enough to discern that
+request from another request. For example, the keystroke \fBd\fP could
+be used to execute the \fIdefine\fP command if there are no other \fBd\fP
+commands in the menu.
+.TP 10
+MENUPAUSE
+Accepted values are \fION\fP and \fIOFF\fP (default).
+Controls whether or not \fIdbshell\fP(1) will pause before exiting.
+.TP 10
+MERGECOLS
+Accepted values are integers, default 80.
+This variable controls the default number used in \fIdbmerge\fP(1)
+for the width (-w) or number of columns to use for merge output.
+.TP 10
+NAME_LENGTH
+Accepted values are integers.
+The \fINAME_LENGTH\fP variable is a number that is used
+for the maximum allowable file name size before \fIFirstBase\fP adds any
+extensions to it.
+.sp 1
+This file name size should be set to 7 for compatibility
+between any UNIX machines. This low file name size
+is because for some UNIX boxes,
+14 or 15 characters is the longest a file name can be.
+.sp 1
+However, for those who are using BSD UNIX or other flavors of UNIX
+that allow long file names, this set up file can be used to
+override the internal default of 7, as shown above.
+Remember that \fIFirstBase\fP can add at most a 7 character file name
+extension. A good setting is 18.
+.TP 10
+NEGATIVE
+Accepted values are \fION\fP and \fIOFF\fP.
+The \fINEGATIVE\fP variable from the setup file shown above is used to
+change formats of display for negative dollar amounts. The default display
+for negative dollar amounts is with parenthesis, like this \fI(1,234.56)\fP.
+If you set \fINEGATIVE\fP to OFF, negative dollar amounts will print
+as \fI-1,234.56\fP.
+.TP 10
+NOADDREC
+is used to control the ability to add records to a database using either
+of the database editors, \fIdbedit\fP(1) or \fIdbvedit\fP(1).
+Accepted values are \fION\fP and \fIOFF\fP (default).
+.TP 10
+OKSTOP
+is used to control the ability to issue a SIGTSTP signal from the keyboard.
+Accepted values are \fION\fP and \fIOFF\fP (default).
+The native UNIX shell must support job control for this feature to work.
+.sp 1
+If supported, a stop signal (typically <CTL>-Z) will freeze the
+\fIFirstBase\fP tool process, and return control to the shell.
+The \fBfg\fP command
+(see \fIcsh\fP(1)) will resume the process. Note that a stop signal is
+accepted only during user input, i.e. from the \fIinput dots\fP.
+.TP 10
+PGENCOLS
+Accepted values are integers, default 80.
+This variable controls the default number used in \fIdbdprt\fP(1)
+for the number of columns to use for a printout.
+.TP 10
+PROMPT_ADDMODE1
+String value used in \fIdbvedit\fP(1) and \fIdbvemit\fP(1) as the initial
+add mode prompt for field one of page one.
+The default message/prompt is:
+.br
+.ft CW
+.nf
+.nj
+Enter_Data,_-=END,_<CTL>-D=Defaults,_<CTL>-H=help
+.fi
+.ju
+.ft
+.TP 10
+PROMPT_ADDMODE2
+String value used in \fIdbvedit\fP(1) and \fIdbvemit\fP(1) as the secondary
+add mode prompt for all other fields.
+The default message/prompt is:
+.br
+.ft CW
+.nf
+.nj
+Enter_Data,_<CTL>-X=Abort_Record,_<CTL>-H=help
+.fi
+.ju
+.ft
+.TP 10
+PROMPT_AUTOFIELD
+String value used in \fIdbvedit\fP(1) and \fIdbvemit\fP(1) as the
+prompt displayed during auto field level.
+The default message/prompt is:
+.br
+.ft CW
+.nf
+.nj
+Enter_Data,_-=END,_<CTL>-X=Abort_Field,_<CTL>-H=help
+.fi
+.ju
+.ft
+.TP 10
+PROMPT_NORMALFIELD
+String value used in \fIdbvedit\fP(1) and \fIdbvemit\fP(1) as the
+prompt displayed during normal field level.
+The default message/prompt is:
+.br
+.ft CW
+.nf
+.nj
+Enter_Data,_<CTL>-X=Abort_Field,_<CTL>-H=help
+.fi
+.ju
+.ft
+.TP 10
+PROMPT_RECORDMSG
+String value used in \fIdbvedit\fP(1) and \fIdbvemit\fP(1) as the
+prompt displayed during normal field level.
+The default message/prompt is:
+.br
+.ft CW
+.nf
+.nj
+Field_#_(<CTL>-H=Help,_-=End):
+.fi
+.ju
+.ft
+.TP 10
+PROMPT_COMMANDMSG
+String value used in \fIdbvedit\fP(1) and \fIdbvemit\fP(1) as the
+prompt displayed during normal command level.
+The default message/prompt is:
+.br
+.ft CW
+.nf
+.nj
+<CTL>-H=Help,_-=End
+.fi
+.ju
+.ft
+.TP 10
+PROMPT_CHOICEMSG
+String value used in \fIdbvedit\fP(1) and \fIdbvemit\fP(1) as the
+prompt displayed during a choice field screen.
+The default message/prompt is:
+.br
+.ft CW
+.nf
+.nj
+Enter_choice,_<CTL>-X=Abort:
+.fi
+.ju
+.ft
+.TP 10
+PUTFILE
+Accepted values are UNIX file names.
+This variable can be used to change the default name of the put index file.
+.TP 10
+RECORD_LEVEL
+Accepted values are \fION\fP (default) and \fIOFF\fP.
+Toggles whether \fIdbvedit\fP(1) will use the full functioned record level
+mode, or the modeless blend of record level and autofield level.
+Note that if you turn this OFF, you may need to use the KEYPAD mappings to
+achieve a bit more record editing functionality.
+.TP 10
+RECLOG
+Accepted values are \fION\fP and \fIOFF\fP (default).
+Controls the logging of records for use with \fIdbdump\fP(8)
+and \fIdbrestor\fP(8).
+If set to ON, databases can be recovered if a system failure occurs
+during a database update.
+.TP 10
+RECORD_UMASK
+This variable is used in the Secure FirstBase system to mask
+the permission settings of a record as it is created.
+This setting is similar to the UNIX system call \fIumask\fP(2) \(em
+it masks (clears) the corresponding bits in the file mode of created files.
+For general purpose in the multi-user environment, files are created in
+mode 0666, meaning the RECORD_UMASK defaults to 0.
+.sp 1
+For example, a
+setting of 022 could be used to mask off other users write access
+to \fIFirstBase\fP records.
+.TP 10
+REGEXP
+Accepted values are \fION\fP and \fIOFF\fP (default).
+Toggles the use of regular expression searching
+in \fIdbedit\fP(1)/\fIdbvedit\fP(1).
+When regular expression searching is enabled,
+\fIall index searches are sequential\fP.
+.TP 10
+REVERSE
+Accepted values are \fION\fP (default) and \fIOFF\fP.
+Controls the use of reverse video on \fIFirstBase\fP screens.
+.TP 10
+RUNFLAGS
+Accepted values are standard UNIX switches, like "-y".
+Controls the arguments used by \fIFirstBase\fP tools from
+within \fIdbshell\fP(1). Default is empty.
+.TP 10
+SCREENPRINT
+Accepted values are \fION\fP and \fIOFF\fP.
+Controls whether or not the printout style generators, \fIdbpgen\fP(1),
+\fIdblgen\fP(1) and \fIdbmerge\fP(1), will run their output files through
+the \fIscrprint\fP(1) tool before exiting. The default is \fION\fP.
+.TP 10
+SCREENPRINT_PAUSE
+Accepted values are \fION\fP and \fIOFF\fP (default).
+Controls whether or not \fIFirstBase\fP tools
+will pause before using the \fIscrprint\fP(1) tool on generated results.
+.TP 10
+SCR_AUTOINCR
+Accepted values are \fION\fP (default) and \fIOFF\fP.
+Toggles display of automatic increment screen in the \fIFirstBase\fP
+database editors, \fIdbvedit\fP and \fIdbedit\fP.
+.TP 10
+SCR_HEADER
+Accepted values are \fION\fP (default) and \fIOFF\fP.
+Toggles display of screen header, line one of standard \fIFirstBase\fP screens.
+.TP 10
+SCR_HELP
+Accepted values are \fION\fP (default) and \fIOFF\fP.
+Toggles display of screen help, line 24 of standard \fIFirstBase\fP screens.
+Note that some display messages will still appear on this line.
+.TP 10
+SCR_INFOLINE
+Accepted values are \fION\fP (default) and \fIOFF\fP.
+Toggles display of the information line, line 23 of standard \fIFirstBase\fP
+screens. Note that some error messages will still appear on this line.
+.TP 10
+SCR_INFOLINE_SOLID
+Accepted values are \fION\fP and \fIOFF\fP (default).
+Toggles use of a solid, reverse video line, instead of the normal
+information line, line 23 of standard \fIFirstBase\fP screens.
+Note that some error messages will still appear on this line.
+.TP 10
+SCR_INPUTCLEAR
+Accepted values are \fION\fP (default) and \fIOFF\fP.
+Toggles the clearing of input fields prior to accepting input throughout
+the entire \fIFirstBase\fP system. This is a good one to turn OFF when
+RECORD_LEVEL is also OFF.
+.TP 10
+SCR_INPUTDOTS
+Accepted values are \fION\fP (default) and \fIOFF\fP.
+Toggles the character used internally by \fIFirstBase\fP to represent the
+area on the screen where input is allowed. If turned OFF, then blanks are
+used.
+.TP 10
+SCR_INPUTPASTEDGE
+Accepted values are \fION\fP (default) and \fIOFF\fP.
+Toggles whether \fIFirstBase\fP will allow one character to be typed
+past the edge of the input field. The default is ON.
+If turned OFF, \fIFirstBase\fP will stop at the input boundary and wait
+for a <RETURN>, even for one character fields.
+Works only when EDITINPUT is OFF.
+.TP 10
+SCR_LABEL
+Accepted values are \fION\fP (default) and \fIOFF\fP.
+Toggles display of a screen label area, (line 2, left side)
+used by many of the \fIFirstBase\fP standard screens.
+.TP 10
+SCR_STAT2
+Accepted values are \fION\fP (default) and \fIOFF\fP.
+Toggles display of a secondary screen status area (line 2, right side)
+used by many of the \fIFirstBase\fP standard screens.
+.TP 10
+SCR_STATUS
+Accepted values are \fION\fP (default) and \fIOFF\fP.
+Toggles display of the primary screen status area (line 1, right side)
+used by the \fIFirstBase\fP standard screens.
+.TP 10
+SCR_STATUS_MASK
+Accepted values are \fION\fP and \fIOFF\fP (default).
+Toggles use of the word "Status:" before the primary screen status
+area (line 1, right side) used by the \fIFirstBase\fP standard screens.
+.TP 10
+SCR_TOOLNAME
+Accepted values are \fION\fP (default) and \fIOFF\fP.
+Toggles the entire tool name string (including "FirstBase" and its version
+number) in the upper left corner of the standard \fIFirstBase\fP screens.
+Also see SCR_VERSION_MASK.
+.TP 10
+SCR_VERSION_MASK
+Accepted values are \fION\fP and \fIOFF\fP (default).
+Toggles use of the string "FirstBase X.Y.Z:" in the upper left corner of
+standard \fIFirstBase\fP screens, where \fIX.Y.Z\fP is the software release
+version.
+.TP 10
+SERVER
+This environment variable controls the use of
+the \fIFirstBase\fP database server and the lock daemon server.
+It is used to point to the machine running the
+\fIfbserver\fP(8) and \fIfblockd\fP(8) processes.
+.TP 10
+SERVERERROR
+This variable controls a file that is tied to the UNIX stream \fIstderr\fP
+during the running of \fIfbserver\fP(8). If not specified, the the file
+\fI/usr/adm/fbserver.err\fP is used.
+.TP 10
+SERVERLOG
+This variable controls whether an activity log for \fIfbserver\fP
+command requests
+will be written, and where the file will be kept. Use a full path name, for
+example \fI/usr/adm/fbserver.log\fP. Again, if this \fIFirstBase\fP
+variable is not set, the activity log file will \fInot\fP be kept.
+.TP 10
+SHELL
+Accepted values are full path names of shells.
+Controls the sub shell used by \fIdbshell\fP(1), /bin/sh is the default..
+.TP 10
+SHOWRECCNT
+Accepted values are \fION\fP (default) and \fIOFF\fP.
+Controls whether an interactive \fIFirstBase\fP tool will display the record
+and index counters in the standard information (footer) line.
+.TP 10
+SIGNATURE
+Accepted values are \fION\fP (default) and \fIOFF\fP.
+Controls the miniature FirstBase Software signature that appears when
+a \fIFirstBase\fP tool exits.
+.TP 10
+STANDOUT
+Accepted values are \fION\fP (default) and \fIOFF\fP.
+Controls the use of standout video on \fIFirstBase\fP screens.
+.TP 10
+TEMPDIR
+Accepted values are full path names of existing directories.
+This variable controls the location of any temporary files used
+by \fIdbedit\fP(1), \fIdbvedit\fP(1), and \fIdbshell\fP(1).
+The default directory is \fI/tmp\fP.
+.TP 10
+TRAP_XON
+Accepted values are \fION\fP and \fIOFF\fP (default).
+Used to control whether
+the ioctl tty line flags will be set to trap, or turn off, the IXON
+and IXOFF bits. When set to OFF, high speed modems and some
+hardware (like HP) will behave properly during FirstBase sessions.
+However, setting to OFF has the side effect of disabling the ^S
+and ^Q keystrokes. When OFF, use ^/ and ^V for the same functions. (dbvedit).
+.TP 10
+UALARM
+Numeric unsigned value (default 150000) determining the alarm time
+used in detecting function key keystrokes. Only when EDITINPUT is OFF.
+.TP 10
+UNIXTYPE
+For help in determining the system type, some architectures require
+this variable to be set. Current uses are SCO and INTERACTIVE, two
+different flavors of Unix that work on 386/486 hardware.
+The default is empty.
+.TP 10
+UMASK
+This variable is used in the UNIX system call \fIumask\fP(2) to
+mask (clear) the corresponding bits in the file mode of created files.
+For general purpose in the multi-user environment, files are created in
+mode 0666, meaning the UMASK defaults to 0.
+.sp 1
+Setting the UMASK can be
+done here to create global or application dependent masks. For example, a
+setting of 022 could be used to mask off other users write access
+to \fIFirstBase\fP data objects
+.sp 1
+Additionally, setting UMASK to -1 will cause \fIFirstBase\fP to use
+the individual users mask setting as inherited by each process.
+.TP 10
+USRLOG
+Accepted values are integers ranging from 0 (default) to 10.
+Controls the tracking of individual users who use \fIFirstBase\fP.
+The integer value controls the amount of detail that will be logged.
+A value of 0 does no logs,
+a value of 1 logs each tool use by entrance and exit points, and
+a value of 2 additionally logs all arguments to all tools.
+The other levels are not currently used.
+.sp 1
+This setup variable can only be set in the global \fI.firstbase-init\fP file
+located in the FIRSTBASEHOME directory. It cannot be set (or unset) via
+an local startup files, nor command line options.
+.TP 10
+VIADDPAUSE
+Accepted values are \fION\fP (default) and \fIOFF\fP.
+Controls whether or not \fIdbedit\fP(1)
+will pause before going into visual mode
+on a long field during new record entry only.
+.TP 10
+VIPAUSE
+Accepted values are \fION\fP (default) and \fIOFF\fP.
+Controls whether or not \fIdbedit\fP(1)
+will pause before going into visual mode
+on a long field. However, pausing on new records is controlled
+by the VIADDPAUSE variable.
+.sp 1
+A special hook to the database editors "display visual field" function
+is provided from the VIPAUSE prompt. A \fBd\fP command at this point
+will display the field, without editing, and return to the VIPAUSE prompt.
+.TP 10
+VIPAUSE_MSG
+String value used in \fIdbvedit\fP(1) as the prompt 
+during the VIPAUSE question. The default is
+.br
+.ft CW
+.nf
+.nj
+Visual Edit Field `FieldName' Now? (y=yes, d=display, <other>=no):
+.fi
+.ju
+.ft
+.TP 10
+WDIR_CCOMMAND
+Controls the working directory of the CCOMMAND custom commands.
+The default is \fI/tmp.\fP All temporary data files and indexes for these
+commands will be stored in this directory.
+.TP 10
+WRAPSCAN
+Accepted values are \fION\fP (default) and \fIOFF\fP.
+Controls whether or not \fIdbedit\fP(1)
+will wrap back to the top of an index on
+index searches when a request is not located.
+.TP 10
+WRITEDIR
+Defines a writable directory used by \fIFirstBase\fP to store
+the \fISEQF\fP, \fIUSRLOG\fP, and other files as well.
+When undefined, WRITEDIR defaults to the directory pointed to by the
+UNIX environment variable FIRSTBASEHOME.
+.sp 1
+If this variable is defined, move the SEQF file from FIRSTBASEHOME, the
+installation directory, to WRITEDIR. Additionally, if using \fIFirstBase\fP
+floating licenses, move (or regenerate) the floating license
+file, \fI.firstbase-flicense\fP, into WRITEDIR.
+.PD
+.SH FILES
+.PD 0
+.TP 12
+ .firstbase-init
+the \fIFirstBase\fP initialization file for BSD machines.
+.TP 12
+ .fb-init
+the \fIFirstBase\fP initialization file for other machines.
+.PD
+.SH SEE ALSO
+firstbase(5), input(5), keyboard(5), terminals(5), setup(3)
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br

@@ -1,0 +1,214 @@
+# Copyright (C) 2001 FirstBase Software, Inc. All rights reserved.
+#
+# $Id: Makefile.in,v 9.2 2001/01/22 17:36:57 john Exp $
+#
+# See the file LICENSE for conditions of use and distribution
+#
+#
+# Makefile for Firstbase src/libcdb
+#
+
+PRODUCT = @PRODUCT@
+VERSION = @VERSION@
+
+SHELL = /bin/sh
+srcdir = @srcdir@
+VPATH = @srcdir@
+
+CC = @CC@
+CFLAGS = @CFLAGS@
+CPPFLAGS = @CPPFLAGS@
+DEFS = @DEFS@
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@ $(LIBEXTRA)
+
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+transform = @program_transform_name@
+bindir = $(exec_prefix)/bin
+
+COMPILE = $(CC) -c $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
+LINK = $(CC) $(LDFLAGS) -o $@
+
+.SUFFIXES:
+.SUFFIXES: .c .o
+.c.o:
+	$(COMPILE) $< -o $@
+
+
+INCLUDES = @INCLUDES@
+
+OBJECTS=	Getwd.o		\
+		Free.o		\
+		Malloc.o	\
+		System.o	\
+		allsync.o	\
+		alarm.o		\
+		basename.o	\
+		btlib.o		\
+		cgi.o		\
+		ckfields.o	\
+		ckrange.o	\
+		dirname.o	\
+		dbexit.o	\
+		fhelp.o		\
+		fndfield.o	\
+		formfld.o	\
+		getctime.o	\
+		help.o		\
+		longdate.o	\
+		pathname.o	\
+		slock.o		\
+		makess.o	\
+		mkstr.o		\
+		mustfopn.o	\
+		mustopen.o	\
+		mustwrte.o	\
+		node.o		\
+		nodecim.o	\
+		nounders.o	\
+		onintr.o	\
+		rjustify.o	\
+		scrprint.o	\
+		sdict.o		\
+		sysmsg.o	\
+		serror.o	\
+		settty.o	\
+		sigint.o	\
+		sfatal.o	\
+		screrr.o	\
+		sprintf.o	\
+		testtree.o	\
+		unders.o	\
+		usrlog.o	\
+		errlog.o	\
+		testargs.o	\
+		xerror.o	\
+		winsize.o	\
+		alib.o		\
+		tlib.o		\
+		plib.o		\
+                copyfile.o	\
+                stack.o
+
+all: libcdb
+libcdb: $(OBJECTS)
+
+MHEADERS= \
+../include/fb.h  \
+../include/config.h \
+../include/input.h \
+../include/error.h \
+../include/message.h \
+../include/libcc.h \
+../include/libcdb.h \
+../include/libdbd.h \
+../include/libinit.h \
+../include/liblic.h \
+../include/librec.h \
+../include/libscr.h \
+../include/libwin.h \
+../include/libsec.h \
+../include/libedit.h \
+../include/libclnt.h \
+../include/interface.h \
+../include/cx.h \
+../include/fb_vars.h \
+../include/fb_ext.h
+
+Getwd.o: 	$(MHEADERS)
+Free.o:		$(MHEADERS)
+Malloc.o: 	$(MHEADERS)
+System.o: 	$(MHEADERS)
+mustfopn.o: 	$(MHEADERS)
+mustopen.o: 	$(MHEADERS)
+mustwrte.o: 	$(MHEADERS)
+
+alarm.o:	$(MHEADERS)
+allsync.o:	$(MHEADERS)
+btlib.o:	$(MHEADERS)
+cgi.o:		$(MHEADERS)
+ckfields.o:	$(MHEADERS)
+ckrange.o:	$(MHEADERS)
+dbexit.o:	$(MHEADERS)
+basename.o:	$(MHEADERS)
+btname.o:	$(MHEADERS)
+dirname.o:	$(MHEADERS)
+fhelp.o:	$(MHEADERS)
+fndfield.o:	$(MHEADERS)
+formfld.o:	$(MHEADERS)
+getctime.o:	$(MHEADERS)
+help.o:		$(MHEADERS)
+pathname.o:	$(MHEADERS)
+longdate.o:	$(MHEADERS)
+mkstr.o:	$(MHEADERS)
+makess.o:	$(MHEADERS)
+nounders.o:	$(MHEADERS)
+node.o:		$(MHEADERS) \
+	../include/vdict.h ../include/vdict_e.h
+nodecim.o:	$(MHEADERS)
+onintr.o:	$(MHEADERS)
+rjustify.o:	$(MHEADERS)
+screrr.o:	$(MHEADERS) ../include/panic.h
+sprintf.o:	$(MHEADERS)
+scrprint.o:	$(MHEADERS)
+sdict.o:	$(MHEADERS)
+serror.o:	$(MHEADERS)
+sfatal.o:	$(MHEADERS)
+slock.o:	$(MHEADERS)
+testargs.o:	$(MHEADERS)
+testtree.o:	$(MHEADERS)
+winsize.o:	$(MHEADERS)
+unders.o:	$(MHEADERS)
+usrlog.o:	$(MHEADERS)
+errlog.o:	$(MHEADERS)
+xerror.o:	$(MHEADERS)
+settty.o:	$(MHEADERS)
+sigint.o:	$(MHEADERS)
+
+alib.o:		$(MHEADERS) \
+	../include/mdict.h ../include/mdict_e.h
+plib.o:		$(MHEADERS) \
+	../include/mdict.h ../include/mdict_e.h
+tlib.o:		$(MHEADERS) \
+	../include/mdict.h ../include/mdict_e.h
+copyfile.o:	$(MHEADERS)
+stack.o:	$(MHEADERS)
+
+mostlyclean:
+	rm -f *.o *._c *._o core core.*
+
+clean: mostlyclean
+
+distclean: clean
+	rm -f Makefile
+
+realclean: distclean
+	rm -f TAGS
+
+extraclean:: distclean
+	rm -f patch* *~* *\#* *.orig *.rej *.bak core a.out
+
+Makefile: Makefile.in ../../config.status
+	cd ../.. && CONFIG_FILES=src/libcdb/$@ CONFIG_HEADERS= ./config.status
+
+names:
+	@for name in $(OBJECTS) ; do \
+	   echo libcdb/$$name >> ../OBJECTS ; \
+	done
+
+DISTDIR = ../../$(PRODUCT)-$(VERSION)/src/libcdb
+DISTFILES = *.c Makefile.in
+
+dist::
+	@echo "Copying distribution files from libcdb"
+	@for file in $(DISTFILES); do \
+	   ln $(srcdir)/$$file $(DISTDIR) 2> /dev/null \
+	      || cp -p $(srcdir)/$$file $(DISTDIR); \
+	done
+
+# Tell versions [3.59,3.63) of GNU make not to export all variables.
+# Otherwise a system limit (for SysV at least) may be exceeded.
+.NOEXPORT:

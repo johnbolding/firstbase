@@ -1,0 +1,73 @@
+.TH BUFFERS 3 "12 September 1995"
+.FB
+.SH NAME
+w_init, w_write, w_writen, nextwrite, w_flush \- general file buffering
+interface
+.SH SYNOPSIS
+.nf
+.nj
+fb_w_init(n, fd0, fd1)
+int n, fd0, fd1;
+
+fb_w_write(ch, buf)
+int ch;
+char *buf;
+
+fb_w_writen(ch, buf, n)
+int ch, n;
+char *buf;
+
+fb_nextwrite(ch, buf)
+int ch;
+char *buf;
+
+fb_w_flush(n)
+int n;
+.fi
+.ju
+.PP
+.SH DESCRIPTION
+The buffers package is used to write large amounts of text to one or two files
+in a buffered, disk efficient manner. Without changing the logic of
+normal algorithms that often write to files in pieces,
+the buffers package enforces the blocking of bytes into single 1024-byte
+disk accesses.
+.PP
+The files being written to need to be opened before using the buffers package.
+Also, file descriptors are used, not file streams. Again, integer file
+descriptors, like those returned by \fIopen\fP(2) are used inside the buffers
+package.
+.PP
+The buffers package can handle two different output files. Each is assigned
+a channel within the buffers package. This channel number is then used
+by the outside layers when writing to a file descriptor.
+.PP
+To initialize the buffers package, \fIfb_w_init\fP is used.
+The argument \fIn\fP,
+set to either one or two, determines how may channels will be used; \fIfd0\fP
+is for channel 0 (zero), \fIfd1\fP is for channel 1 (one).
+When all completed with
+the buffers, use of \fIfb_w_flush\fP will flush the "written" text, forcing any
+remnants to the disk. The argument to \fIfb_w_flush,\fP
+\fIn\fP, is the number of
+channels.
+.PP
+There are three routines for depositing bytes to be written by the buffers
+package: \fIfb_w_write\fP, \fIfb_w_writen\fP, and \fIfb_nextwrite\fP.
+The first of these, \fIfb_w_write\fP, writes a single byte to channel \fIch\fP.
+The byte written is pointed to by \fIbuf\fP (yes, a character pointer).
+The next routine, \fIfb_w_writen\fP is almost the same as \fIfb_w_write\fP, but
+it writes \fIn\fP bytes from \fIbuf\fP.
+.PP
+The last routine, \fIfb_nextwrite\fP, is used to write strings to a buffers
+channel. This routine will write each byte up to but not including the
+NULL terminator at the end of \fIbuf\fP.
+.PP
+These routines together are used at times when a data file can be
+written in large (1024 byte) chunks. Use of this buffers package can vastly
+increase the speed of some processes.
+.PP
+NOTE: the buffers package is usually not needed unless you
+are generating FirstBase databases using buffered writes (see
+$FIRSTBASEHOME/applications/sample_src/bload.c) or something similar. 
+.br

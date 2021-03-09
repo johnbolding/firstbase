@@ -1,0 +1,182 @@
+# Copyright (C) 2001 FirstBase Software, Inc. All rights reserved.
+#
+# $Id: Makefile.in,v 9.3 2001/02/16 19:47:50 john Exp $
+#
+# See the file LICENSE for conditions of use and distribution
+#
+#
+# Makefile for Firstbase src/dbtools
+#
+
+PRODUCT = @PRODUCT@
+VERSION = @VERSION@
+
+SHELL = /bin/sh
+srcdir = @srcdir@
+VPATH = @srcdir@
+
+CC = @CC@
+CFLAGS = @CFLAGS@
+CPPFLAGS = @CPPFLAGS@
+DEFS = @DEFS@
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@ $(LIBEXTRA)
+LEXLIB = @LEXLIB@
+
+firstbasehome = @FIRSTBASEHOME@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = $(exec_prefix)/$(firstbasehome)/bin
+infodir = $(prefix)/$(firstbasehome)/info
+libdir = $(prefix)/$(firstbasehome)/lib
+mandir = $(prefix)/$(firstbasehome)/man
+docdir = $(prefix)/$(firstbasehome)/doc
+includedir = $(prefix)/$(firstbasehome)/include
+
+COMPILE = $(CC) -c $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
+LINK = $(CC) $(LDFLAGS) -o $@
+
+.SUFFIXES:
+.SUFFIXES: .c .o
+.c.o:
+	$(COMPILE) $< -o $@
+
+INCLUDES = @INCLUDES@
+LIBFB = ../lib/libfb.a
+LIBMEXPR = ../lib/libmexpr.a
+LIBMPARS = ../lib/libmpars.a
+MACRO_VEDIT = ../lib/mac_vedt.o
+MACRO_STDIO = ../lib/mac_stio.o
+
+#
+# simple FirstBase Tools - dbtools
+#
+DBREGEN=	dbregen.o
+DBCAT=		dbcat.o 
+DBCHECK=	dbcheck.o 
+DBCLEAN=	dbclean.o 
+DBEMIT=		dbemit.o 
+DBFILTER=	dbfilter.o
+DBJOIN=		dbjoin.o
+DBLOAD=		dbload.o
+DBMACRO=	dbmacro.o
+DBWSTAT=	dbwstat.o
+DBRLOAD=	dbrload.o
+DBLS=		dbls.o 
+DBPACK=		dbpack.o 
+DBPASSWD=	dbpasswd.o 
+DBRESTOR=	dbrestor.o 
+SCREENPRINT=	scrprint.o 
+FORMPRINT=	frmprint.o 
+FBTSTMAC=	fbtstmac.o
+
+PROGS = dbregen dbcat dbcheck dbclean dbemit dbfilter \
+	dbjoin dbload  dbwstat dbrload dbls dbpack \
+        dbpasswd dbrestor scrprint frmprint
+
+OBJECTS = dbregen.o dbcat.o dbcheck.o dbclean.o dbemit.o dbfilter.o \
+	dbjoin.o dbload.o dbwstat.o dbrload.o dbls.o dbpack.o \
+        dbpasswd.o dbrestor.o scrprint.o frmprint.o
+
+MACROTOOLS = dbmacro fbtstmac
+
+all: $(PROGS) $(MACROTOOLS)
+
+dbmacro: $(DBMACRO)
+	@echo linking $@
+	$(LINK) $(DBMACRO) \
+	$(LIBMPARS) $(LIBMEXPR) $(MACRO_STDIO) $(LIBFB) $(LIBS) $(LEXLIB)
+
+fbtstmac: $(FBTSTMAC)
+	@echo linking $@
+	$(LINK) $(FBTSTMAC) \
+	$(LIBMPARS) $(LIBFB) $(LIBS) $(LEXLIB)
+
+$(PROGS): $(OBJECTS)
+	@echo linking $@
+	$(LINK) $@.o $(LIBFB) $(LIBS)
+
+install: all
+	$(INSTALL) -d $(bindir)
+	@for file in $(PROGS) $(MACROTOOLS) ; do \
+	   $(INSTALL) $$file $(bindir) ; \
+	done
+	$(INSTALL) dbmacro $(bindir)/dbmacro.cgi
+	-/bin/rm -f $(bindir)/dbundo
+	ln $(bindir)/dbpack $(bindir)/dbundo
+
+mostlyclean:
+	rm -f *.o *._c *._o core core.*
+	rm -f $(PROGS) $(MACROTOOLS)
+
+clean: mostlyclean
+
+distclean: clean
+	rm -f Makefile
+
+realclean: distclean
+	rm -f TAGS
+
+extraclean:: distclean
+	rm -f patch* *~* *\#* *.orig *.rej *.bak core a.out
+
+Makefile: Makefile.in ../../config.status
+	cd ../.. && CONFIG_FILES=src/dbtools/$@ CONFIG_HEADERS= ./config.status
+
+MHEADERS= \
+../include/fb.h  \
+../include/config.h \
+../include/input.h \
+../include/error.h \
+../include/message.h \
+../include/libcc.h \
+../include/libcdb.h \
+../include/libdbd.h \
+../include/libinit.h \
+../include/liblic.h \
+../include/librec.h \
+../include/libscr.h \
+../include/libwin.h \
+../include/libsec.h \
+../include/libedit.h \
+../include/libclnt.h \
+../include/interface.h \
+../include/cx.h \
+../include/fb_vars.h \
+../include/fb_ext.h
+
+EXHEADERS=../include/macro.h ../include/macro_v.h
+
+dbmacro.o:	$(MHEADERS) $(EXHEADERS)
+fbtstmac.o:	$(MHEADERS) $(EXHEADERS)
+dbcat.o:	$(MHEADERS)
+dbcheck.o:	$(MHEADERS)
+dbclean.o:	$(MHEADERS)
+dbemit.o:	$(MHEADERS) ../include/emit.h
+dbfilter.o:	$(MHEADERS)
+dbjoin.o:	$(MHEADERS)
+dbload.o:	$(MHEADERS) ../include/emit.h
+dbwstat.o:	$(MHEADERS)
+dbrload.o:	$(MHEADERS) ../include/emit.h
+dbls.o:		$(MHEADERS)
+dbpack.o:	$(MHEADERS) 
+dbpasswd.o:	$(MHEADERS) 
+dbregen.o:	$(MHEADERS) 
+dbrestor.o:	$(MHEADERS) 
+scrprint.o:	$(MHEADERS) 
+frmprint.o:	$(MHEADERS) 
+
+DISTDIR = ../../$(PRODUCT)-$(VERSION)/src/dbtools
+DISTFILES = *.c Makefile.in
+
+dist::
+	@echo "Copying distribution files from dbtools"
+	@for file in $(DISTFILES); do \
+	   ln $(srcdir)/$$file $(DISTDIR) 2> /dev/null \
+	      || cp -p $(srcdir)/$$file $(DISTDIR); \
+	done
+
+# Prevent GNU make 3 from overflowing arg limit on system V.
+.NOEXPORT:

@@ -1,0 +1,55 @@
+.TH BULKREC 3 "12 September 1995"
+.FB
+.SH NAME
+bulkrec_begin, bulkrec_end \- bulk record process control
+.SH SYNOPSIS
+#include <firstbase/fb.h>
+.sp 1
+fb_bulkrec_begin(db, fwait)
+.br
+fb_database *db;
+.br
+int fwait;
+.sp 1
+fb_bulkrec_end(db)
+.br
+fb_database *db;
+.br
+.SH DESCRIPTION
+As explained in the \fIdatabase\fP(4)
+manual page, a database structure contains
+all of the elements needed for an entire database, including an array of
+field structures, all file names and descriptors, and index information.
+Altogether, the array of field structures can hold one complete record.
+.PP
+The \fIFirstBase\fP routines \fIfb_addrec\fP and \fIfb_delrec\fP
+are used to add and delete records one at a time.
+However, sometimes it is desirable to add and delete
+many records as fast as possible.
+The bulk record processing mechanism can be used in these cases.
+.PP
+The bulk processing of records consists of three steps. First,
+\fIfb_bulkrec_begin\fP is called before any processing. This preliminary
+call will lock and synchronize the database \fIdb\fP,
+and read the database header.
+.PP
+Then, \fIfb_b_addrec\fP and/or \fIfb_b_delrec\fP are called repeatedly,
+as needed.
+Finally, \fIfb_bulkrec_end\fP is used to write the header,
+synchronize the data files, and unlock the database.
+.PP
+The flag \fIfwait\fP used in the \fIfb_b_bulkrec_begin\fP mechanism
+controls the behavior of the internal lock request. When \fIfwait\fP is set
+to \fIFB_WAIT\fP, \fIfb_b_bulkrec_begin\fP will block until the lock is
+granted, or until the timeout is reached. However, when \fIfwait\fP is
+\fIFB_NOWAIT\fP, then \fIfb_b_bulkrec_begin\fP will return immediately if
+the database is locked. In this case, the return status will be FB_ERROR, but
+the external short int variable \fIcdb_error\fP will be set to FB_LOCKED_ERROR.
+.SH CLIENT/SERVER
+The \fIfb_bulkrec_begin\fP and \fIfb_bulkrec_end\fP routines will transparently
+make calls to \fIfb_bulkrec_begin_clnt\fP and \fIfb_bulkrec_end_clnt\fP
+when the global \fIFirstBase\fP variable \fIcdb_use_rpc\fP is set to one.
+See \fIfb_clnt_create\fP(3) for more details.
+.SH SEE ALSO
+opendb(3), addrec(3), delrec(3), database(4).
+.br

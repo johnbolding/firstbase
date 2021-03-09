@@ -1,0 +1,93 @@
+
+                        $Electronic_Rolodex_System
+
+		     $a. Create Rolodex Entries                  (dbvedit -a)
+		     $b. Edit Rolodex Entries                    (dbvedit)
+		     $c. Lookup/Scan Rolodex Entries             (dbvscan)
+		     $d. Regenerate Rolodex Index                (dbregen)
+		     $e. Generate Phone List - by Last Name      (dbpgen)
+		     $f. Generate Phone List - by Company Name   (dbemit -t)
+		     $g. Generate Mailing Labels                 (dblgen)
+		     $h. Generate Complete Rolodex List          (dbmerge)
+		     $i. Generate Complete Rolodex List          (dbmacro)
+		     $j. Generate Complete Rolodex List          (dbsql)
+		     $k. Emit Raw Data - by Company Name         (dbemit)
+
+                     $r. Report Generator 
+
+                              $Sub_Menus
+                   $inquiry.   Inquiry Menu
+                   $manager.   Manager Menu
+                   $firstbase. FirstBase Main Menu 
+
+                           $-. Use '-' to Quit
+%
+$a -1
+        dbvedit -d $ROLOHOME/rolodex -i $ROLOHOME/lname \
+	-v $ROLOHOME/rolodex -a
+
+$b -1
+	echo -n "Enter main index - l=last name, c=company: "
+	read answer
+	if [ "$answer" = "l" ] ; then
+	   IX=lname
+	else
+	   IX=coname
+	fi
+        dbvedit -d $ROLOHOME/rolodex -i $ROLOHOME/$IX -v $ROLOHOME/rolodex
+
+$c -1
+	echo -n "Enter main index - l=last name, c=company: "
+	read answer
+	if [ "$answer" = "l" ] ; then
+	   IX=lname
+	else
+	   IX=coname
+	fi
+        dbvscan -d $ROLOHOME/rolodex -i $ROLOHOME/$IX -v $ROLOHOME/rolodex
+
+$d -1
+	echo Generating rolodex indexes ...
+        dbregen -d $ROLOHOME/rolodex -f -b
+
+$e -1
+        dbpgen -d $ROLOHOME/rolodex -i $ROLOHOME/lname -y
+
+$f -1
+        dbemit -d $ROLOHOME/rolodex -i $ROLOHOME/coname -t \
+	   -s $ROLOHOME/coname - > list.me
+        frmprint list.me
+
+$g -1
+        dblgen -d $ROLOHOME/rolodex -i $ROLOHOME/lname -y
+
+$h -1
+        dbmerge -d $ROLOHOME/rolodex -i $ROLOHOME/coname \
+	-y $ROLOHOME/merge.in $ROLOHOME/complete.prt
+
+$i -1
+        dbmacro -d $ROLOHOME/rolodex -i $ROLOHOME/coname \
+	   $ROLOHOME/macro.m > $ROLOHOME/complete.me
+	frmprint complete.me
+
+$j -1
+        dbsql -f $ROLOHOME/script.sql > $ROLOHOME/complete.prt
+	scrprint complete.prt
+
+$k
+        dbemit -d $ROLOHOME/rolodex -i $ROLOHOME/coname -
+
+$r -1
+	$ROLOHOME/report/report.sh
+
+$inquiry *
+INQUIRY
+
+$manager *
+MANAGER
+
+$firstbase *
+	$FIRSTBASEHOME/menu/MAIN
+
+$fb *
+	$FIRSTBASEHOME/menu/MAIN

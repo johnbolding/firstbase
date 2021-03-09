@@ -1,0 +1,55 @@
+.TH DBRESTOR 8 "12 September 1995"
+.FB
+.SH NAME
+DBRESTOR \- restore a \fIFirstBase\fP database from disk
+.SH SYNOPSIS
+.B DBRESTOR
+.I database
+.SH DESCRIPTION
+.I DBRESTOR
+is a shell script that will restore a "dirty" database using the
+previously dumped database and the current database log file.
+.PP
+The concept is as follows: the dumped database and its map are copied from
+the \fIdbase.BKfirstbase\fP
+and \fIdbase.BKmap\fP files back to the live files \fIdbase.cdb\fP
+and \fIdbase.map\fP. Then, the \fIdbrestor\fP(8)
+tool will use the database log,
+\fIdbase.log\fP,
+and recover the database almost to the point where the failure occurred.
+.PP
+Note: it is very important that the backed up database and its map are
+kept intact before using the \fIdbrestor\fP(8) script. This is due to the fact
+the the database log is kept using \fIlogical\fP record numbers.
+\fIDbclean\fP(1) would change these record numbers \(em thus causing havoc and
+destruction during the \fIdbrestor\fP(8) process.
+.PP
+\fIDbrestor\fP(8)
+will run \fIdbclean\fP(1) on the restored database once
+it has completed. This is used to determine accurate counts of valid
+and deleted records.
+.PP
+This script could easily be changed to use tape backups if desired.
+.SH FILES
+.PD 0
+.TP 10
+*.cdb
+\fIFirstBase\fP database.
+.TP 10
+*.log
+\fIFirstBase\fP database log.
+.TP 10
+*.map
+record map of \fIFirstBase\fP database.
+.TP 10
+*.BKfirstbase
+dumped \fIFirstBase\fP database.
+.TP 10
+*.BKmap
+dumped map of \fIFirstBase\fP database.
+.PD
+.SH SEE ALSO
+cp(1), firstbase(5), dictionaries(5), dbdump(8)
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br

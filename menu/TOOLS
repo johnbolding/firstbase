@@ -1,0 +1,85 @@
+
+
+                              $More_Database_Tools
+
+
+                           $backup.  Backup Database
+                           $check.   Check Database
+                           $clean.   Clean Database
+                           $concat.  Concatenate Databases
+                           $emit.    Emit Data from FirstBase
+                           $join.    Join Databases
+                           $load.    Up Load into FirstBase
+                           $pack.    Remove Deleted Recs
+                           $restore. Restore Database
+                           $undo.    Undo Deletions
+                           $query.   Ad Hoc Query
+
+                           -----
+                           $table.  Emit as a table
+                     $screenprint.  Screen/Print a File
+
+%
+
+$backup
+	DBDUMP $DBASE
+
+$check
+	dbcheck -clp $DBASE
+
+$clean
+	dbclean $DBASE
+
+$concat	-1
+	dbcat $DBASE
+
+$emit	-1
+	S=""
+	if [ "$SCREEN" != "-" ]
+	   then
+	   S="-s $SCREEN"
+	fi
+	dbemit -q -d $DBASE -i $INDEX $S
+
+$table
+	trap "rm -f table.me; exit" 0 1 2 3 4 5 6 7 8 9
+	echo emitting database in table format...
+	dbemit -d $DBASE -i $INDEX -s $SCREEN -t - > table.me
+	echo now formatting table.me into table.lpr
+	tbl table.me | nroff -me -Tlp > table.lpr
+	echo Done. See table.lpr.
+
+$join	-1
+	dbjoin -d $DBASE -i $INDEX
+
+$load	-1
+	dbload -d $DBASE -i $INDEX
+
+$pack	-1
+	dbpack -d $DBASE
+
+$restore
+	DBRESTOR $DBASE
+
+$undo	-1
+	dbundo -d $DBASE
+
+$query
+	DBAWK.sh $DBASE $INDEX $SCREEN
+
+$screenprint -1
+	echo -n "Enter file(s) to display? "
+	read x
+	if [ -n "$x" ]
+	   then
+	   for i in $x
+	      do
+	      if [ ! -f "$i" ]
+	         then 
+		 echo "File $i does not exist."
+		 exit
+	      fi
+	   done
+	   scrprint $x
+	fi
+

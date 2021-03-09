@@ -1,0 +1,191 @@
+.TH DBMERGE 1 " 4 April 1996"
+.FB
+.SH NAME
+dbmerge \- merge source text with a \fIFirstBase\fP database (mail merge)
+.SH SYNOPSIS
+.B dbmerge
+[\fB-b\fP] [\fB-y\fP] [\fB-B\fP]
+[\fB-n\fP \fIcount\fP]
+[\fB-w\fP \fIwidth\fP]
+[\fB-d\fP \fIdatabase\fP]
+[\fB-i\fP \fIindex\fP]
+[\fIsource\fP]
+[\fIdestination\fP | \fB-\fP]
+.SH DESCRIPTION
+.I Dbmerge
+merges a source document with user selected fields from a \fIFirstBase\fP
+database.
+The end result is a separate copy of the input document for each record
+in the current \fIFirstBase\fP index with actual database data substituted for
+in indicated places.
+The set of processed records can be limited using the \fB-i\fP index specifier.
+The \fB-n\fP flag can be used to process exactly \fIcount\fP records.
+.PP
+The \fB-b\fP
+flag will run the \fIFirstBase\fP tool in batch mode, suitable for shell
+scripts.
+This mode produces no output on the terminal, thus can also be used
+when running the process in the background.
+The \fB-y\fP flag will run the tool at the terminal without pausing to ask
+the user if existing files can be destroyed and without displaying
+a 'picture' of the requested task.
+.PP
+The \fB-B\fP flag will enable the fastest throughput of records from the
+database. If this flag can be used, the \fIdbmerge\fP generation
+is speeded up a great deal by internal record buffering.
+Note that no index can be used with record buffering, and
+that record locking is disabled.
+.PP
+The \fB-w\fP flag is used to set the width of the document. Lines longer
+than this width will be truncated with a warning.
+The default width is the \fIFirstBase\fP environment variable \fIMERGECOLS\fP
+or the minimum width of a \fIFirstBase\fP controlling terminal, 80.
+.PP
+If command line arguments for the source or destination are
+not provided, dbmerge will prompt for
+the
+.I source 
+and/or
+.I destination
+file names.
+The destination file may be specified as \fB-\fP to produce output on the
+standard output device.
+.PP
+To begin, a document must be prepared using some kind of
+.I text editor,
+or by using \fIdbdmrg\fP(1).
+This document is the
+.I source
+to 
+\fIdbmerge\fP(1).
+One good example of 
+\fIdbmerge\fP(1)
+input is an
+\fInroff\fP(1)
+source document.
+.PP
+The input document may be interspersed with 
+.I tokens
+that represent data fields in a \fIFirstBase\fP database. These tokens are
+formed by pre-pending a dollar sign, \fB$\fP,
+to a valid \fIFirstBase\fP field_name.
+For example, if 
+.I LastName
+is a valid database field name as defined in the current database
+dictionary, then
+.B $LastName
+would be the correct token to insert into the document.
+Again, this prepared document is the input or 
+.I source
+to
+\fIdbmerge\fP(1).
+.PP
+Tokens can also be forced to appear in an expanded or truncated manner.
+Each token can be followed by a size delimiter. For example,
+\fB$LastName[25]\fP would print the LastName contents in a slot exactly
+25 characters wide, no matter how big the actual data field is.
+A size of 0 or no size means the field token data will print unconstrained.
+.PP
+\fIDbmerge\fP(1)
+first parses the 
+.I source
+looking for tokens to be expanded.
+During this stage, all found tokens are displayed on the screen.
+Unresolved tokens are marked 
+.I ...undefined. 
+These undefined tokens are
+printed out in place exactly as they appear.
+Thus, '$100.00' would be marked as undefined, and would print '$100.00'.
+Note: to get a single dollar sign without a warning, use two dollar signs ($$).
+.PP
+After getting the user's permission to continue, 
+the processing stage takes the 
+.I source 
+document and produces one
+copy for each record in the \fIFirstBase\fP index to the 
+.I destination 
+file.
+Defined tokens are substituted for their respective field data from the
+database during this stage.
+.PP
+.I Note:
+white spaces (tabs, blanks, newlines) are kept intact during the actual
+document-database merging.
+Furthermore, it is up to the user to prepare the document properly.
+For example, if the document is a letter, then probably a new page
+is needed for each letter produced. For nroff source, this
+means that a \fB.bp\fP command must be either the first or last nroff
+command in the document.
+.PP
+The source document can also contain specific sections of text that are
+processed exactly once: at the beginning or at the end of the
+entire merge process. For example, this feature could be used to place
+a header at the top of some merge output.
+.PP
+To use these features, the symbols \fB_BEGIN_\fP and \fB_END_\fP are used
+to delimit sections of text to be processed at the beginning or at the end
+of the merge process.
+Both sections are optional, but if used,
+should appear as in the following example:
+.sp 1
+.nf
+.nj
+_BEGIN_
+...
+[ Header information \(em printed exactly once ]
+...
+_BEGIN_
+...
+[ Normal Text ... with embedded $ Field Tokens ]
+...
+_END_
+[ Footer information \(em printed exactly once ]
+_END_
+.ju
+.fi
+.sp 1
+.SH FILES
+.PD 0
+.TP 10
+merge.in
+default name for merge source file.
+.TP 10
+merge.out
+default name for the merge output file.
+.TP 10
+dbase
+default name for the \fIFirstBase\fP database.
+.TP 10
+index
+default name for the \fIFirstBase\fP index.
+.TP 10
+*.cdb
+\fIFirstBase\fP database.
+.TP 10
+*.idx
+\fIFirstBase\fP index.
+.TP 10
+*.ddict
+\fIFirstBase\fP database dictionary.
+.PD
+.SH SEE ALSO
+dbdmrg(1), dbedit(1), nroff(1), generators(5), firstbase(5), setup(5)
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br
+.SH DIAGNOSTICS
+\fIDbmerge\fP(1)
+pauses to ask permission to destroy an existing output
+(\fIdestination\fP) file.
+A valid \fIFirstBase\fP database dictionary is required for the current
+database.
+.sp 1
+This tool uses a \fIFirstBase\fP index to generate the output from the
+database in a particular order.
+If this index is detected to be out of date or non-existent, it is
+regenerated \fIautomatically\fP. An index is out of date if 
+either the database or the index dictionary have changed more
+recently than the index was generated.
+.sp 1
+This tool is line oriented and expects lines of 250 characters or less.
+.br

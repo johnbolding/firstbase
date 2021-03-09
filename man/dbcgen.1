@@ -1,0 +1,92 @@
+.TH DBCGEN 1 "12 September 1995"
+.FB
+.SH NAME
+dbcgen \- generate a converted \fIFirstBase\fP database
+.SH SYNOPSIS
+.B dbcgen
+[\fB-b\fP] [\fB-y\fP] [\fB-B\fP]
+[\fB-d\fP \fIdatabase\fP] [\fB-i\fP \fIindex\fP]
+.SH DESCRIPTION
+.I Dbcgen
+generates a converted \fIFirstBase\fP database using a conversion 
+dictionary defined via
+\fIdbdcnv\fP(1).
+This conversion dictionary is used to determine 
+the size, shape, and structure of the new database.
+.PP
+This tool uses a \fIFirstBase\fP index to generate the output in sorted order.
+If this index is detected to be out of date or non-existent, it will
+be regenerated \fIautomatically\fP. An index is out of date if 
+either the database or the index dictionary have changed.
+.PP
+The \fB-b\fP flag will run the \fIFirstBase\fP tool in batch mode,
+suitable for shell scripts.
+This mode produces no output on the terminal, thus can also be used
+when running the process in the background.
+The \fB-y\fP
+flag will run the tool at the terminal without pausing to ask
+the user if existing files can be destroyed and without displaying
+a 'picture' of the requested task.
+.PP
+The \fB-B\fP flag will enable the fastest throughput of
+records from the database. In this case, the entire database is used,
+and the \fIdbcgen\fP generation is speeded up by internal record buffering.
+Note that an index will be NOT be used with record buffering,
+and record locking is disabled. However, the \fB-i\fP argument is still
+required so that \fIdbcgen\fP can locate the
+the conversion dictionary (\fIdbdcnv\fP(1)).
+.PP
+The following discussion refers to using the generator interactively
+without the batch mode or yes mode flags.
+.PP
+\fIDbcgen\fP(1)
+first displays an image of the converted database-to-be and
+its file name.
+The user has a chance to abort here. After the database conversion, 
+\fIdbcgen\fP(1) creates a new database dictionary for the new database.
+.PP
+Dbcgen can change the size, shape and structure of a valid \fIFirstBase\fP 
+database. Existing database fields can be lengthened, shortened, or deleted.
+New fields can also be added.
+See 
+\fIdbdcnv\fP(1)
+for more conversion details.
+.PP
+Note: \fIdbclean\fP(1)
+is automatically run at the completion of this program to
+create a map file for the new database.
+.SH FILES
+.PD 0
+.TP 10
+dbase
+default name for the \fIFirstBase\fP database.
+.TP 10
+index
+default name for the \fIFirstBase\fP index.
+.TP 10
+*.?dict
+dictionary for \fIFirstBase\fP dbase or index.
+.TP 10
+*.idictc
+dictionary for conversion generator.
+.TP 10
+*.cdb
+\fIFirstBase\fP database.
+.TP 10
+*.map
+record map of \fIFirstBase\fP database.
+.TP 10
+*.idx
+\fIFirstBase\fP index.
+.PD
+.SH SEE ALSO
+dbdbas(1), dbedit(1), dbdcnv(1), generators(5)
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br
+.SH DIAGNOSTICS
+\fIDbcgen\fP(1)
+pauses to ask permission to destroy an existing
+\fIFirstBase\fP database. A valid \fIFirstBase\fP database dictionary is
+required for the input database.
+.br

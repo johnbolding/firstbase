@@ -1,0 +1,9 @@
+:
+if [ "$FIRSTBASEHOME" = "" ] ; then
+   FIRSTBASEHOME=/usr/local/firstbase
+   export FIRSTBASEHOME
+
+   PATH=$FIRSTBASEHOME/bin:$FIRSTBASEHOME/scripts:$PATH
+   export PATH
+fi
+exec dbshell $FIRSTBASEHOME/menu/MAIN $*

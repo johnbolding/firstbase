@@ -1,0 +1,23 @@
+.TH SIMPLEDATE 3 "12 September 1995"
+.FB
+.SH NAME
+simpledate \- return a simple FirstBase date or time string
+.br
+.SH SYNOPSIS
+char *fb_simpledate(s, format)
+.br
+char *s;
+.br
+int format;
+.br
+.PP
+.SH DESCRIPTION
+\fIFb_simpledate\fP is a simple routine in the \fIFirstBase\fP library used to
+return the current time or date as a string suitable for storage into a
+\fIFirstBase\fP field.
+.PP
+The \fBformat\fP variable controls the returned string: 0 = time as HH:MM ;
+1 = date as MMDDYY ; and 2 = military time as HH:MM:SS.
+.PP
+In each case, the string is returned in \fBs\fP.
+.br

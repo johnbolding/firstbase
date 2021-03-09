@@ -1,0 +1,329 @@
+.TH DBMACRO 1 "20 January 2000"
+.FB
+.de SF
+.nf
+.nj
+.sp 1
+.ft CW
+.in +3
+..
+.de UF
+.XF
+.sp 1
+..
+.de XF
+.ft
+.ju
+.fi
+.in -3
+..
+.SH NAME
+dbmacro \- general purpose text, CGI, HTML, and record processing language
+.SH SYNOPSIS
+.B dbmacro
+[\fB-b\fP]
+[\fB-c\fP]
+[\fB-r\fP]
+[\fB-d\fP \fIdatabase\fP]
+[\fB-i\fP \fIindex\fP]
+[\fImacro_file\fP | \fB-m\fP \fIscript\fP]
+.br
+.SH DESCRIPTION
+\fIDbmacro\fP, a general purpose processing tool for
+text files, CGI requests, HTML forms, database records and
+\fIFirstBase\fP databases.
+\fIDbmacro\fP executes \fImacro\fP(5) code from a file, standard input,
+or an inline script. Default output is written to standard output.
+.PP
+The \fImacro\fP
+language provides a powerful general purpose processing tool that
+can be used with or without a FirstBase database.
+.PP
+The \fImacro\fP(5) language is similar to C in syntax
+and includes most of the familiar programming constructs,
+including conditionals, loop constructs, user defined functions,
+and printf mechanisms.
+This high level language also supports
+associative arrays, run time loadable code, strings, and
+all of the \fIFirstBase\fP data types. In addition, there are
+many built in functions covering math, string, date, screen input/output,
+stream input/output, and CGI/HTML processing.
+.PP
+Variables are dynamically created without being declared and
+are global in all situations unless specified as local
+using the \fIlocal\fP directive. These variables can take on any of
+these data types: float, date, string, associative array, or database array.
+.PP
+Functions can accept and return
+any number of arguments and parameters of any type, including arrays.
+All function parameters are local.
+.PP
+At runtime, variables can be introduced and initialized
+on the argument line using a \fIvar=value\fP syntax. Variables can also be
+introduced using CGI methods. See below.
+.PP
+Database records and fields can be created, modified, or deleted
+using simple assignments and/or calls to the \fIputrec\fP function.
+The \fB-r\fP flag invokes \fIdbmacro\fP in read-only mode so that
+records cannot be modified.
+.PP
+Using the \fB-c\fP flag, or
+invoking \fIdbmacro\fP as \fIdbmacro.cgi\fP, enables \fIdbmacro\fP to
+process Common Gateway Interface (CGI) requests, either GET or POST methods,
+as used by http servers and World Wide Web browsers.
+See the section on CGI below.
+.PP
+A \fImacro_file\fP is a simple text file containing \fImacro\fP(5) code.
+Generally, a \fImacro_file\fP can contain three main sections:
+\fIbegin\fP, \fIbody\fP, and \fIend\fP, and any number
+of \fIfunction\fP sections.
+Each of these sections is declared using these keywords. The default
+section type is \fIbody\fP.
+.PP
+When provided with a database argument, \fIdbmacro\fP will
+processes the database in the normal \fIFirstBase\fP generator manner
+\(em the macro_file is executed once for each referenced record.
+The set of processed records can be limited using the \fB-i\fP index specifier.
+The \fIbegin\fP section is done once before any processing occurs
+(for initialization needs), the \fIbody\fP section is done once for each
+referenced database record
+and the \fIend\fP section is done once after the last record
+has been processed (for clean up or totals printing).
+.PP
+When not provided with a database, \fIdbmacro\fP processes the
+\fImacro_file\fP one time.
+In this scenario, if database processing is desired, \fImacro\fP(5) functions
+like \fIopendb\fP and \fIgetxrec\fP are used in the \fImacro\fP code.
+.PP
+When using the \fB-m\fP method of providing \fImacro\fP code,
+use single quote marks to surround the code.
+Note: this method assumes that all code in the script is part of
+the \fIbody\fP section.
+.PP
+\fIDbmacro\fP can be used for database processing,
+simple reports, complex inquiries involving many criteria,
+and selective, sophisticated database updates.
+Fields in records can be modified
+by using code that does simple field assignment.
+.PP
+The following example shows a simple \fImacro\fP file. Note that this BEGIN
+section is not really needed (since all variables default to 0 or the NULL
+string) but, it serves the purpose here.
+.SF
+begin
+total = records = 0
+
+body
+records++
+total += $AmountDue
+
+end
+print("The grand total is ", formfield(total, "$", 18))
+print("The average is ", formfield(total/records, "$", 18))
+print("The number of records processed is ", records)
+.UF
+This example will calculate the grand total of a \fIdollar\fP field named
+\fIAmountDue\fP. After processing, the total will be formatted
+and printed with a message, along with an average and number of records.
+To use this \fImacro\fP
+code, the database must be specified using the \fB-d\fP flag.
+.PP
+As another example, the following is
+a functionally equivalent piece of \fImacro\fP(5) code. In this case
+\fIdbmacro\fP is invoked without a database,
+but uses builtin macro functions to directly open and process a
+\fIFirstBase\fP database.
+.SF
+#
+# sample code to read and total records
+#
+db = opendb("dbase", "r")
+if (db >= 0){
+   process(db)
+   closedb(db)
+   }
+else
+   print("could not open the database")
+# end of main section
+
+#
+# process - process all records of database db
+#
+function process(db)
+   {
+      total = records = 0
+      initrec(db, dbase)
+      records = reccnt(db)
+      for (rec = 1; rec <= records; rec++){
+         getrec(rec, db)
+         total += dbase[AmountDue]
+         }
+      print("The grand total is ", formfield(total, "$", 18))
+      print("The average is ", formfield(total/records, "$", 18))
+      print("The number of records processed is ", records)
+   }
+.UF
+.SH COMMON GATEWAY INTERFACE (CGI)
+\fIDbmacro\fP will process both GET and POST requests via the Common
+Gateway Interface (CGI). Install \fIdbmacro\fP into the http server's
+cgi-bin directory, rename \fIdbmacro\fP to \fIdbmacro.cgi\fP,
+and allow access to \fIdbmacro.cgi\fP via the http server.
+In addition, create a symbolic link from \fI/usr/local/firstbase\fP to
+the actual $FIRSTBASEHOME directory (if they are different).
+.PP
+If invoked as \fIdbmacro.cgi\fP,
+CGI data is automatically converted to variables available
+in the macro code at runtime. In this case, \fIdbmacro\fP(1) also
+emits the standard CGI script lines "Content-type: text/html\\n\\n".
+Multipart CGI data is also handled automatically (see \fIhtml_form_open()\fP
+in \fImacro\fP(5)).
+.PP
+However, if \fIdbmacro\fP(1) is called from a shell script,
+or is used as the command interpreter itself via
+something like
+.SF
+#!/usr/local/firstbase/bin/dbmacro
+.UF
+as the first line of the CGI file, then the \fIcgi_read\fP mechanism
+can be used to parse standard CGI parameters and values.
+Note that the script will have to print the HTML Content-type directive
+itself if needed.
+.PP
+When processing a GET request, the query string will be searched for
+\fIvar=value\fP pairs. During a POST request, all HTML form fields
+are used as \fIvar=value\fP pairs. In all cases, 
+the variable \fIvar\fP will be preassigned the string \fIvalue\fP
+before \fImacro\fP processing begins.
+.PP
+To pass the name of a file with the \fImacro\fP
+code to execute, connect the \fImacro\fP
+file name to the URL just beyond the \fIdbmacro.cgi\fP string.
+.PP
+In the following CGI GET request example,
+\fIdbmacro\fP executes the \fImacro\fP code in \fIscript.m\fP
+passing a variable named \fICommand\fP that has a string value of
+\fIModify\fP, and another variable, \fIStatus\fP, set to \fIOK\fP.
+.SF
+/cgi-bin/dbmacro.cgi/script.m?Command=Modify&Status=OK
+.UF
+.PP
+In the following CGI POST request example,
+\fIdbmacro\fP uses the \fImacro\fP code in the file
+\fIwebmaker.m\fP. Variables are passed from standard HTML input fields, in this
+case, a field named \fICommand\fP, and another named \fIStatus\fP.
+The values of these fields will be whatever is contained in the HTML form
+field at the time of the POST request.
+.SF
+<FORM METHOD="POST"
+   ACTION="www.horseweb.com/cgi-bin/dbmacro.cgi/webmaker.m">
+<INPUT TYPE=TEXT NAME=Command SIZE=10 MAXLENGTH=10>
+<INPUT TYPE=HIDDEN NAME=Status VALUE=OK>
+.UF
+.PP
+The special \fIcheckbox\fP HTML forms input type is provided to
+\fIdbmacro\fP code as an array named the same name as the field name.
+(The same applies to the use the keyword MULTIPLE in
+an HTML SELECT statement).
+The subscripts or keys of this checkbox array are from
+\fIone\fP to \fIcountkey(array)\fP.
+In other words, \fIdbmacro\fP handles multiple occurrences of the same
+variable passed in from an HTML form.
+.PP
+However, there is one caveat with these methods where the same
+variable has multiple values as passed in from an HTML form:
+If only one of many in the HTML \fIcheckbox\fP or selection list is
+selected, then
+\fIdbmacro\fP will only see one occurrence of this HTML field name,
+and the variable available at run time will not be an array, but will
+be a simple variable like any other HTML input fields. In this case, the
+\fIcountkey\fP function will return a zero (0).
+.PP
+If provided with a variable named \fIdatabase\fP, the value of this variable
+will be used as the name of the default database, and \fIdbmacro\fP will
+behave as if it received a \fB-d\fP flag. Another variable, \fIindex\fP, can
+be used to process the default database via index.
+.PP
+Two other variables are automatically set as well: PATH_TRANSLATED (or
+path_translated) is set to the full path name of the excess values beyond
+the \fIdbmacro.cgi\fP reference, for example,
+\fI/usr/htdocs/firstbase/webmaker.m\fP. In addition, the base directory name
+is stored into PATH_DIR (or path_dir).
+.PP
+File type variables from encoded multipart forms
+will contain the name of a temporary file with the contents
+of the CGI transmission.
+See \fIhtml_form_open()\fP in \fImacro\fP(5) for more details.
+.SH MORE EXAMPLES
+Here are some more example uses of dbmacro. In the following example,
+a database is opened, ten records are added, and the database is closed.
+.SF
+db = opendb("dbase", "w")
+for (i = 1; i < 10; i++){
+   initrec(dbase, db)
+   dbase[1] = i
+   dbase[2] = date(now())
+   st = addrec(db)
+   printf("status from addrec is %d\\n", st)
+   }
+closedb(db)
+.UF
+.PP
+In this next example, a database is opened, an index is requested, and
+an array named \fIdbase\fP is associated with the database via
+\fIinitrec\fP.
+Then, a record with a search key of value \fI6\fP is located, printed,
+locked, deleted, and then unlocked. Finally, the database is closed.
+.SF
+db = opendb("dbase", "w")
+
+st = useidx(i, channel)
+printf("status of useidx is %d\\n", st)
+
+initrec(dbase, db)
+
+key = makess("6", "N", 6)
+st = getxrec(key, db)
+if (st < 0){
+   printf("could not find record ...exiting\\n")
+   exit(1)
+   }
+printf("%s %s %s %s\\n", dbase[1], dbase[2], dbase[3], dbase[4])
+
+rec = recno(db)
+st = lock(rec, db)
+printf("st for lock is %d ... pausing - hit return to continue", st)
+gets()
+
+st = delrec(db);
+printf("st for delrec is %d\\n", st)
+
+unlock(rec, db)
+
+closedb(db)
+.UF
+.PP
+In the next example, no databases are used at all. Here, an array is
+subscripted with a couple of strings, and initialized. Then, the array
+is processed twice, printing each element.
+.SF
+word["apple"] = "A good fruit"
+word["orange"] = "An orange fruit"
+
+for (;;){
+   if (key(subscript, word))
+      printf("got a subscript of %s, val of %s\\n", subscript, word[subscript])
+   else
+      break;
+   }
+print("Start again")
+for (;;){
+   if (!key(subscript, word))
+      break;
+   printf("got a subscript of %s, val of %s\\n", subscript, word[subscript])
+   }
+.UF
+.SH SEE ALSO
+dbedit(1), macro(5), fbtstmac(8)
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br

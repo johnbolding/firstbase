@@ -1,0 +1,70 @@
+.TH DBVEMIT 1 "12 September 1995"
+.FB
+.SH NAME
+dbvemit \- visual database emitter - dbvedit/dbemit fusion
+.SH SYNOPSIS
+.TP 9
+.B dbvemit
+[\fB-d\fP \fIdatabase\fP] [\fB-i\fP \fIindex\fP] [\fB-v\fP \fIview\fP]
+[\fB-c\fP \fIchar_sep\fP] [\fB-q\fP] [\fB-bt\fP \fIbegintoken\fP]
+.br
+[\fB-et\fP \fIendtoken\fP]
+[\fB-a\fP \fIcount\fP]
+[\fIemitfile\fP]
+.SH DESCRIPTION
+.I Dbvemit
+is a functional equivalent of \fIdbvedit\fP(1), without the actual
+reads and writes of records to a \fIFirstBase\fP database. \fIDbvemit\fP(1) allows
+users to create records using the \fIdbvedit\fP(1) mechanism. But the
+created records are stored in a \fIFirstBase\fP loadable file, \fInot\fP in an
+actual database.
+.PP
+The resulting \fIemitfile\fP can be loaded directly into a \fIFirstBase\fP
+database using either \fIdbload\fP(1) or \fIdbrload\fP(1).
+.PP
+Most all functionality of the database editor dbvedit(1) is available
+from \fIdbvemit\fP(1). However, \fIdbvemit\fP(1) will \fBalways\fP run
+in \fIadd\fP \fImode\fP, as if \fB-a\fP was used on \fIdbvedit\fP(1).
+This means that once a record is created, it cannot be re-edited using
+\fIdbvemit\fP(1).
+.PP
+Note that at least the database dictionary and database view files are
+required to make \fIdbvemit\fP(1) work. Also, the resulting \fIemitfile\fP
+will contain a slot for every field from the database, whether or not
+the fields are \fIedited\fP from the view dictionary file.
+.PP
+The \fB-q\fP flag can be used to force non numeric fields to be emitted
+within double quote marks. Also, the \fB-c\fP option can change the
+default field separator, \fB|\fP.
+.PP
+Beginning and ending tokens can be used to separate the individual
+"records" of the emitted file by using the \fB-bt\fP and \fB-et\fP flags.
+In this case, each individual record will begin with the \fIbegintoken\fP
+and a newline. Similarly, each record \(em after the normal newline
+separator \(em will contain an \fIendtoken\fP and another newline.
+.PP
+The \fB-a\fP flag can be used to force exactly \fIcount\fP "records"
+to be created before exiting.
+.SH FILES
+.PD 0
+.TP 10
+*.vemit
+extension for emitted loadfiles.
+.TP 10
+dbase
+default name of database.
+.TP 10
+*.cdb
+\fIFirstBase\fP database.
+.TP 10
+*.map
+record map of \fIFirstBase\fP database.
+.TP 10
+*.ddict
+\fIFirstBase\fP database dictionary file.
+.PD
+.SH SEE ALSO
+dbdbas(1), view(5), dbload(1)
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br

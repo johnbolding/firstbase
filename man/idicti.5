@@ -1,0 +1,183 @@
+.TH IDICTI 5 "12 September 1995"
+.FB
+.SH NAME
+idicti \- \fIFirstBase\fP index dictionary files
+.SH SYNOPSIS
+Layout of \fIFirstBase\fP index dictionary files
+.SH DESCRIPTION
+An index dictionary file is a text file used to create \fIFirstBase\fP
+indexes.
+This file not only describes the selection criteria that are used to
+select records from the database, but it also lists the actual fields that
+will be stored in the index, i.e. the field values that will be written
+to the index and sorted.
+.PP
+Formally, this file is edited using the \fIdbdind\fP(1) tool, and used
+by \fIdbigen\fP(1) to actually create the index.
+.PP
+This manual page describes the layout of index dictionary files
+so that creation of theses index files can be accomplished using a
+shell script or C program.
+\fIDbigen\fP(1) will still need to be used to generate
+the actual index.
+.PP
+An index dictionary is a line oriented text file. Each line contains
+either a single character \fIsymbol marker\fP,
+or a \fIfield name\fP with selection values.
+.PP
+The symbols of the index dictionary are used to delimit 'And Trees'
+and 'Or Trees', with another symbol used to denote a 'Simple And' connection.
+Here is a list of the symbols and their meaning:
+.TP 5
+\fB$\fP
+begin a Tree \(em assume an And Tree
+.TP 5
+\fB#\fP
+begin (end) an Or Tree
+.TP 5
+\fB&\fP
+connect the previous and next lines with a simple and.
+Appears only within an Or Tree.
+.TP 5
+\fB%\fP
+End of selection criteria or Btree marker.
+First occurrence indicates that the
+next line contains Index Value field names.
+If the line \fIafter\fP the field names line is also a \fB%\fP marker,
+then the tree generated will be a FirstBase Btree+ structure.
+.SH AND TREES
+An And Tree is the most simple subtree of the index dictionary.
+It consists of a single \fB$\fP symbol, followed on the next line by a
+Field Name line. Field Name lines are discussed below.
+.SH OR TREES
+An Or Tree is a bit more complex. It too begins with a \fB$\fP symbol,
+but it is followed by a \fB#\fP symbol. This 'begin Or Tree' symbol 
+is followed by any number of Field Name lines.
+The end of the 'Or Tree' is denoted by the \fB#\fP symbol again.
+All Field Name lines in between the two \fB#\fP markers will be
+connected with a logical OR during the generation of the index.
+.PP
+A special Simple And symbol, \fB&\fP, can
+appear in the middle of an Or Tree. 
+This symbol will cause the upper
+and lower sub-sections of the 'Or Tree'
+to be connected with a logical And.
+In other words, use of the 'Simple And' implements a different precedence.
+For example, the 'Simple
+And' symbol allows selection logic of the form '(A OR B) AND (C OR D)'.
+.SH FIELD NAME LINES
+A Field Name Line consists of a single field name followed by two values.
+These values are referred to as Val1 and Val2.
+Note that underscores should be used in place of blanks within all fields
+that have embedded blanks in their names.
+.PP
+The two values on a Field Name line represent the endpoints of the range
+of accepted values for that Field. For example, a Field Name 
+line of 'Field1 101 202' will match a record when the value of Field1 is
+greater than or equal to 101 and less than or equal to 202.
+.PP
+There are a few special Meta-Values that can also be used as Val1 and Val2.
+Val1 can have the meta-value \fB$ALL\fP or \fB$NOT\fP.
+If the value \fB$ALL\fP is used, Val2 is unused, and should be blank.
+If the value \fB$NOT\fP is used, a match only occurs if the contents of the
+field is not the value listed as Val2.
+.PP
+Val2 can be a meta-value also. \fB$NONE\fP will force
+an exact match using the Val1 value, while \fB$PATTERN\fP will
+cause Val1 to be used as a regular expression in attempting to match the
+contents of Field1 with Val1.
+.PP
+Alternately, Val1 and Val2 can be used to compare the Field Name value to
+another field value in each examined record. In this scenario, Val1
+takes on one of the values \fB$GT\fP \fB$LT\fP, \fB$GE\fP,
+\fB$LE\fP, \fB$EQ\fP, or \fB$NE\fP.
+Val2 must then be a valid Field Name.
+.SH INDEX VALUES LINE
+As mentioned above, the \fB%\fP
+symbol marks the end of all selection criteria.
+The next line, is the
+.I Index Values Line.
+This line lists all of the field names whose contents will be stored
+in the generated index. Again, all field names should be listed on a
+single line, separated by blanks.
+.SH BTREE MARKER
+The last line of the index dictionary can be a \fB%\fP to indicate that
+this index will be a Btree index when generated. Btree indexes are automated
+using the \fIautoindex\fP(5) file.
+.SH EXAMPLES
+The following are three
+examples of \fI.idicti\fP files. The first example will select
+all records that have the contents of Field1 between 101 and 202 inclusive,
+and create an index using these Field1 values.
+.PP
+The second example below will select all records that have the
+contents of Field1 between 101 and 202 inclusive,
+and the contents of Field2 either
+between abc and def, or between xyz and zzz. In pseudo code,
+this selection translates to (Field1 >= 101 && Field1 <= 202) &&
+((Field2 >= abc && Field2 <= def) || (Field2 >= xyz && Field2 <= zzz)).
+The created index will contain (and be sorted by) Field1, Field2 and
+Field3.
+.PP
+The third example will select all records where the value
+of Field1 is greater than the value of Field2. The resulting index will be
+sorted by Field2. Note that it will not be a Btree index, but will instead
+be a flat index.
+.nf
+.nj
+.sp 2
+____________
+Example 1:
+____________
+.ft CW
+$
+Field1 101 202
+%
+Field1
+%
+____________
+.ft
+.sp 2
+Example 2:
+____________
+.ft CW
+$
+Field1 101 202
+$
+#
+Field2 abc def
+Field2 xyz zzz
+#
+%
+Field1 Field2 Field3
+%
+____________
+.ft
+.bp
+Example 3:
+____________
+.ft CW
+$
+Field1 $GT Field2
+%
+Field2
+.ft
+____________
+.fi
+.ju
+.PP
+.SH FILES
+.PD 0
+.TP 10
+*.idx
+\fIFirstBase\fP index. Actual index values and pointers to records.
+.TP 10
+*.idicti
+\fIFirstBase\fP index dictionary, formally produced by \fIdbdind\fP(1).
+.TP 10
+*.idict
+\fIFirstBase\fP index header information, produced by \fIdbigen\fP(1).
+.PD
+.SH SEE ALSO
+dbdind(1), dbigen(1), btree(4), index(4).
+.br

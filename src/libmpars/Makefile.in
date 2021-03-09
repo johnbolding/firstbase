@@ -1,0 +1,149 @@
+# Copyright (C) 2001 FirstBase Software, Inc. All rights reserved.
+#
+# $Id: Makefile.in,v 9.4 2004/01/02 20:51:10 john Exp $
+#
+# See the file LICENSE for conditions of use and distribution
+#
+#
+# Makefile for Firstbase src/dbshell
+#
+
+PRODUCT = @PRODUCT@
+VERSION = @VERSION@
+
+SHELL = /bin/sh
+srcdir = @srcdir@
+VPATH = @srcdir@
+
+CC = @CC@
+CFLAGS = @CFLAGS@
+CPPFLAGS = @CPPFLAGS@
+DEFS = @DEFS@
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@ $(LIBEXTRA)
+LEX = @LEX@
+LFLAGS = 
+YACC = @YACC@
+YFLAGS = -d
+AR = ar
+AR_OPTS = @AR_OPTS@
+RANLIB = @RANLIB@
+
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = $(exec_prefix)/bin
+
+COMPILE = $(CC) -c $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
+LINK = $(CC) $(LDFLAGS) -o $@
+
+.SUFFIXES:
+.SUFFIXES: .c .o .l .y
+
+.c.o:
+	$(COMPILE) $< -o $@
+
+.y.c:
+	$(YACC) $(YFLAGS) -o $@ $<
+	if [ -f y.tab.h ] ; then cp y.tab.h mac_g.h ; fi ;
+
+.l.c:
+	$(LEX) $(LFLAGS) -t $< > $@
+
+
+INCLUDES = @INCLUDES@
+LIBFB = ../lib/libfb.a
+
+OBJECTS= \
+mac_g.o		\
+mac_lx.o	\
+libsym.o	\
+node.o		\
+yyerror.o	\
+token.o		\
+mac_trac.o	\
+mac_tree.o
+
+all: libmpars.a
+
+LIBMPARS=../lib/libmpars.a
+libmpars.a: $(OBJECTS)
+	@echo making library $@
+	@/bin/rm -f $(LIBMPARS)
+	@$(AR) $(AR_OPTS) $(LIBMPARS) $(OBJECTS)
+	@$(RANLIB) $(LIBMPARS)
+
+mostlyclean:
+	rm -f *.o *._o core core.* mac_g.c mac_lx.c mac_g.h y.tab.h \
+		macro_df.h
+
+clean: mostlyclean
+
+distclean: clean
+	rm -f Makefile
+
+realclean: distclean
+	rm -f TAGS
+
+extraclean:: distclean
+	rm -f patch* *~* *\#* *.orig *.rej *.bak core a.out
+
+Makefile: Makefile.in ../../config.status
+	cd ../.. && \
+		CONFIG_FILES=src/libmpars/$@ CONFIG_HEADERS= ./config.status
+
+MHEADERS= \
+../include/fb.h  \
+../include/config.h \
+../include/input.h \
+../include/error.h \
+../include/message.h \
+../include/libcc.h \
+../include/libcdb.h \
+../include/libdbd.h \
+../include/libinit.h \
+../include/liblic.h \
+../include/librec.h \
+../include/libscr.h \
+../include/libwin.h \
+../include/libsec.h \
+../include/libedit.h \
+../include/libclnt.h \
+../include/interface.h \
+../include/cx.h \
+../include/fb_vars.h \
+../include/fb_ext.h
+
+EXHEADERS=../include/macro.h ../include/macro_e.h
+
+macro_df.h:
+	-cmp -s mac_g.h macro_df.h || cp mac_g.h macro_df.h
+
+token.c: macro_df.h
+	@if [ "$(srcdir)" != "." ] ; then cp $(srcdir)/token.c . ; fi
+	-chmod ugo+w $(srcdir)/token.c
+	ed - < $(srcdir)/tokenscript
+	rm temp
+
+mac_g.o: mac_g.c macro_df.h
+mac_lx.o: mac_lx.c $(MHEADERS) $(EXHEADERS)
+libsym.o: $(MHEADERS) $(EXHEADERS)
+node.o: $(MHEADERS) $(EXHEADERS)
+yyerror.o: $(MHEADERS) $(EXHEADERS)
+token.o: $(MHEADERS) $(EXHEADERS) macro_df.h
+mac_trac.o: $(MHEADERS) $(EXHEADERS)
+mac_tree.o: $(MHEADERS) $(EXHEADERS)
+
+DISTDIR = ../../$(PRODUCT)-$(VERSION)/src/libmpars
+DISTFILES = *.c *.y *.l tokenscript Makefile.in
+
+dist: clean
+	@echo "Copying distribution files from libmpars"
+	@for file in $(DISTFILES); do \
+	   ln $(srcdir)/$$file $(DISTDIR) 2> /dev/null \
+	      || cp -p $(srcdir)/$$file $(DISTDIR); \
+	done
+
+# Prevent GNU make 3 from overflowing arg limit on system V.
+.NOEXPORT:

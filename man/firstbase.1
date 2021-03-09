@@ -1,0 +1,67 @@
+.TH FIRSTBASE 1 "12 September 1995"
+.FB
+.SH NAME
+firstbase \- run \fIFirstBase\fP menu shell
+.SH SYNOPSIS
+.B firstbase
+[\fB-d\fP \fIdatabase\fP] [\fB-i\fP \fIindex\fP]
+[\fB-s\fP \fIscreen\fP]
+[\fB-v\fP \fIview\fP]
+.SH DESCRIPTION
+The \fIfirstbase\fP command (also executed as \fIfb\fP)
+runs the \fIFirstBase\fP
+menu shell using a provided menu file. This menu file provides
+an entry point to all of the \fIFirstBase\fP tools, and a few of the
+standard UNIX
+tools. The name of a database, index, and screen can be optionally
+provided. See \fIdbshell\fP(1) for more details.
+.PP
+The \fIfirstbase\fP command
+is actually best implemented as an alias of the command
+.I dbshell.
+However, \fIfirstbase\fP is released as a simple shell script, located in the
+\fIscripts\fP directory within the firstbase home directory ($FIRSTBASEHOME,
+the installation directory).
+Note that any \fIFirstBase\fP utility may be run directly from the
+command line.
+.PP
+See the \fIFirstBase User's Guide\fP for an exact picture of the MAIN menu
+screen.
+.SH FILES
+.PD 0
+.TP 10
+dbase
+default name of \fIFirstBase\fP database and screen.
+.TP 10
+index
+default name of \fIFirstBase\fP index.
+.TP 10
+*.cdb
+actual \fIFirstBase\fP database.
+.TP 10
+*.map
+record map of \fIFirstBase\fP database.
+.TP 10
+*.idx
+index for \fIFirstBase\fP database.
+.TP 10
+*.ddict
+dictionary for \fIFirstBase\fP database.
+.TP 10
+*.idict
+dictionary for \fIFirstBase\fP index.
+.TP 10
+*.sdict
+dictionary for \fIFirstBase\fP screen.
+.TP 10
+*.idict?
+dictionary for \fIFirstBase\fP generators.
+.TP 10
+$FIRSTBASEHOME/menu/*
+standard \fIFirstBase\fP menu shell files.
+.PD
+.SH SEE ALSO
+firstbase(5)
+.PP
+.I FirstBase User's Guide and Reference Manual.
+.br

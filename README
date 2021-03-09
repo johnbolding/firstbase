@@ -1,0 +1,114 @@
+Copyright (C) 2001 FirstBase Software, Inc. All rights reserved.
+
+
+FirstBase
+---------
+
+FirstBase is an open source RDBMS and Application Builder.
+It consists of a large set of end user programs designed to create,
+manipulate, scan, organize, view, and format relational database and
+database systems under the Unix/Linux environment.
+
+The FirstBase tools are used to produce and maintain information tracking
+applications and systems of data based on relational databases while still
+maintaining the flexibility of Unix/Linux software tools.
+
+Using a Unix/Linux tools approach creates an easily learned, dynamic,
+and highly productive database management platform.
+
+FirstBase features a unique approach to building database
+applications. Using full screen dictionary and data editors, database
+structures are defined and records of information are modified.
+
+When desired, custom data views and entry forms can be created, set of data
+can be organized using any combinations of fields, and tabular or free form
+printouts can be generated.
+
+
+Installation Instructions
+-------------------------
+
+See the file INSTALL for generalized installation instructions.
+FirstBase uses the GNU `configure' method of generating system
+dependent Makefiles in each source directory.
+
+Note that the default installation is to install /usr/local/firstbase
+as the FIRSTBASEHOME directory, with binaries in $FIRSTBASEHOME/bin,
+libraries in $FIRSTBASEHOME/lib and scripts in $FIRSTBASEHOME/scripts.
+
+Basically, this is something like
+
+   ./configure
+   make
+   make install
+
+If the `configure' script fails to generate workable Makefiles
+on your system, please try and work out the options needed
+for your particular system so I can fix them.
+
+After installation, one environment variable needs to be added, 
+and two PATH areas need to be modified.
+
+FIRSTBASEHOME
+-------------
+
+The environment variable FIRSTBASEHOME needs to be added.
+
+If you are using a c-shell style shell, use something like the following:
+
+   setenv FIRSTBASEHOME /usr/local/firstbase
+
+If you are using a Bourne type of shell, use something like this:
+
+   FIRSTBASEHOME=/usr/local/firstbase
+   export FIRSTBASEHOME
+
+PATH
+----
+
+The PATH of each user needs to be modified to locate the firstbase
+binaries and scripts. Using the FIRSTBASEHOME environment variable
+is the best way to do this.
+
+If you are using a c-shell style shell, use something like the following:
+
+   set path=( $path $FIRSTBASEHOME/bin $FIRSTBASEHOME/scripts )
+
+If you are using a Bourne type of shell, use something like this:
+
+   PATH=$PATH:$FIRSTBASEHOME/bin:$FIRSTBASEHOME/scripts
+   export PATH
+
+
+MANPATH
+-------
+
+One last path to tweak if you want the man pages to be
+available using the man command:
+
+Add $FIRSTBASEHOME/man to the MANPATH environment variable.
+
+
+Demonstration Applications
+--------------------------
+
+At this point, the `fb' command will be in /usr/local/bin
+and should be usable. Try it. From the FirstBase MAIN menu, choose the
+Application Menu by typing `app' and a <RETURN>.
+
+You can play around with the two database areas, Rolodex and Phone,
+and the sample source code area. Each has a menu.
+The Rolodex application demonstrates most every aspect of getting
+at data stored in a FirstBase database.
+
+For documentation on FirstBase, start with the Postscript manual
+located in $FIRSTBASEHOME/doc/fb-manual.ps.
+
+Bugs and Comments
+-----------------
+
+Please report any bugs to fb-bug@firstbase.com.
+Please send comments to fb-comments@firstbase.com.
+
+---
+$Id: README,v 9.4 2001/01/22 18:03:06 john Exp $

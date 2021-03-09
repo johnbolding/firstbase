@@ -1,0 +1,8 @@
+#Val2 '>='
+#        Use these to control how Val1 is used:
+none $NONE Gather records equal to Val1 Constant. (default).
+pat $PATTERN Gather records matching Regular Expression Val1.
+empty $EMPTY Use with $NOT as Val1 to catch non-empty fields.
+#
+#        Or use 's' to enter a '<=' Value (Val2):
+s $STRING

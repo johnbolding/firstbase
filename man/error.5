@@ -1,0 +1,112 @@
+.TH ERROR 5 " 2 May 1996"
+.FB
+.SH NAME
+error \- overview of \fIFirstBase\fP error numbers
+.SH SYNOPSIS
+Description of the \fIFirstBase\fP error numbers
+.SH DESCRIPTION
+\fIFirstBase\fP editors, generators, and processing languages
+will generate error messages when appropriate.
+This list covers the standard set of error numbers, what they most likely
+mean, and hints at how to fix the problem.
+.PD 1
+.TP 5
+101
+FB_BAD_TTY - Not connected to an interactive tty device.
+.TP 5
+102
+FB_BAD_TERMCAP - Either the database of terminal capabilities itself or the
+individual entry for the current terminal was not located. See
+\fIterminals\fP(5).
+.TP 5
+121
+FB_BAD_DATA - Corrupt data in the database or data object.
+If the object is a database, use \fIdbcheck\fP(1) to verify database
+corruption.
+Use \fIdbclean\fP(1) or \fIdbemit\fP(1)/\fIdbload\fP(1) to repair a database.
+.TP 5
+122
+FB_BAD_DICT - The database data dictionary is not valid. See \fIdbdbas\fP(1).
+.TP 5
+123
+FB_BAD_INDEX - The index is either corrupt or for a different database.
+Try \fIdbregen\fP(1) or \fIdbigen\fP(1) to regenerate the bad index.
+.TP 5
+124
+FB_EXEC_FAILURE - An execution failure, probably too many processes
+running on the computer.
+.TP 5
+125
+FB_FATAL_FGETREC - A fatal fixed getrec call. \fIFgetrec\fP
+is used to read the fixed length map records and index entries of the
+database support files.
+Use \fIdbcheck\fP(1) to see if the problem is with the database.
+If so, use \fIdbclean\fP(1) or \fIdbemit\fP(1)/\fIdbload\fP(1) to repair
+the database. Otherwise, rebuild the offending index using \fIdbigen\fP(1).
+.TP 5
+126
+FB_FATAL_GETREC - A fatal getrec call. \fIGetrec\fP
+is used to read records from the
+database. Typically, this means the database map file is corrupt, though
+the data itself could be.
+Use \fIdbclean\fP(1) or \fIdbemit\fP(1)/\fIdbload\fP(1) to repair
+the database.
+.TP 5
+127
+FB_FATAL_PUTREC - A fatal putrec call. \fIPutrec\fP is used to write a
+record to the database. If received while using a C program or
+\fImacro\fP(5) code, check each field that is being stored or assigned.
+This error could indicate a more serious hardware problem.
+.TP 5
+128
+FB_IO_ERROR - A serious data error which could indicate a hardware problem.
+An attempt to read or write from a file marked OK has resulted in an error.
+One possibility might be the machine architecture, big endian or little endian.
+See the FirstBase settings CPU_BYTEORDER and DBASE_BYTEORDER in \fIsetup\fP(5).
+.TP 5
+129
+FB_OUT_OF_MEMORY - The process has run out of memory.
+.TP 5
+130
+FB_READ_ERROR - The process could not read from a file.
+.TP 5
+131
+FB_SEEK_ERROR - The process could not seek to a certain point of the
+indicated file.
+.TP 5
+132
+FB_WRITE_ERROR - The process could not write to the indicated file.
+.TP 5
+133
+FB_WRONG_INDEX - The requested index is either from a different database
+or from a different incarnation of the current database.
+.TP 5
+134
+FB_DIRTY_DBASE - This error means that some process exited during a critical
+section of updating a database record. If the occurs, all other processes
+are locked out of the database since the data is most likely corrupt.
+The fix is to use \fIdbclean\fP(1), and to determine why the initial process
+exited during the critical database update section.
+.TP 5
+135
+FB_LINK_ERROR - An error has occurred in a database linked to the current
+database. The offending database must be fixed before the current one will
+work.
+.TP 5
+200
+FB_ABORT_ERROR - User entered ABORT keystroke to exit. See \fIkeyboard\fP(5).
+.TP 5
+201
+FB_CANT_OPEN - The process cannot open the indicated file. The additional error
+message should state the reason: permission denied, too many files, read
+only disk partition, etc.
+.TP 5
+202
+FB_CANT_CREATE - The process cannot create the indicated file. An additional
+error message stating the reason is also printed.
+.PD
+.SH SEE ALSO
+firstbase(5)
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br

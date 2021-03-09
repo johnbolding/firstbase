@@ -1,0 +1,122 @@
+.TH FB_LOCK 3 "12 September 1995"
+.FB
+.SH NAME
+fb_lock, fb_unlock, fb_s_lock, fb_s_unlock \- record and file locking mechanisms
+.SH SYNOPSIS
+#include <firstbase/fb.h>
+.sp 1
+fb_lock(rec, db, wait)
+.br
+long rec;
+.br
+fb_database *db;
+.br
+int wait;
+.sp 1
+fb_unlock(rec, db)
+.br
+long rec;
+.br
+fb_database *db;
+.sp 2
+fb_s_lock(fd, wait, fname)
+.br
+int fd;
+.br
+int wait;
+.br
+char *fname;
+.sp 1
+fb_s_unlock(fd, fname)
+.br
+int fd;
+.br
+char *fname;
+.br
+.PP
+.SH DESCRIPTION
+Record locking within \fIFirstBase\fP is handled via the \fIfb_lock\fP
+and \fIfb_unlock\fP
+mechanisms. These routines are also used to implement critical sections
+when multiple processes need to refer to common databases and indexes.
+All locking is done on an advisory basis meaning that all processes
+must check for locks when needed.
+.PP
+To set an advisory lock on a \fIFirstBase\fP record, the physical record number
+is used, \fIrec\fP. Again, \fIrec\fP is the record number used
+by \fIgetrec\fP to retrieve this single record. The \fIdb\fP argument
+points to an open database. NOTE: since the database map file is used for
+the actual locking under UNIX, it must be readable and writable to facilitate
+the underlying calls to \fIfcntl\fP. However, if you are using the FirstBase
+lock daemon, \fIfblockd\fP, this restriction is lifted.
+.PP
+The \fIwait\fP argument controls what happens when the lock request fails:
+if \fIwait\fP is zero, or FB_NOWAIT, \fIfb_lock\fP returns control to the caller
+with an FB_ERROR return code; if \fIwait\fP is one, or FB_WAIT,
+\fIfb_lock\fP will block until the lock request can be granted, or
+return FB_ERROR if the
+lock request times out (after LOCKTIME seconds, \fIsetup\fP(5)).
+.PP
+A special record number of zero (0) is used to lock the database header,
+the area that stores the record count and delete count for the database.
+Since all \fIFirstBase\fP mechanisms lock record zero before making
+database or index updates, locking record zero can be used to protect critical
+sections of code.
+.PP
+For example, if multiple processes need to share an index, like the
+\fIFirstBase\fP tool \fIdbvedit\fP, then calls to \fIgethead\fP and
+\fIgetxhead\fP will be needed, and maybe even \fIgetxrec\fP.
+To ensure that data within the database is unchanging during these calls,
+this critical section can be protected by locking record zero.
+.sp 1
+.nj
+.nf
+.ft CW
+   if (fb_lock(0, db, FB_WAIT) != FB_AOK){
+      fprintf(stderr, "lock request timed out\\n");
+      exit(-1);
+      }
+   fb_sync(d);
+   fb_getxhead(db->ihfd, &db->bsmax, &db->bsend);
+   fb_gethead(db);
+   fb_unlock(0, db);
+   if (fb_getxrec(key, d) == FB_AOK)
+      ...
+.ft
+.fi
+.ju
+.sp 1
+.PP
+Note the use of an additional call, \fIfb_sync\fP, which is used
+to synchronize data on networks and across multiple processes.
+See \fIfb_sync\fP(3) for more details.
+(This example assumes the use of flat
+indexes since \fIFirstBase\fP
+btree indexes do not require this kind of procedure).
+.PP
+Furthermore, in this example, we unlocked the header (0) before calling
+\fIfb_getxrec\fP since it calls \fIfb_getrec\fP which
+locks the database header (0) when LOCKLEVEL >= 2. See \fIsetup\fP(5).
+.PP
+Another locking mechanism is provided by
+\fIfb_s_lock\fP and \fIfb_s_unlock\fP.
+These routines, which use either \fIfcntl\fP(2) or the \fIFirstBase\fP
+lock daemon,
+provide a simple (advisory) lock and unlock notification covering the
+entire file referenced by \fIfd\fP.
+The \fIfwait\fP argument is the same as for \fIfb_lock\fP.
+.SH CLIENT/SERVER
+Each of these lock and unlock routines will
+will transparently call their client/server counterpart
+when the global \fIFirstBase\fP variable \fIcdb_use_rpc\fP is set to one.
+See \fIfb_clnt_create\fP(3) for more details.
+.SH SEE ALSO
+database(4), opendb(3), getrec(3), gethead(3), getxhead(3), fb_sync(3),
+fblockd(8), dblockmgr(8).
+.SH DIAGNOSTICS
+On a successful lock request, both \fIfb_lock\fP and \fIfb_s_lock\fP
+will return the \fIFirstBase\fP
+value FB_AOK. A failed request will return FB_ERROR.
+Note that each of these routines will time out after LOCKTIME seconds,
+as defined in \fIsetup\fP(5). In these cases, an FB_ERROR status is returned.
+.br

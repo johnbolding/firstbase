@@ -1,0 +1,352 @@
+.TH FIRSTBASE 5 " 4 April 1996"
+.FB
+.SH NAME
+\fIFirstBase\fP \- FirstBase Relational Database Management System
+.SH SYNOPSIS
+Overview of \fIFirstBase\fP
+.SH DESCRIPTION
+\fIFirstbase\fP
+is a highly versatile set of 
+database management tools that form a complete 
+.I multi-user 
+relational database management system.
+.PP
+Written
+entirely in C,
+.I FirstBase
+allows manipulation of
+personal databases as well as shared group databases and
+simultaneous database access.
+As a system, \fIFirstBase\fP provides full variable
+length record database manipulation mechanisms,
+with many extras, in fast, separate modules.
+.PP
+.I FirstBase 
+permits an 
+.I unlimited
+number of 
+.I records 
+per file, 
+.I fields 
+per record, and 
+.I characters 
+per field.
+.PP
+Together with UNIX,
+.I FirstBase 
+offers extraordinary database management
+possibilities.
+Simplistic applications such as
+.I database editing 
+and scanning 
+and sorted 
+.I reports 
+and mailing 
+.I labels 
+are readily available.
+.PP
+More advanced applications involve separately maintained databases which
+can be 
+.I combined 
+into a single database, or 
+.I resplit 
+according to any
+user defined criteria. Or 
+.I joined 
+side by side with other data to
+increase the number of fields per record in the database.
+.PP
+The 
+.I FirstBase 
+system provides mechanisms for 
+.I reshaping
+a database at any time
+without loss of any data.
+This reshaping can lengthen, shorten, split, filter, or
+increase the width of a database in any desirable manner.
+.PP
+Multiple 
+.I index searches 
+over large databases can be easily accomplished.
+Document-Database merging 
+.I (mail merge) 
+as well as
+programs for downloading/uploading data to/from
+other database management systems are provided.
+.PP
+Database 
+.I protection 
+mechanisms also exist in \fIFirstBase\fP. 
+A scanner is used for
+those who have only read access to databases. Passwords within \fIFirstBase\fP, plus
+full UNIX file protection is standard.
+.PP
+Virtual fields 
+.I (formulas), 
+record locking, on line (during use of program) 
+help files, true 
+.I field editing 
+with any editor, 
+and the ability to make global
+changes to selected fields of selected records increase the 
+capabilities of the \fIFirstBase\fP system tremendously.
+.PP
+\fIFirstBase\fP also provides a very easy method of HTML form reading and
+communicating via the Common Gateway Interface (CGI). See \fIdbmacro\fP(1).
+.SH PROGRAMS
+.I FirstBase
+consists of a set of programs that allows complete user definition
+and manipulation of databases and their related indexes and printouts.
+.I FirstBase
+is a 
+.I dictionary driven system
+ \(em by (re)defining a dictionary, the
+system becomes (re)defined. In other words, 
+.I FirstBase
+shapes itself to user specifications as the program is being used.
+.PP
+Basically, a user can do three things with the
+\fIFirstBase\fP tools:
+edit a dictionary, edit a database, and generate data related
+objects.
+Thus, there are three classes of \fIFirstBase\fP programs:
+.TP 7
+.I dictionary editors
+allow users to define and
+change data or generator dictionaries.
+\fIFirstBase\fP dictionaries (and thus, dictionary editors)
+exist for databases, indexes, reports, labels,
+conversions, and menus.
+These programs all give simple editor instructions on the 24th line of the
+screen during the editing session, and allow the quick display
+of a summary of commands available during each step.
+Entire screens are displayed
+and manipulated, allowing deletion, addition, and insertion,
+as well as modification of dictionary items.
+.sp 1
+The names of all dictionary editors are of the form
+.I dbd??? 
+where 
+.I ???
+is meant to be a 
+mnemonic for the class of objects being edited or defined.
+For example, 
+\fIdbdbas\fP(1) 
+is the 'define database program',
+\fIdbdprt\fP(1) 
+is the 'define printout program', and 
+\fIdbdind\fP(1) 
+is the 'define index program'.
+.TP 7
+.I tools
+.br 1
+consist of programs that edit or scan databases, 
+change or update selected fields within selected records, 
+as well as cut, paste,
+and selectively shape
+databases in virtually any way desirable. 
+.sp 1
+The \fIFirstBase\fP editor/scanner,
+\fIdbedit\fP(1)
+is the heart of the whole system. This program allows 
+information editing and scanning, with or without indexes. Specific records
+can be found, and separate fields within records can be 
+modified without disturbing any other surrounding 
+data in that record. Fields can even be corrected without having to
+retype the entire field.
+.sp 1
+Other examples of \fIFirstBase\fP tools are 
+\fIdbcat\fP(1)
+and 
+\fIdbjoin\fP(1),
+which allow concatenation and joining of \fIFirstBase\fP databases.
+.sp 1
+There are also a few different flavors of tools. One such tool is
+\fIdbmerge\fP(1), which processes
+pieces of data from a database and can combine this information with
+other textual information to be fed to outside UNIX tools, eg.
+\fInroff\fP(1).
+Mail merge tasks are a subset of \fIdbmerge\fP(1) capabilities.
+.sp 1
+In addition, there are language processing tools that allow
+very complex database processing, queries, and even communication
+with HTML forms via the Common Dateway Interface (CGI). These tools
+are \fIdbsql\fP(1), an SQL tool, \fIdbmacro\fP(1) a macro processing
+language, and \fIdbawk\fP(1), an \fIawk\fP langauge processor.
+.TP 7
+.I generators
+are used to create 
+.I indexes, labels, reports, 
+and 
+.I databases. 
+Generators can behave as filters (\fIdbcgen\fP(1)) 
+to capture wanted or
+unwanted sections of data, or as processors that provide information on
+entire databases (\fIdbpgen\fP(1)).
+.sp 1
+A different type of generator, 
+\fIdbugen\fP(1)
+allows the user to make global updates within a database using
+numerical field calculations, and text substitution into fields.
+.sp 1
+All the generator programs are named using
+.I db?gen 
+where 
+.I ?
+is for the first letter of the type of data
+object being generated. For example, 
+\fIdbigen\fP(1) 
+is the index generator program and
+\fIdblgen\fP(1)
+is the label generator program.
+.PP
+Note that all \fIFirstBase\fP generator type tools can be run in batch mode
+by using a \fB-b\fP flag on the argument line. This makes any tool
+suitable for shell scripts. Another mode called "yes mode" will
+run the \fIFirstBase\fP tool without waiting for permission to overwrite printouts,
+indexes, etc. This is accomplished by using the \fB-y\fP flag.
+The use of batch mode assumes yes mode.
+.PP
+The \fIFirstBase\fP
+tools can be run as normal programs from a UNIX shell
+or from a system or user
+defined menu shell. Additionally, the \fIFirstBase\fP system provides
+methods for defining and running a menu shell (\fIdbshell\fP(1)),
+and comes complete with a set of pre-defined menu files.
+.SH ARGUMENTS
+Throughout the
+.I FirstBase,
+arguments specifying database and index names 
+can be supplied to the programs and tools in normal
+UNIX command line protocol. These arguments
+.I never
+contain an extension, only a basename (or a UNIX path and a basename).
+\fIFirstBase\fP handles all file extension naming on its own.
+Whether used explicitly, defaulted, or
+passed via a menu call, these file name arguments are handled the same way.
+.PP
+When the
+.I FirstBase 
+startup routine sees a database or index argument, it 
+appends the \fIFirstBase\fP extensions to the database and
+index names, producing two distinct sets of 
+data file names and dictionary file names.
+UNIX file naming and pathway conventions
+are supported by \fIFirstBase\fP, 
+meaning databases can be manipulated across directories.
+.PP
+These arguments provide to the \fIFirstBase\fP system the names that will be used to
+access a database and/or index. The default name in all cases for a database
+is
+.I dbase
+and for the index,
+.I index.
+.PP
+Generators often require an extra file since they sometimes use both the
+current \fIFirstBase\fP
+index files and an extra dictionary file describing some object-to-be.
+This extra dictionary file name is most often developed from the \fIFirstBase\fP index
+file name, although some tools
+allow specific argument line commands for more control in 
+object naming.
+.PP
+\fIFirstBase\fP handles all file protection errors gracefully.
+Write access to a particular database
+is required only for database editing. All other programs, 
+(generators, dictionary editors, and other tools) need only read
+access to the actual database.
+Database scanning and sharing of dictionaries, databases, or other files
+is all possible without duplicate copies or file linking.
+.SH TERMINALS
+.I FirstBase
+is designed to operate on virtually any terminal using the UNIX
+\fItermcap\fP(5) or \fIterminfo\fP(5) mechanisms.
+.PP
+The \fIFirstBase\fP system requires only a few
+terminal control codes (escape sequences). See \fIterminals\fP(5) for more
+information on this topic.
+.SH WINDOW\ ENVIRONMENTS
+\fIFirstBase\fP works inside of any \fIxterm\fP (X11) or \fIshelltool\fP
+(OpenLook) types of windows.
+There is also a \fIdbshelltool\fP(1) program to allow a constant button
+template to reside on the screen when using other \fIFirstBase\fP tools.
+For more details on window environment variables, see \fIsetup\fP(5).
+.SH GETTING STARTED
+The first thing to do in the \fIFirstBase\fP system is to define a database
+dictionary using the database dictionary editor, 
+\fIdbdbas\fP(1).
+Then either use 
+\fIdbedit\fP(1)
+to enter new data into the database, or
+\fIdbload\fP(1)
+to load existing data into the \fIFirstBase\fP database.
+.PP
+After this, maybe an index would be helpful. This also requires a 
+dictionary, so use the index dictionary editor, 
+\fIdbdind\fP(1).
+Using this new index dictionary, 
+\fIdbigen\fP(1)
+will generate an index using the database and the database dictionary.
+.PP
+Other generators will automatically create and/or
+update indexes as needed.
+From there, 
+\fIdbpgen\fP(1)
+will produce formatted reports, 
+\fIdblgen\fP(1)
+will create mailing labels, and
+\fIdbugen\fP(1)
+will update selected fields of selected database records.
+.PP
+The best all purpose database processing language is \fIdbmacro\fP(1).
+.PP
+All of these programs are readily available from the
+supplied \fIFirstBase\fP menu shell files.
+.SH FILES
+.PD 0
+.TP 10
+dbase
+default \fIFirstBase\fP database name.
+.TP 10
+index
+default \fIFirstBase\fP index name.
+.TP 10
+*.cdb
+\fIFirstBase\fP database.
+.TP 10
+*.map
+record map of \fIFirstBase\fP database.
+.TP 10
+*.idx
+\fIFirstBase\fP index.
+.TP 10
+*.ddict
+\fIFirstBase\fP database dictionary.
+.TP 10
+*.idict
+\fIFirstBase\fP index dictionary.
+.TP 10
+*.sdict
+\fIFirstBase\fP screen dictionary.
+.TP 10
+*.vdict
+\fIFirstBase\fP view dictionary.
+.TP 10
+*.idict?
+\fIFirstBase\fP dictionary of object to be (p=printout, etc).
+.TP 10
+*.prt
+\fIFirstBase\fP print image report.
+.TP 10
+*.lbl
+\fIFirstBase\fP print image labels.
+.TP 10
+$FIRSTBASEHOME/menu/*
+menu shell files for supplied \fIFirstBase\fP menus.
+.PD
+.SH SEE ALSO
+firstbase(1), error(5), generators(5),
+input(5), printouts(5), screens(5), setup(5), terminals(5)
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br

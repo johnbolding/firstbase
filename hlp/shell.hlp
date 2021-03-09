@@ -1,0 +1,23 @@
+
+                        FirstBase Database Shell Help File
+
+	       The Shell Screen enables control over the
+	       FirstBase Environment, including database and index file
+	       names, as well as the working directory.
+
+       -       will Backout of menu, returning to the place it was
+	       called from. This may Exit.
+
+       <CTL>E  displays FirstBase Shell Environment Screen. (Note that
+	      <CTL>D performs the same action.)
+
+       <CTL>H  brings you to the Help File. This is where you are now.
+
+       <CTL>X  exits the program without overwriting the file.
+	       Any modifications made to the file are lost.
+                          
+	       The FirstBase database shell tool is used to display
+	       possible choices for executing FirstBase or Unix commands. 
+	       Each choice is presented with a label which must be
+	       entered to execute the selection.
+	       

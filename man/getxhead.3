@@ -1,0 +1,187 @@
+.TH GETXHEAD 3 "12 September 1995"
+.FB
+.SH NAME
+getxhead, putxhead \- read and write index header
+.SH SYNOPSIS
+#include <firstbase/fb.h>
+.sp 1
+fb_getxhead(fd, bsmax, bsend)
+.br
+int fd;
+.br
+long *bsmax, *bsend;
+.sp 1
+fb_putxhead(fd, bsmax, bsend)
+.br
+int fd;
+.br
+long bsmax, bsend;
+.SH DESCRIPTION
+As explained in the
+\fIindex\fP(4) manual page, a database structure contains
+all of the elements needed for an entire database, including
+file names, descriptors and other variables that define an index.
+\fIFb_getxhead\fP and \fIfb_putxhead\fP, along with a few other UNIX
+calls, enable the building and maintaining of complex (multi-field)
+flat \fIFirstBase\fP indexes.
+.PP
+\fBNote\fP: the following discussion concerns normal (flat) \fIFirstBase\fP
+indexes and does \fBnot\fP apply to btree indexes. See \fIbtree\fP(4) for more
+details on the \fIFirstBase\fP Btree+ indexes.
+.PP
+Formally, \fIfb_getxhead\fP and \fIfb_putxhead\fP read and write the
+header numbers needed to maintain a \fIFirstBase\fP index. Note that
+\fIfb_getxhead\fP uses two long pointers, i.e. the address to two long
+variables. In this manner, \fIfb_getxhead\fP reads two distinct variables
+from the index header \fIfd\fP. \fIFb_putxhead\fP writes the two long values
+passed in to the index header indicated by \fIfd\fP.
+.PP
+But, \fIfb_getxhead\fP and \fIfb_putxhead\fP are just two of the pieces
+needed to update a complex index. The following discussion covers
+the complete index update task.
+.PP
+When a database is opened \fIwith an index\fP using \fIopendb\fP(3),
+or when an index is tied to a database using \fIopenidx\fP(3),
+the following variables from the database structure are initialized:
+.TP 9
+.B ifd
+index file descriptor
+.TP 9
+.B ihfd
+index header field descriptor
+.TP 9
+.B irecsiz
+size of an index record
+.TP 9
+.B bsmax
+binary search maximum, the index record count
+.TP 9
+.B bsend
+binary search end point, i.e. the last sorted entry
+.TP 9
+.B irec
+character buffer big enough for one index entry
+.TP 9
+.B ip
+array of field pointers, the sort-by fields
+.TP 9
+.B afld
+temporary space for a single field
+.TP 9
+.B bfld
+temporary space for a single field
+.PD
+.PP
+Each \fIFirstBase\fP index is a fixed length miniature database.
+Entering a new index entry into an open index is a two step procedure.
+The first step creates the string to be written to the index, while the second
+step does the actual write.
+.PP
+Again, the first step to adding a new index entry
+is to create the string to be written to the index.
+This index entry, the string that will be written to the index, needs
+to be well formed, i.e. it needs to be the exact number of characters or bytes
+to fit into an single index entry slot.
+The database variable \fIirecsiz\fP contains the total
+length of an index entry.
+.PP
+When a database index is opened, \fIirecsiz\fP is calculated by
+adding together the
+lengths of the fields being indexed (\fIcdb_ip\fP), plus a constant.
+Most of the constant represents the length of the
+record pointer, a string that is always FB_RECORDPTR (10) characters long.
+An additional one (1) is added to the constant to account for the NEWLINE at
+the end of the string. So, the constant added to the sum of the lengths
+is eleven (11).
+.PP
+It is also worth noting that the \fIFirstBase\fP data type of the fields being
+written to the index (the sort-by fields) determine whether the field is
+left or right justified. Numeric type fields (FB_OFNUMERIC) need to be
+right justified. Date fields require the shifting of the year to the front
+of the string. The \fIFirstBase\fP library routine \fImakess\fP(3) will
+produce the correct search string.
+.PP
+The following routine will create a proper string to be
+written to the index. Note that this routine depends on the
+index having been formally tied to the database via \fIopendb\fP(3) or
+\fIopenidx\fP(3). If this is not the case, some of the variables from
+the list above will need to be provided.
+.PP
+.nj
+.nf
+.ft CW
+   /*
+    * make_entry - make an entry based on the current index
+    */
+
+   static make_entry(dp)
+      fb_database *dp;
+
+      {
+         char buf[MAXLINE];
+         int siz, i, ixfields;
+         fb_field *fp;
+
+         db->irec[0] = NULL;
+         ixfields = dp->ifields - 1;
+         for (i = 0; i < MAXBY && i < ixfields; i++){
+            fp = dp->ip[i];
+            strcpy(dp->afld, fp->fld);
+            fb_makess(dp->afld, fp->type, fp->size);
+
+            /* add this value to the index record buffer */
+            strcat(dp->irec, dp->afld);
+            }
+
+         /* create the record pointer portion of the index record */
+         sprintf(dp->afld, "%010ld\n", dp->rec);
+         strcat(dp->irec, dp->afld);
+      }
+.ft
+.fi
+.ju
+.PP
+The second step to adding an index entry to locate the proper place for this
+index entry to be written. To do this, \fIfb_getxhead\fP(3) is used to read
+header information about the index, seek to the the proper byte location,
+and write the index record entry. Once written, the index header
+is updated to reflect the new index entry.
+.PP
+The following code fragment does the job. Again, note that this code depends
+on the index being formally tied to the database, which may not be the case.
+.PP
+.nj
+.nf
+.ft CW
+      /* get bsmax, bsend from index header file */
+      fb_getxhead(dp->ihfd, &dp->bsmax, &dp->bsend);
+
+      /* seek and write index entry */
+      lseek(dp->ifd, dp->bsmax * dp->irecsiz, 0);
+      write(dp->ifd, dp->irec, dp->irecsiz);
+
+      /* redo header -- note: only bsmax changed */
+      fb_putxhead(dp->ihfd, ++dp->bsmax, dp->bsend);
+.ft
+.fi
+.ju
+.PP
+Using the above methods, a \fIFirstBase\fP multi-field flat indexes
+can be maintained at run time. Remember to close the file descriptors at
+some point \(em \fIclosedb\fP(3) will do this for those descriptors formally
+tied to the database structure. A sample program named \fIkey_add.c\fP that
+puts this all together is in $FIRSTBASEHOME/applications/sample_src.
+.PP
+The \fIFirstBase\fP tool \fIdbregen\fP(1) can be used to resort an index
+and update the index header file without recreating the index (\fIdbigen\fP(1)).
+.SH SEE ALSO
+btree(4), index(4), opendb(3), openidx(3),
+makess(3), endate(3), pad(3), rjustify(3).
+.SH DIAGNOSTICS
+\fIFb_getxhead\fP and \fIfb_putxhead\fP will return the error code FB_ERROR
+if any of the reads, writes, or seeks fail.
+An FB_AOK signal is returned on correct completion.
+.PP
+Note that neither of these routines implements any process locking around the
+critical sections, the read and write calls.
+.br

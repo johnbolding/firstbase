@@ -1,0 +1,25 @@
+.TH DBALLOC 3 "12 September 1995"
+.FB
+.SH NAME
+dballoc \- allocate a database
+.SH SYNOPSIS
+#include <firstbase/fb.h>
+.sp 1
+fb_database *fb_dballoc()
+.PP
+.SH DESCRIPTION
+As explained in the \fIdatabase\fP(4)
+manual page, a database structure contains
+all of the elements needed for an entire database, including an array of
+field structures, all file names and descriptors, and index information.
+.PP
+\fIFb_dballoc\fP is used to allocate a complete database structure in memory.
+A pointer to the newly created database structure is returned.
+The contents of the structure is initialized. Use \fIfb_dbargs\fP(3) to load
+sets of database and/or index names into the structure.
+.ft
+.sp 1
+.fi
+.SH SEE ALSO
+database(4), dbargs(3).
+.br

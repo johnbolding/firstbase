@@ -1,0 +1,47 @@
+.TH STORE 3 "12 September 1995"
+.FB
+.SH NAME
+store \- store a string into a database field
+.SH SYNOPSIS
+#include <firstbase/fb.h>
+.sp 1
+fb_store(k, s, db)
+.br
+fb_field *k;
+.br
+char *s;
+.br
+fb_database *db;
+.br
+.SH DESCRIPTION
+As explained in the \fIdatabase\fP(4)
+manual page, a database structure contains
+all of the elements needed for an entire database, including an array of
+field structures, all file names and descriptors, and index information.
+Altogether, the array of field structures can hold one complete record.
+.PP
+Store provides a mechanism for creating or modifying fields within the
+array of field descriptors stored in the database structure.
+Once modified, \fIputrec\fP(3) is used to write the entire record to the
+database file.
+.PP
+\fIFb_store\fP places the string \fIs\fP into field \fIk\fP
+of the database pointed to by \fIdb\fP.
+No length checking is done to make sure \fIs\fP does not exceed the maximum
+width of the field as defined in the database dictionary.
+.PP
+\fIFb_store\fP uses the alternate storage area, \fIdb->arec\fP, to
+store the field. The field descriptor is updated to point to this new area.
+.PP
+Note that in the case of FB_BINARY fields, the entire field is ALWAYS fixed
+length. Furthermore, it is up to the programmer using
+\fIfb_store\fP to make sure the object being stored is the same byte size as
+the field length in the database dictionary.
+.SH CLIENT/SERVER
+The \fIfb_store\fP routine will transparently
+call the \fIfb_store_clnt\fP mechanism
+when the global \fIFirstBase\fP variable \fIcdb_use_rpc\fP is set to one.
+See \fIfb_clnt_create\fP(3) for more details.
+.SH SEE ALSO
+putrec(3), opendb(3).
+.br

@@ -1,0 +1,262 @@
+.TH INDEX 4 "12 September 1995"
+.FB
+.SH NAME
+index \- \fIFirstBase\fP index files
+.SH SYNOPSIS
+Layout of \fIFirstBase\fP index structures and files
+.SH DESCRIPTION
+The first sections of this manual page cover the index structures used
+to manipulate \fIFirstBase\fP indexes. The remaining sections cover
+the layout of the index files. This discussion concerns Normal or Flat
+indexes within FirstBase. A different FirstBase index
+structure is detailed in \fIbtree\fP(4).
+.SH INDEX STRUCTURES
+Normal indexes within the \fIFirstBase\fP system are represented as fixed
+length record
+databases with each record ending in a newline. Each record contains
+fields of data, and uses
+some of the same structures that \fIFirstBase\fP databases use.
+The database structure, as explained in \fIdatabase\fP(4), also contains
+an array of field structures that are used as index fields.
+Furthermore, each field descriptor contains a pointer to an autoindex
+structure.
+.sp 1
+.nf
+.na
+.ft CW
+typedef struct fb_s_link fb_link;       /* defined link */
+typedef struct fb_s_field fb_field;     /* defined field */
+typedef struct fb_s_database fb_database;/* defined database */
+typedef struct fb_s_ixauto fb_autoindex;/* autoindex structure */
+
+struct fb_s_link {
+   fb_database *f_dp;                   /* pointer to linked database */
+   fb_field *f_fix;                     /* indexed value in 'from' database */
+   fb_field *f_tix;                     /* ix val in 'to' db providing link */
+   fb_field *f_ffp;                     /* field within 'from' database */
+   fb_field *f_tfp;                     /* field within 'to' database */
+   char *f_fld;                         /* storage area for field val */
+   char *f_xfld;                        /* index value creating field link */
+   fb_link *f_next;                     /* to link all flinks for searching */
+   long f_absrec;                       /* absolute record number to use */
+   fb_database *f_basedp;               /* database which referred link */
+   };
+
+struct fb_s_ixauto {                    /* auto indexed field struct */
+   char *autoname;                      /* for storing autoindex name */
+   char *dup_fld;                       /* for 'old' field value */
+   int afd, hfd;                        /* auto index and header fds */
+   short uniq;                          /* uniqness flag */
+
+   int ix_tree;                         /* btree flag */
+   fb_bseq *ix_seq, *ix_seqtmp;         /* btree sequence set */
+   fb_bidx *ix_idx, *ix_idxtmp;         /* btree index set */
+   fb_field **ix_ip;                    /* field pointers array for auto ix */
+   long ix_bsmax, ix_bsend;             /* for btrees - for auto ix array */
+   int ix_ifields;                      /* number of fields in the ix array */
+   char *ix_key_fld;                    /* key space for index entry */
+   };
+
+struct fb_s_field {                     /* a database field */
+   char *id;                            /* unique title labeling field */
+   char type;                           /* type of the field */
+   int size;                            /* maximum size of field */
+   int loc;                             /* location when arec is used */
+   char *fld;                           /* actual pointer to field */
+   int incr;                            /* to store incremental defaults */
+   char *comment, *idefault, *help, *prev, *range, *a_template, *f_macro;
+   char comloc, lock, choiceflag;       /* various flags */
+   fb_autoindex *aid;                   /* pointer to auto index data */
+   fb_link *dflink;                     /* link to other database */
+   fb_link *xflink;                     /* extended choice/link database */
+   char *mode;                          /* permissions settings per field */
+   short int f_prec;                    /* precision for field */
+   };
+
+struct fb_s_database {                  /* FB database header record */
+   char *dbase;                         /* full database path names */
+   char *dindex;
+   char *dmap;
+   char *ddict;
+   char *idict;
+   char *sdict;                         /* simple screen name */
+   char *dlog;                          /* log name of database */
+   long reccnt;                         /* full record count */
+   char dirty;                          /* dirty bit == 0 or 1 */
+   long delcnt;                         /* deleted record count */
+   long rec;                            /* current record number */
+   int recsiz;                          /* approximate record size */
+   int nfields;                         /* number of fields */
+   int fd;                              /* database file descriptor */
+   int ifields;                         /* number of index fields */
+   int ifd;                             /* index file descriptor */
+   int ihfd;                            /* index header file descriptor */
+   int logfd;                           /* log file descriptor */
+   int irecsiz;                         /* index record size */
+   long bsmax, bsend, bsrec;            /* search max/end points */
+   int mfd;                             /* record map file descriptor */
+   fb_field **kp;                       /* array of fields */
+   fb_field **ip;                       /* array of index fields */
+   char *orec;                          /* original copy of rec */
+   char *arec;                          /* alternate copy of rec */
+   char *irec;                          /* buffer for an index record */
+   char *afld;                          /* field buffers for this db */
+   char *bfld;                          /* field buffers for this db */
+   int refcnt;                          /* reference count for linktop list */
+
+                                        /* B+tree index fields */
+   int b_tree;                          /* flag set if dbase is using btrees */
+   fb_bseq *b_seq, *b_seqtmp;           /* sequence set (and temp space) */
+   fb_bidx *b_idx, *b_idxtmp;           /* index set (and temp space) */
+   fb_autoindex **b_autoindex;          /* autoindex ptr array */
+   int b_maxauto;                       /* max number of auto index */
+   int b_curauto;                       /* cur number of auto index array */
+   short int fixedwidth;                /* fixed width flag */
+   int b_sid;                           /* server id - open via server */
+   };
+.ft
+.sp 1
+.fi
+.ad
+.PP
+When a database is opened, the entire database structure is initialized.
+Optionally, the index structure may be initialized also.
+.PP
+The array of database field structures is allocated on the
+fly to contain as many fields as are defined in the database dictionary.
+This array is used to assign values to the index field structures.
+The base of the index array
+is located in the database structure variable \fIip\fP.
+These fields are indexed
+within \fIip\fP starting at 0, and going through one less
+than \fIifields\fP, another
+element of the database structure. Again, \fIip[0]\fP is the first index
+field, \fIip[1]\fP is the second index field, etc. The last index field,
+\fIip[ifields]\fP is not defined in the dictionary, but is used to store the
+actual record number of the data record being referred to. This number is
+always stored as a 10 character, printable string.
+.PP
+Each field descriptor is a structure itself. These structures
+contain the name of the field, its type and size, as well as various
+pointers to comments, help files, and defaults. The most important part of
+this for indexes is the size of the field.
+.PP
+Since index records appear as normal text lines, with one record per line,
+they can be read in using any standard UNIX subroutine that reads a single
+line of text, such as \fIgets\fP(3).
+However, \fIFirstBase\fP uses file descriptors for all
+of its data manipulation, so a \fIread\fP(2) call is more applicable.
+The following will read in exactly one record of an index, complete with
+the newline on the end:
+.sp 1
+.na
+.nf
+.ft CW
+   read(db->ifd, db->irec, db->irecsiz);
+.ft
+.ad
+.fi
+.sp 1
+.PP
+Note that all of the arguments to this read call appear in the database
+structure itself: \fIifd\fP is the index file descriptor, \fIirec\fP is a
+buffer allocated by \fIopendb\fP(3) that is large enough to hold one record of
+the opened index, and \fIirecsiz\fP is the record size of each index record.
+This record size includes the 10 character data record 'pointer' and the
+newline on the end.
+.PP
+Once an index record is read, the next step is to retrieve 
+the characters that represent the data record pointer.
+Again, this pointer is ALWAYS the last 11 characters of the string
+if the newline is included. Although there are many methods to strip off
+these last 11 characters, one method is the following:
+.sp 1
+.na
+.nf
+.ft CW
+   long rec, atol();
+   ...
+   rec = atol((char *) (dp->irec + db->irecsiz - 11));
+.ft
+.ad
+.fi
+.sp 1
+.PP
+Using rec as the record number, a call to \fIgetrec\fP(3) will produce
+the record 'pointed' to by this index record.
+.SH INDEX FILES
+A \fIFirstBase\fP normal index consists of two components with each one stored
+in a separate file: the index dictionary, and the
+index data or records. Both will be discussed in detail here.
+.SH INDEX DICTIONARY
+An index dictionary consists of three pieces of header information
+and a newline character, followed by the names of the fields in the index
+listed one per line. The first piece of header information is the database
+sequence number discussed in detail in \fIdatabase\fP(4). This sequence number
+makes sure that only compatible database/index pairs are opened together.
+.PP
+The next two pieces of header information in the index dictionary are used
+to delimit searches on the index and are written to the index dictionary as
+raw data, each one as \fIsizeof(long)\fP bytes.
+The binary search
+maximum number, \fIbsmax\fP, is used as the index record count. This
+number represents the maximum number of index records in the current index.
+The other number \(em called the binary search end number, \fIbsend\fP \(em 
+indicates how far down this index has been sorted or organized.
+.PP
+For most indexes, the \fIbsmax\fP and \fIbsend\fP numbers are exactly the
+same. However, autoindexes and self maintained indexes
+can contain records that have not been sorted. This area is called the
+\fIoverflow\fP area of an index.
+Note that in all cases, \fIgetxrec\fP(3) will locate the indexed record if it
+exists.
+.PP
+Additionally, \fIgetxrec\fP will set \fIbsrec\fP to the index record
+number, which can be compared to \fIbsend\fP to determine whether the key
+is in the index overflow area or not.
+.PP
+As mentioned, this header information is delimited by a newline character.
+The remaining lines list the actual field names that the index data itself
+refers to. These field names MUST appear exactly as they do in the
+database dictionary.
+.SH INDEX DATA
+The other component of a \fIFirstBase\fP index is the index data file.
+This file
+contains any number of records, one per line. Each record has the contents
+of all of the \fIsortby\fP
+fields as defined in the index dictionary, plus the 10
+character string used as a record pointer, and a newline.
+These index data records are stored in this manner so that the system
+\fIsort\fP(1) facility can be used to sort an index.
+.PP
+To delete an index entry in place, it is necessary to not destroy the key
+used during binary searches, i.e. by \fIgetxrec\fP(3). However, the
+10 character record pointer string can be modified so that \fIgetxrec\fP and
+other mechanisms will ignore the "\fIdeleted\fP" index entry. Use the
+character string "000000000^E" (nine 0's and an EOREC, end of record
+marker, formally a control-E or octal '005')
+in place of the actual record number. The newline should be retained
+as well. An sample program that does this is available in
+\fI$FIRSTBASEHOME/applications/sample_src/key_delete.c\fP. 
+.PP
+Again, each of the records in this index data file are fixed length
+records. Indexes of numeric fields contain data that is right
+justified. When fields of type date are indexed, they are massaged from
+the standard \fIFirstBase\fP MMDDYY format into a sortable YYMMDD format.
+.PP
+.SH FILES
+.PD 0
+.TP 10
+index
+default \fIFirstBase\fP index name.
+.TP 10
+*.idx
+\fIFirstBase\fP index.
+.TP 10
+*.idict
+\fIFirstBase\fP index dictionary.
+.PD
+.SH SEE ALSO
+dbigen(1), getrec(3), getxrec(3), opendb(3), putrec(3),
+database(4), btree(4), firstbase(5).
+.br

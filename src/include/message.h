@@ -1,0 +1,127 @@
+/*
+* Copyright (C) 2001 FirstBase Software, Inc. All rights reserved.
+*
+* $Id: message.h,v 9.0 2001/01/09 02:56:16 john Exp $
+*
+* See the file LICENSE for conditions of use and distribution.
+*
+*/
+
+/* define macros for the system messages so they can be reorganized */
+
+#define S_NOFILE		0
+#define S_NOT_FOUND		0
+#define S_FORMAT_STRING		1
+#define S_END_FILE		2
+#define S_FORMAT_CHAR		3
+#define S_SPACE_BAR		4
+#define S_F_READ		5
+#define S_F_WRITE		6
+#define S_FDATE			7
+#define S_ILLEGAL		8
+#define S_HELP			9
+#define S_DISPLAY		10
+#define S_ACCESSDENIED		11
+#define S_IOERROR		12
+#define S_BAD_DICT		13
+#define S_BAD_INDEX		14
+#define S_BAD_DATA		15
+#define S_BAD_MAP		16
+#define S_BAD_FORMULA		17
+#define S_BAD_HEADER		18
+#define S_INPUT_ERROR		19
+#define S_INVALID		20
+#define S_TOO_LONG		21
+#define S_BAD_FORMAT		22
+#define S_NOHELP		23
+#define S_FATAL			24
+#define S_BAD_TERMCAP		25
+#define S_FB			26
+#define S_ABORT			27
+#define S_NOT_DONE		28
+#define S_HIT_ANY		29
+#define S_COMMAND_LEVEL		30
+#define S_RECORD_LEVEL		31
+#define S_FIELD_LEVEL		32
+#define S_HELP_END		33
+#define S_WORKING		34
+#define S_SEARCH		35
+#define S_ADDMODE		36
+#define S_NO_CREATE		37
+#define S_DEL_REC		38
+#define S_RESTORE		39
+#define S_NO_RESTORE		40
+#define S_RECORD		41
+#define S_REC_MSG		42
+#define S_NO_UPDATE		43
+#define S_FIELD			44
+#define S_CREATING		45
+#define S_WRITING		46
+#define S_FORMAT_DIGITS		47
+#define S_EDIT_FMT1		48
+#define S_EDIT_FMT2		49
+#define S_NEW			50
+#define S_EDIT_FMT3		51
+#define S_EDIT_FMT4		52
+#define S_DEL			53
+#define S_PUT			54
+#define S_LOCKED		55
+#define S_FLD_MSG		56
+#define S_UNIQUE_MSG		57
+#define S_PUT_FMT1		58
+#define S_BLANK_S		59
+#define S_S_BLANK		60
+#define S_PUT_FMT2		61
+#define S_SELECT_CHOICES	62
+#define S_CHOICE_MSG1		63
+#define S_CHOICE_TITLE		64
+#define S_CHOICE		65
+#define S_MEANING		66
+#define S_COMMENT		67
+#define S_DEL_QUES		68
+#define S_NON_NUMERIC		69
+#define S_EADD_MSG		70
+#define S_EADD_FMT1		71
+#define S_EADD_FMT2		72
+#define S_STRING_BLANK		73
+#define S_ASK_OK		74
+#define S_EADD_LEVEL		75
+#define S_NO_LOCKDIR		76
+#define S_LOCK_FMT1		77
+#define S_FMT_S_S		78
+#define S_STRING_SLASH		79
+#define S_LOCK_FMT2		80
+#define S_LOCK_FMT3		81
+#define S_LOCKED_RETRY		82
+#define S_RETRY			83
+#define S_AUTODEF_MODE		84
+#define S_SECURITY		85
+#define S_PASSWORD		86
+#define S_SORRY			87
+#define S_EXT_CDB		88
+#define S_EXT_DDICT		89
+#define S_EXT_MAP		90
+#define S_EXT_IDX		91
+#define S_EXT_IDICT		92
+#define S_FMT_2S		93
+#define S_FMT_04D		94
+#define S_SEARCHING		95
+#define S_RESTORED		96
+#define S_ANYCHANGE		97
+#define S_ON			98
+#define S_NO_INDEX		99
+#define S_STRING_NEWLINE	100
+#define S_EXT_IDICTI		101
+#define S_FMT_SSLASHS		102
+#define S_AUTOREGEN		103
+#define S_FMT_STAR_S		104
+#define S_STRING_y		105
+#define S_STRING_n		106
+#define S_STRING_QUES		107
+#define S_NOMEM			108
+#define S_EXEC_FAIL		109
+#define S_FMT_SSS		110
+#define S_FMT_SLD		111
+#define S_DIRTY_DBASE		112
+#define S_EXT_LOG		113
+#define S_BAD_LOG		114

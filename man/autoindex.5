@@ -1,0 +1,68 @@
+.TH AUTOINDEX 5 "12 September 1995"
+.FB
+.SH NAME
+autoindex \- \fIFirstBase\fP automatic index maintenance
+.SH SYNOPSIS
+Description of the \fIFirstBase\fP auto index mechanism
+.SH DESCRIPTION
+A formal mechanism for maintaining complex indexes is provided for
+\fIFirstBase\fP databases via a simple file which lists all automatic indexes.
+Each of the indexes listed will be maintained across database insertions,
+deletions and modifications.
+.PP
+The name of the file containing the list uses the basename of the database,
+with a \fI.auto\fP extension (as in dbase.auto).
+The index names are listed one per line. Each line can contain an optional
+\fIunique\fP flag, the flag \fB-u\fP, which causes the auto index to
+be checked for unique values at record write time from the \fIFirstBase\fP
+database editors.
+.PP
+All indexes are initialized at \fIopendb\fP(3) time and closed by the
+\fIclosedb\fP(3) function. Each index must have an associated index
+dictionary (the index.idicti file). Furthermore, each index will be
+stored as a \fIFirstBase\fP Btree index, and will be a dense index,
+meaning all records of the database will be reflected in the index.
+In other words, these indexes are represent the full set of database
+records, not sub sets.
+.PP
+Within the database header structure, an array (\fIb_autoindex\fP)
+of fb_autoindex structure pointers is allocated, each containing all the
+elements needed for one Btree index.
+These automatic Btree indexes
+store their array of field pointers in b_autoindex[N]->ix_ip,
+where N means the Nth index.
+.PP
+These automatic
+indexes, although not tied to the default index within a database structure,
+are maintained during calls to \fIaddrec\fP(3), \fIputrec\fP(3), and
+\fIdelrec\fP(3). These indexes can be swapped into a database structure
+using \fIuseidx\fP(3) so that calls to \fIgetxrec\fP(3) use a particular
+index. Additionally, new indexes can be added to the autoindex array
+at run time using \fIaddidx\fP(3).
+.PP
+This method of automatic indexes subsumes the older method of
+listing auto indexes within the database dictionary. As such,
+do not list auto indexes in the dbase.auto file which are also listed
+in the dbase.ddict file.
+.PP
+.SH FILES
+.PD 0
+.TP 10
+*.auto
+\fIFirstBase\fP autoindex dictionary/list.
+.TP 10
+*.idicti
+\fIFirstBase\fP index dictionary.
+.TP 10
+*.idict
+\fIFirstBase\fP index header.
+.TP 10
+*.bseq
+\fIFirstBase\fP Btree sequence set.
+.TP 10
+*.bidx
+\fIFirstBase\fP Btree index set.
+.PD
+.SH SEE ALSO
+dbigen(1), dbdind(1), openidx(3), useidx(3).
+.br

@@ -1,0 +1,103 @@
+                              
+       This Help File will explain the commands allowed in the Record
+       Level of the FirstBase family of database editors.
+
+       In the Command List:
+       <CTL>   represents the CONTROL key. <CTL> should be depressed
+	       while the following command keystroke is performed.
+       <RET>   represents the RETURN key. <RET> should be depressed 
+	       after the preceding keystroke is performed.
+
+	           Now, let's begin our Command List
+
+       @<RET>  enters Auto Add mode. This command allows us to enter
+               new records into the database.
+
+       #<RET>  (substitute an actual Field Number here for "#"). # allows 
+               us to go to a specific field and change its value.
+                     
+       -       The standard END keystroke. - exits the record and
+	       keeps all changes.
+	       -<RET> will move forward to the next indexed record.
+
+       <CTL>B  moves you 1 record backward. Wrapping occurs after
+               the first record.
+
+       <CTL>F  moves you 1 record forward. Wrapping occurs after
+	       the last record.
+
+       <CTL>H  brings you to the Help File. This is where you are now.
+
+       <CTL>N  moves the cursor to the next field in the record.
+
+       <CTL>P  moves the cursor to the previous field in the record.
+
+       <CTL>Q  searches for all records containing the remembered 
+	       pattern, reports how many matches there are and displays
+	       where in the matching series the current record occurs
+       
+       <CTL>S searches for next record containing remembered pattern
+	      (same as END and /<pattern> in a single keystroke)
+
+       <CTL>X  exits the program without overwriting the file.
+	       Any modifications made to the file are lost.
+                          
+       <RET>   pages 1 page forward in a multi-page record. 
+	       Wrapping occurs after the last page in the record.
+
+       !com<RET>  submits command to the UNIX shell. (See DBEDIT(1) in
+	          the FirstBase Manual for more information.)
+
+       %<RET>  goes to the first record defined in the current index.
+
+       $<RET>  goes to the last record defined in the current index.
+
+       b<RET>  pages 1 page backward in a multi-page record. 
+	       Wrapping occurs at the beginning of the record.
+
+       d#<RET> allows you to display a long field, page by page.
+	       (Use a field number in place of # here.)
+
+       del<RET> marks a record for deletion.
+
+       f<RET>  pages 1 page forward in a multi-page record. 
+	       Wrapping occurs after the last page in the record.
+	       <RET> will do the same thing.
+
+       put<RET>
+	       writes to a local file "putidx", the current index 
+               entry for a record arrived at through the use of the index
+               searching mechanism.
+
+       v#<RET> allows you to edit a long field using a visual editor,
+	       like vi(1). (Use a field number in place of # here.)
+
+       x#<RET> allows the use of the an external filter of your choice on 
+	       the selected field. (Use a field number in place of # here.)
+
+       .<RET>  (dot) displays current record.
+
+       ><RET>  pushes the index pointer to the next indexed field on the
+               index stack, allowing sequential searches to be done on 
+	       this field
+
+       <<RET>   pops the index pointer back to the main (first) indexed 
+                field on the index stack
+
+       ?d<RET>  displays a general field list.
+
+       ?f<RET>  displays a field list that also shows formula fields.
+
+       ?h<RET>  displays a field list that also shows user defined 
+		help fields
+
+       ?i<RET>  displays the index help screen. This is a list of
+                all fields in the current index. The total number of
+		index entries is also displayed.
+
+       ?N<RET>  (where N is a number representing a field in the 
+		database), displays the user defined help file (if
+		it exists) for the field. Each field can have its own
+		help file.
+
+       @#<RET>  allows AutoField editing of the indicated field.

@@ -1,0 +1,37 @@
+.TH DBLOCKMGR 8 "12 September 1995"
+.FB
+.SH NAME
+dblockmgr \- \fIFirstBase\fP lock manager
+.SH SYNOPSIS
+.B dblockmgr
+.br
+.SH DESCRIPTION
+\fIdblockmgr\fP
+is a simple tool that allows monitoring, setting and clearing of
+locks inside of \fIfblockd\fP(8), the \fIFirstBase\fP lock daemon.
+.PP
+The lock manager is presented as a menu of selectable items.
+These selections include Query, Clear, Set and Auto Query.
+The \fIQuery\fP selection will provide a single snapshot of all locks
+currently set in \fIfblockd\fP. Each file that has active locks
+will be listed. Under each file, an indented list of locks is displayed.
+The lock information includes hostname,
+process id (pid), record number, lock start point and length,
+record number, and a timestamp.
+.PP
+The \fIClear\fP selection produces a numbered list of locks. After one of
+the locks or files is chosen, a signal is sent to \fIfblockd\fP to clear the
+requested lock or set of locks.
+.PP
+The \fISet\fP selection can be used to set a lock on an entire file or
+a particular record. A few notes: the lock file for a \fIFirstBase\fP database
+is the map file of the three files used for a database; a full path name
+must be used; record numbers (not byte locations) are used to assign a lock.
+.PP
+The \fIAuto Query\fP selection allows unattended queries to be automatically
+done every few seconds. The time between updates is selectable.
+.SH SEE ALSO
+setup(5), fblockd(8).
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br

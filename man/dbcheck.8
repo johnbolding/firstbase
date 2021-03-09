@@ -1,0 +1,69 @@
+.TH DBCHECK 8 "12 September 1995"
+.FB
+.SH NAME
+dbcheck \- run a file integrity check on a \fIFirstBase\fP database
+.SH SYNOPSIS
+.B dbcheck
+[ \fB-clptvB\fP ] \fIdatabase\fP [ \fIdatabase\fP ...]
+.SH DESCRIPTION
+.I Dbcheck
+is used to check the integrity of a \fIFirstBase\fP database and its associated
+map file. \fIDbcheck\fP attempts to account for all of the
+bytes in the database.
+.PP
+\fIDbcheck\fP also makes sure that all records and fields are distinct
+and well defined by the map file. In general, various errors are indicated
+with a notation like \fI--> error: message\fP. If the database checks out,
+a final message stating \fIno errors\fP is printed.
+.PP
+The various flags are used to track and check extra items during the
+checking process.
+.sp 1
+.PD 0
+.TP 10
+.B -c
+check the connectivity of the addresses in the map file. On by default.
+.TP 10
+.B -l
+check the lengths of the fields for size discrepancies.
+.TP 10
+.B -p
+display percent in use statistics. On by default.
+.TP 10
+.B -t
+trace the values of each field as a record is processed. Each field is
+separated by a colon, ':'. Large databases will create massive amounts of
+screen output when this option is used.
+.TP 10
+.B -v
+verbose flag. Uses flags \fB-c\fP, \fB-l\fP, \fB-p\fP.
+Use of the verbose option will generate internal information about the
+location and length of each record.
+.TP 10
+.B -B
+Blocking flag to
+will enable the fastest throughput of
+records from the database. If this flag can be used, the \fIdbcheck\fP
+process is speeded up a great deal by internal record buffering.
+Note that the database map is not checked for connectivity and
+record locking is disabled.
+.SH FILES
+.PD 0
+.TP 10
+*.map
+\fIFirstBase\fP database map file.
+.TP 10
+dbase
+default name of database.
+.TP 10
+*.cdb
+\fIFirstBase\fP database.
+.TP 10
+*.ddict
+\fIFirstBase\fP database dictionary file.
+.PD
+.SH SEE ALSO
+dbclean(1), dbregen(1)
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br

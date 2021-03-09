@@ -1,0 +1,200 @@
+.TH DBDUPD 1 "12 September 1995"
+.FB
+.SH NAME
+dbdupd \- define a \fIFirstBase\fP database update dictionary
+.SH SYNOPSIS
+.B dbdupd
+[\fB-d\fP \fIdatabase\fP] [\fB-i\fP \fIindex\fP]
+.SH DESCRIPTION
+.I Dbdupd
+allows definition and modification of a 
+.I FirstBase
+database update dictionary. 
+The created dictionary will later be used by
+\fIdbugen\fP(1)
+to generate updates within a \fIFirstBase\fP database.
+.PP
+A database update dictionary consists of 
+a series of update descriptors. Each update descriptor 
+contains a
+.I field_name,
+and an
+.I update-string.
+.PP
+Database updates can be thought of as global changes to an entire section
+of an existing database. The idea is to describe an action to be done
+to a particular field (or fields) and then use 
+\fIdbugen\fP(1)
+to actually implement the update.
+Fields not mentioned in the update dictionary are left intact.
+.PP
+NOTE: Another \fIFirstBase\fP tool, \fIdbmacro\fP(1), might
+be more applicable than \fIdbdupd\fP and \fIdbugen\fP.
+.PP
+Normally, field names are used to build selection criteria.
+But, if the CHOOSEFIELD environment variable is ON, fields can be selected
+from a list of numbered entries. See \fIsetup\fP(5).
+.PP
+The type of action that
+can be done on a field
+depends on the type of the field as seen by the \fIFirstBase\fP system (i.e. the type
+of the field as defined in the database dictionary).
+Any field can be cleared (to spaces) by leaving the 
+.I update-string
+unspecified.
+Also, alphanumeric fields can be 
+.I replaced 
+by the 
+.I update-string.
+.PP
+But numeric fields allow full formula specification.
+In this case the 
+.I update-string 
+becomes the formula for the update.
+The new field value will be 
+dictated by this formula and the contents of the fields referenced by the
+formula.
+This formula has
+the same format as those for \fIFirstBase\fP formula (virtual) fields defined
+via \fIdbdbas\fP(1).
+.PP
+Formulas 
+use numbers to represent fields (eg. 16 for field 16)
+and a prepended 'C' or 'c' for constants (eg. C4.5 for 4.5).
+Addition 
+.I (+), 
+subtraction 
+.I (-), 
+multiplication 
+.I (*), 
+and division
+.I (/)
+are allowed as operators. 
+.PP
+.I Note:
+Only dollar, float, numeric and positive numeric
+fields can be used in formula
+calculations. This means references to other formulas will not work.
+Also, all formulas read from left to right, and there is no precedence
+among the operators.
+.PP
+The precision of a formula is specified by appending a colon 
+.I (:)
+to the formula followed by a number.
+Default precision is two.
+.PP
+All formula entry is parsed to determine whether the formula is valid
+for the current database
+dictionary. Interactive error messages help debug long
+formulas.
+.PP
+For example, if a group of records (as defined by an index, of course),
+represents all people who have paid a standard payment on a large bill,
+then the new value of each balance can be globally
+updated all at one time using 
+\fIdbdupd\fP(1) and \fIdbugen\fP(1).
+.PP
+Using this case as an example, say the dollar balance due 
+field is field number 5 and the payment is $116.92, then the 
+.I update-string
+would be \fB5 + C11692:0\fP.
+.PP
+Again, 
+particular attention must be paid to the update string if the field to be
+updated is numeric in nature. Specifically, if the precision of 
+constants and other numbers are not set properly, the results will not
+be as expected.
+.PP
+For example, to update a dollar field to contain $123.45, the actual update
+string required is "C12345:0", since \fIFirstBase\fP 'knows' where the decimal goes for
+all dollar fields. Dates are done as textual substitutions, "051660"
+for example to get May 16, 1960.
+.PP
+A special meta-update string, \fB$DELETE\fP is used to delete
+all records that are touched during running of the update generator.
+In this case, the actual contents of the field are not modified.
+Note: due to the nature of \fIdbugen\fP(1), the \fB$DELETE\fP meta-update
+string can only be designated for alphanumeric fields.
+.PP
+Like all other \fIFirstBase\fP dictionary editors, \fIdbdupd\fP(1) has a set of commands
+that allow screen oriented modification of the update dictionary.
+The following is a summary of the commands accepted by 
+\fIdbdupd\fP(1):
+.TP 7
+.B <CTL>-H
+displays a summary of these commands.
+.TP 7
+.B ?[dfhiN]
+displays help on the database, formulas,
+user defined help files, index, or field N.
+.TP 7
+.B <RETURN>
+(return, or enter) pages forward one page in the database
+dictionary (same as 'f').
+Wrapping occurs at end of file.
+.TP 7
+.B @
+go into auto add mode.
+.TP 7
+.B #
+allow changes to line number #.
+.TP 7
+.B -
+standard END key \(em exits program and keeps all changes.
+.TP 7
+.B <CTL>-X
+aborts the program. The effect is to exit without
+overwriting the file, meaning all changes are lost.
+.TP 7
+.B b
+pages backward one page in the database update dictionary. 
+Wrapping occurs at beginning of file.
+.TP 7
+.B d
+delete function. Allows deletion of a single dictionary entry.
+All entries below deleted entry slide up one slot.
+.TP 7
+.B i
+insert function. Inserts a standard dictionary entry before any given
+field.
+All entries below inserted entry slide down one slot.
+.PP
+A list of simple editor commands appears on the 24th line of the 
+screen at all times, with help available by using the standard help 
+signal (<CTL>-H).
+Complete interactive error checking is done on the contents of
+all update descriptors.
+.PP
+Upon successful completion of an update dictionary, the user is given a
+chance to run the update generator. All arguments given
+to \fIdbdupd\fP(1) are passed on to \fIdbugen\fP(1).
+The processes are overlaid,
+meaning no new shells are generated in using this option.
+.SH FILES
+.PD 0
+.TP 10
+dbase
+default name for the database
+.TP 10
+index
+default name for the index
+.TP 10
+*.idictu
+dictionary for update generator.
+.TP 10
+*.cdb
+\fIFirstBase\fP database.
+.TP 10
+*.map
+record map of \fIFirstBase\fP database.
+.PD
+.SH SEE ALSO
+dbedit(1), dbugen(1), dbmacro(1), firstbase(5), input(5), setup(5)
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br
+.SH DIAGNOSTICS
+\fIDbdupd\fP(1)
+will allow editing and modifying of any update dictionary at any time.
+These dictionary files should be write protected for complete protection.
+.br

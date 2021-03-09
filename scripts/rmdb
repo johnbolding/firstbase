@@ -1,0 +1,13 @@
+: 
+trap "" 1 2 3 4 5 6 7 8 9
+for i
+do
+   DIR=`dirname $i`
+   BASE=`basename $i .cdb`
+   FILE1=${DIR}/${BASE}.cdb
+   FILE2=${DIR}/${BASE}.map
+   FILE3=${DIR}/${BASE}.log
+   rm -f $FILE1
+   rm -f $FILE2
+   rm -f $FILE3
+done

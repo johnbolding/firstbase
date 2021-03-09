@@ -1,0 +1,76 @@
+                              
+       This Help File will explain the commands allowed in the Command
+       Level of the FirstBase family of database editors.
+
+       In the Command List:
+       <CTL>   represents the CONTROL key. <CTL> should be depressed
+	       while the following command keystroke is performed.
+
+       <RET>   represents the RETURN key. <RET> should be depressed 
+	       after the preceding keystroke is performed.
+
+	           Now, let's begin our Command List
+
+       @<RET>  enters Auto Add mode. This command puts the database into
+	       Field Level and allows us to enter new records into
+	       the database.
+
+       -       The standard END keystroke. - exits Command Level
+
+       <CTL>B  moves you 1 record backward. Wrapping occurs after
+               the first record.
+
+       <CTL>D  enters all autodefaults into a record when you are
+               in auto add mode.
+
+       <CTL>F  moves you 1 record forward. Wrapping occurs after
+	       the last record.
+
+       <CTL>H  brings you to the Help File. This is where you are now.
+
+       <CTL>X  repositions the cursor to the top of the index.
+                          
+       <RET>   moves you 1 record forward. Wrapping occurs after
+	       the last record.
+
+       @#<RET> goes directly to the record number you ask for.
+               (Substitute # with a valid record number.)
+
+       %<RET>  goes to the first record defined in the current index.
+
+       $<RET>  goes to the last record defined in the current index.
+
+       .<RET>  (dot) displays current record.
+
+       ><RET>  pushes the index pointer to the next indexed field on the
+               index stack, allowing sequential searches to be done on 
+	       this field
+
+       <<RET>   pops the index pointer back to the main (first) indexed 
+                field on the index stack
+
+       pattern<RET> 
+		entered from an indexed field searches the index 
+                for the defined pattern.
+
+       ?d<RET>  displays a general field list.
+
+       ?f<RET>  displays a field list that also shows formula fields.
+
+       ?h<RET>  displays a field list that also shows user defined 
+		help fields
+
+       ?i<RET>  displays the index help screen. This is a list of
+                all fields in the current index. The total number of
+		index entries is also displayed.
+
+       ?N<RET>  (where N is a number representing a field in the 
+		database), displays the user defined help file (if
+		it exists) for the field. Each field can have its own
+		help file.
+
+       /[pattern]<RET>
+		search forward for pattern
+
+       \[pattern]<RET>
+		search backward for pattern

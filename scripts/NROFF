@@ -1,0 +1,93 @@
+:
+echo
+echo -n "	Enter the (Base) name of the Nroff file to work with: "
+read file
+nfile=$file.me
+lfile=$file.lpr
+if [ -z "$file" ]
+   then
+   echo "No file entered -- Nothing to do. bye."
+   exit
+fi
+echo
+while true
+   do
+      clear
+      echo "	Your Base file name is: $file"
+      echo
+      echo "	Do you want to Edit, Format, Scan or Print an Nroff Document? "
+      echo
+      echo "	'c'  = Change Names"
+      echo "	'e'  = Edit "
+      echo "	'ex' = Edit w/Extended Columns"
+      echo "	'f'  = Format"
+      echo "	'fp' = Format Selected Pages"
+      echo "	's'  = Screen/Print "
+      echo "	'sp' = Check Spelling"
+      echo "	'q'  = Quit"
+      echo
+      echo -n "	Enter Selection from command list above: "
+      read selection
+      case $selection in
+	 e) vi $nfile ;;
+	 ex) vi132 $nfile ;;
+	 v) vi $nfile ;;
+	 f) 
+	    echo "	Formatting file $nfile, placing output in $lfile..."
+	    tbl $nfile | nroff -me -Tlp > $lfile
+	    echo
+	    echo "	Done."
+	    echo
+	    screenprint $lfile
+	    ;;
+	 fp) 
+	    echo
+	    echo "	A page list limits formatting. For example: 2-4,6,9-12 "
+	    echo
+	    echo -n "	Enter Page List (RETURN=ALL): "
+	    read PLIST
+	    OLIST=""
+	    if [ "$PLIST" != "" ] ; then
+	        OLIST="-o$PLIST "  
+	    fi
+	    echo "	Formatting file $nfile, placing output in $lfile..."
+	    tbl $nfile | nroff -me -Tlp $OLIST > $lfile
+	    echo
+	    echo "	Done."
+	    echo
+	    screenprint $lfile
+	    ;;
+	 s) 
+	    screenprint $lfile
+	    ;;
+	 p)
+	    screenprint $lfile
+	    ;;
+	 sp) 
+	    clear
+	    echo
+	    echo "	Checking the spelling of the Nroff Document, $nfile. "
+	    echo
+	    echo "	Any words listed below are probably misspelled:"
+	    spell $nfile
+	    echo "	----------------------------------"
+	    echo "	Done with spell checker."
+	    echo -n "	Hit a <RETURN> to Continue: "
+	    read garbage
+	    ;;
+	 q) break ;;
+	 x) break ;;
+	 c)
+	       echo
+	       echo -n "	Enter the new (Base) name of Nroff file: "
+	       read file
+	       nfile=$file.me
+	       lfile=$file.lpr
+	       ;;
+	 *) 
+	    echo "	Unrecognized command."
+	    echo
+	    echo -n "	Hit a <RETURN> to Continue: "
+	    read garbage
+	 esac
+   done

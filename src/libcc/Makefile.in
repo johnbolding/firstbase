@@ -1,0 +1,138 @@
+# Copyright (C) 2001 FirstBase Software, Inc. All rights reserved.
+#
+# $Id: Makefile.in,v 9.2 2001/01/22 17:36:57 john Exp $
+#
+# See the file LICENSE for conditions of use and distribution
+#
+#
+# Makefile for FirstBase src/libcc
+#
+
+PRODUCT = @PRODUCT@
+VERSION = @VERSION@
+
+SHELL = /bin/sh
+srcdir = @srcdir@
+VPATH = @srcdir@
+
+CC = @CC@
+CFLAGS = @CFLAGS@
+CPPFLAGS = @CPPFLAGS@
+DEFS = @DEFS@
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@ $(LIBEXTRA)
+
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+transform = @program_transform_name@
+bindir = $(exec_prefix)/bin
+
+COMPILE = $(CC) -c $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
+LINK = $(CC) $(LDFLAGS) -o $@
+
+.SUFFIXES:
+.SUFFIXES: .c .o
+.c.o:
+	$(COMPILE) $< -o $@
+
+INCLUDES = @INCLUDES@
+
+HEADERS = 
+OBJECTS=	Strcmp.o	\
+		atof.o		\
+		buffers.o	\
+		xbuffers.o	\
+		countlin.o	\
+		dedate.o	\
+		endate.o	\
+		gethost.o	\
+		getlin.o	\
+		gettoken.o	\
+		getword.o	\
+		julian.o	\
+		lseek.o		\
+		loadline.o	\
+		makpwd.o	\
+		mkstemp.o	\
+		noroot.o	\
+		regcomp.o	\
+		rootname.o	\
+		pad.o		\
+		rmlead.o	\
+		strblank.o	\
+		subline.o	\
+		tdate.o		\
+		trim.o		\
+		undersco.o
+
+all: libcc
+libcc: $(OBJECTS)
+
+names:
+	@for name in $(OBJECTS) ; do \
+	   echo libcc/$$name >> ../OBJECTS ; \
+	done
+
+MHEADERS= \
+../include/config.h  \
+../include/fb.h  \
+../include/libcc.h \
+../include/fb_ext.h
+
+Strcmp.o:	$(MHEADERS)
+buffers.o:	$(MHEADERS)
+lseek.o:	$(MHEADERS)
+countlin.o:	$(MHEADERS)
+dedate.o:	$(MHEADERS)
+endate.o:	$(MHEADERS)
+gethost.o:	$(MHEADERS)
+getlin.o:	$(MHEADERS)
+gettoken.o:	$(MHEADERS)
+getword.o:	$(MHEADERS)
+julian.o:	$(MHEADERS)
+loadline.o:	$(MHEADERS)
+makpwd.o:	$(MHEADERS)
+mkstemp.o:	$(MHEADERS)
+noroot.o:	$(MHEADERS)
+pad.o:		$(MHEADERS)
+rmlead.o:	$(MHEADERS)
+rootname.o:	$(MHEADERS)
+strblank.o:	$(MHEADERS)
+subline.o:	$(MHEADERS)
+tdate.o:	$(MHEADERS)
+trim.o:		$(MHEADERS)
+undersco.o:	$(MHEADERS)
+xbuffers.o:	$(MHEADERS)
+
+mostlyclean:
+	rm -f *.o *._c *._o core core.*
+
+clean: mostlyclean
+
+distclean: clean
+	rm -f Makefile
+
+realclean: distclean
+	rm -f TAGS
+
+extraclean:: distclean
+	rm -f patch* *~* *\#* *.orig *.rej *.bak core a.out
+
+Makefile: Makefile.in ../../config.status
+	cd ../.. && CONFIG_FILES=src/libcc/$@ CONFIG_HEADERS= ./config.status
+
+DISTDIR = ../../$(PRODUCT)-$(VERSION)/src/libcc
+DISTFILES = *.c Makefile.in
+
+dist::
+	@echo "Copying distribution files from libcc"
+	@for file in $(DISTFILES); do \
+	   ln $(srcdir)/$$file $(DISTDIR) 2> /dev/null \
+	      || cp -p $(srcdir)/$$file $(DISTDIR); \
+	done
+
+# Tell versions [3.59,3.63) of GNU make not to export all variables.
+# Otherwise a system limit (for SysV at least) may be exceeded.
+.NOEXPORT:

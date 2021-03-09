@@ -1,0 +1,118 @@
+.TH DBEMIT 1 " 4 April 1996"
+.FB
+.SH NAME
+dbemit \- emit a \fIFirstBase\fP database in comma separated format
+.SH SYNOPSIS
+.B dbemit
+[\fB-b\fP]
+[\fB-c\fP \fIchar_sep\fP] [\fB-f\fP] [\fB-q\fP] [\fB-s\fP] [\fIscreen\fP]
+[\fB-t\fP] [\fB-v\fP] [\fB-y\fP] [\fB-B\fP] [\fB-\fP]
+[\fB-d\fP \fIdatabase\fP] [\fB-i\fP \fIindex\fP]
+.SH DESCRIPTION
+.I Dbemit
+emits all undeleted records of a \fIFirstBase\fP database in 
+token separated format to an output file.
+The set of processed records can be limited using the \fB-i\fP index specifier.
+Each line contains one \fIFirstBase\fP record, with some token character
+separating the fields. The default token is a comma.
+.PP
+The output file is the database name with a
+.I .emit
+extension. Creation of this output file can be overridden by using 
+the \fB-\fP flag. This option will cause the output of the emit process to
+go to standard output \(em most often the terminal.
+.PP
+Normally, 
+\fIdbemit\fP(1) 
+does not emit formula fields. However, using the 
+.B -f
+flag forces formula fields to be emitted along with real fields.
+These formula emissions are calculated as they are being emitted.
+.PP
+The \fB-b\fP
+flag will run the \fIFirstBase\fP tool in batch mode, suitable for shell
+scripts.
+This mode produces no output on the terminal, thus can also be used
+when running the process in the background.
+The \fB-y\fP flag will run the tool at the terminal without pausing to ask
+the user if existing files can be destroyed and without pausing
+for the users permission to continue.
+.PP
+The \fB-B\fP flag will enable the fastest throughput of
+records from the database. If this flag can be used, the \fIdbemit\fP
+generation is speeded up a great deal by internal record buffering.
+Note that no index can be used with record buffering, and
+that record locking is disabled.
+.PP
+\fIDbemit\fP(1)
+normally prints most all data as it is stored in the database.
+However, alpha fields will be quoted if the \fB-q\fP flag is used,
+and date and dollar fields will be formatted using the \fB-v\fP flag.
+Note that for alphanumeric
+data, embedded quotes ('"') and backslashes (\\) are escaped using the
+standard C and UNIX method of preceding the character with a 
+backslash.
+.PP
+\fIDbemit\fP(1)
+provides a convenient method of producing a 
+database image file that can be
+directly downloaded into 
+a different database management system.
+The 'comma separated field'
+format is compatible with many other database
+management packages.
+.PP
+It is also possible to change the field separator used by dbemit. 
+This is done using the \fB-c\fP flag.
+As an example, the following command will emit data from the
+database \fIphonelist\fP using the index \fIfriends\fP.
+.sp 1
+dbemit -d phonelist -i friends - -c :
+.sp 1
+Furthermore, this data will be emitted to standard output, and the field
+separator will be a colon, not a comma.
+.PP
+As another example, \fB-c \\|\fP could be used to change the separator to
+the vertical bar character ('|'). (Note the escaping of the pipeline
+character due to the shell.)
+.PP
+By using the \fB-t\fP flag,
+\fIdbemit\fP(1) will produce output that is ready to be
+submitted to \fItbl\fP(1), the table production program that works in
+conjunction with \fInroff\fP(1). This means that the following command
+would produce a formatted report from a database using non-database,
+standard UNIX tools to do the formatting:
+.sp 1
+dbemit -d phonelist -t - | tbl | nroff -me -Tlp
+.sp 1
+Note that the entire phonelist is printed here \(em not just an indexed
+sub-section of the database.
+A database \fIscreen\fP mask can also be applied to the dbemit
+process (the \fB-s\fP flag) to reorder or ignore particular fields.
+.PP
+It is also possible to upload values 
+into a \fIFirstBase\fP database file. See
+\fIdbload\fP(1).
+.SH FILES
+.PD 0
+.TP 10
+*.emit
+extension for emitted databases.
+.TP 10
+dbase
+default name of database.
+.TP 10
+*.cdb
+\fIFirstBase\fP database.
+.TP 10
+*.map
+record map of \fIFirstBase\fP database.
+.TP 10
+*.ddict
+\fIFirstBase\fP database dictionary file.
+.PD
+.SH SEE ALSO
+dbdbas(1), dbdscr(1), dbload(1)
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br

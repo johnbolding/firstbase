@@ -1,0 +1,59 @@
+.TH NEXTXREC 3 "10 April 1996"
+.FB
+.SH NAME
+nextxrec, prevxrec \- load next/previous indexed record
+.SH SYNOPSIS
+#include <firstbase/fb.h>
+.sp 1
+fb_nextxrec(db)
+.br
+fb_database *db;
+.sp 1
+fb_prevxrec(db)
+.br
+fb_database *db;
+.PP
+.SH DESCRIPTION
+As explained in the \fIdatabase\fP(4) manual page,
+a database structure contains
+all of the elements needed for an entire database, including an array of
+field structures, all file names and descriptors, and index information.
+Altogether, the array of field structures can hold one complete record.
+.PP
+\fIFb_nextxrec\fP attempts to load the next indexed record into
+database \fIdb\fP.
+If a record has not already been loaded using \fIfb_getxrec\fP(3) or a
+similar index mechanism, then the initial call (and only the initial call)
+to \fIfb_nextxrec\fP will load the 
+the first indexed record (ala \fIfirstxrec\fP(3)).
+To repeat a loop through all indexed records, use \fIfirstxrec\fP(3)
+followed by \fInextxrec\fP, or use the \fIforxeach\fP(3) mechanism.
+.PP
+\fIFb_prevxrec\fP attempts to load the previous indexed record into database
+\fIdb\fP.
+If one record has not already been loaded, nothing is done.
+.PP
+Once a record number is retrieved from the index, \fIgetrec\fP(3) is used
+by these routines to
+actually load the record into the database structures.
+.PP
+When using a \fIFirstBase\fP flat index, 
+the physical position number of the index entry, the index record number,
+is stored in the database structure \fIdb->bsrec\fP.
+If \fIdb->bsrec\fP is greater
+than \fIdb->bsend\fP, the returned record's key is stored in the overflow area
+of the index, otherwise it is stored in the binary searchable area.
+.PP
+However, when using a \fIFirstBase\fP Btree+ index, the \fIdb->bsrec\fP value
+is actually the record number (not the index record number).
+.SH CLIENT/SERVER
+The \fIfb_nextxrec\fP and \fIfb_prevxrec\fP routines will transparently
+call the \fIfb_nextxrec_clnt\fP and \fIfb_prevxrec_clnt\fP
+mechanisms when the global \fIFirstBase\fP variable \fIcdb_use_rpc\fP
+is set to one. See \fIfb_clnt_create\fP(3) for more details.
+.SH SEE ALSO
+getxrec(3), getrec(3), firstxrec(3), opendb(3), database(4), index(4).
+.SH DIAGNOSTICS
+These routines will return FB_AOK on a successful call, and FB_ERROR when
+the record could not be found or loaded.
+.br

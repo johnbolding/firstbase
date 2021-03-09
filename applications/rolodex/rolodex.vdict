@@ -1,0 +1,26 @@
+"(1) LastName:":4,2
+LastName@4,16
+"(2) FirstName:":4,50
+FirstName@4,65
+"(3) Company:":6,2
+Company@6,16
+"Phone Numbers":8,25
+"-------------":9,25
+"(4) Home:":10,15
+HomePhone@10,25
+"(5) Work:":11,15
+WorkPhone@11,25
+"(6) FAX:":12,15
+FAXPhone@12,25
+"Mailing Address":15,25
+"---------------":16,25
+"(7) Addr1:":17,14
+Addr1@17,25
+"(8) Addr2:":18,14
+Addr2@18,25
+"(9) City:":19,14
+City@19,25
+"(10) State:":19,44
+State@19,56
+"(11) Zip:":19,60
+Zip@19,70

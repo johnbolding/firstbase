@@ -1,0 +1,95 @@
+.TH DBREGEN 1 "12 September 1995"
+.FB
+.SH NAME
+dbregen \- regenerate indexes for a \fIFirstBase\fP database.
+.SH SYNOPSIS
+.B dbregen
+[\fB-b\fP] [\fB-y\fP] [\fB-B\fP] [\fB-d\fP \fIdatabase\fP]
+.sp 1
+.B dbregen
+[\fB-b\fP] [\fB-y\fP] [\fB-n\fP] [\fB-B\fP]
+[\fB-d\fP \fIdatabase\fP] [ \fIindex1\fP ...]
+.SH DESCRIPTION
+.I dbregen
+is used to globally update autoindexes and user defined indexes
+for a \fIFirstBase\fP database with a single command.
+The \fB-b\fP indicates batch mode and produces no
+output on the terminal. The \fB-y\fP
+flag runs the tool without asking
+about existing files nor pausing. Each is passed to \fIdbigen\fP if needed.
+.PP
+If \fIdbregen\fP(1) is used the first way listed above, 
+all of the autoindexes defined for that database will be updated.
+Here, regeneration does not use \fIdbigen\fP(1) if possible,
+but only sorts the indexes
+and corrects the index header information.
+.PP
+If there is no actual autoindex to sort, or no index dictionary
+(the \fI.idict\fP file), then \fIdbregen\fP(1)
+will use \fIdbigen\fP(1)
+to create the autoindex from scratch. In this case, if \fB-B\fP
+is specified, it will be passed on to \fIdbigen\fP(1) for record blocking.
+.PP
+\fIDbregen\fP(1)
+will also work on user defined indexes. This is the second form
+of \fIdbregen\fP(1) listed above.
+Merely provide the names
+of the indexes you want \fIdbregen\fP(1) to recreate,
+and \fIdbigen\fP(1) will be used to generate each index.
+.PP
+Note that under some circumstances, a complex index may contain all needed
+entries, but not all will be sorted. This situation, normally occurring
+only in autoindexes, can happen with the use of \fIdbrload\fP(1), or with
+custom programs that modify a \fIFirstBase\fP index.
+\fIDbregen\fP(1) will detect
+this situation and merely sort the index data and update the index header.
+This sort and update approach is much faster than using \fIdbigen\fP(1).
+.PP
+The normal regeneration of autoindexes can be suppressed by using
+the \fB-n\fP option. 
+.PP
+\fIDbregen\fP(1) walks on the index names a little bit before processing,
+taking off all extensions to the file name. This extension removal
+means that shell
+expansion of file names can be used to gather all \fI*.idicti\fP files,
+and dbregen will correctly pass only the basenames to
+the \fIdbigen\fP(1) tool.
+This is quite helpful
+for running shell scripts and batch jobs.
+.PP
+For example, the following one line command will regenerate all the
+indexes in the current directory, whether an autoindex or not,
+without any other keystrokes, but with visual displays:
+.nf
+.sp 1
+   dbregen -d dbase -y *.idicti
+.fi
+.PP
+As another example, the following commands will guarantee that all 
+indexes are regenerated from scratch in batch mode.
+.nf
+.sp 1
+   rmidx *.idx; dbregen -d dbase -b *.idicti
+.fi
+.SH FILES
+.PD 0
+dbase
+default name of database.
+.TP 10
+*.cdb
+\fIFirstBase\fP database.
+.TP 10
+*.ddict
+\fIFirstBase\fP database dictionary file.
+.TP 10
+*.idx
+\fIFirstBase\fP index.
+.PD
+.SH SEE ALSO
+dbigen(1), dbdind(1), dbclean(1), dbedit(1), setup(5), rmdb(8)
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br
+.SH DIAGNOSTICS
+Do not rebuild an autoindex that others might be using (updating).
+.br

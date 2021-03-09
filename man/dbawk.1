@@ -1,0 +1,78 @@
+.TH DBAWK 1 "12 September 1995"
+.FB
+.SH NAME
+dbawk \- \fIFirstBase\fP pattern scanning and processing language
+.SH SYNOPSIS
+.B dbawk
+[\fB-nf\fP] [\fB-B\fP] 
+[\fB-d\fP \fIdatabase\fP] [\fB-i\fP \fIindex\fP] [\fB-s\fP \fIscreen\fP]
+[\fB-f\fP \fIprogram_file\fP] [\fIprogram\fP]
+.SH DESCRIPTION
+.I Dbawk
+is an implementation of the popular UNIX tool \fIawk\fP(1) combined with the
+\fIFirstBase\fP database tool \fIdbemit\fP(1). Most all \fIawk\fP(1)
+features are implemented within \fIdbawk\fP(1).
+The only major difference between \fIdbawk\fP(1)
+and \fIawk\fP(1) is that \fIFirstBase\fP records
+are used for processing instead of lines of text.
+.PP
+The \fB-s\fP screen option can be used to reorder and mask
+the fields in any manner. A screen dictionary is used \(em exactly
+like \fIdbemit\fP(1).
+Note: A screen dictionary is \fIrequired\fP for databases with
+a very large number of fields (> 100).
+.PP
+The \fB-B\fP flag will enable the fastest throughput of records from the
+database. If this flag can be used, the \fIdbawk\fP process
+is speeded up a great deal by internal record buffering.
+Note that no index can be used with record buffering, and
+that record locking is disabled.
+.PP
+During record processing, only undeleted records are loaded.
+Each loaded record (or screen image of the loaded record) is available
+as \fB$0\fP, with individual fields as \fB$1\fP, \fB$2\fP, etc.
+\fIDbawk\fP(1) will process the entire database, or limit processing to a
+given \fIFirstBase\fP index.
+.PP
+\fIDbawk\fP(1) is aware of various \fIFirstBase\fP database types, and will
+transparently provide both the formatted and numeric versions of fields.
+Dollar ($) and date (d) fields
+as strings are automatically formatted with embedded commas and
+slashes respectively. As numeric values, these fields appear as
+floating values. Furthermore, date fields are encoded in YYMMDD
+format to allow date comparisons. The \fB-nf\fP flag can be specified to
+disable this formatting feature.
+.PP
+The function formfield(value, type, size) returns a \fIFirstBase\fP string
+properly
+formatted. For example, newstring = formfield(total, "$", 10) will format
+the variable total into a printable \fIFirstBase\fP dollar value.
+.PP
+Furthermore, a special type, \fIe\fP can be used to produce loadable
+strings that might have embedded newlines. In this case, the call to formfield
+would look like newstring = formfield(longfield, "e", 0). The \fInewstring\fP
+returned will have any embedded NEWLINE characters converted to "\\n",
+the proper string that will be converted back to a NEWLINE by \fIdbload\fP(1).
+.SH FILES
+.PD 0
+.TP 10
+dbase
+default name of database.
+.TP 10
+dbase
+default name of database.
+.TP 10
+*.cdb
+\fIFirstBase\fP database.
+.TP 10
+*.map
+record map of \fIFirstBase\fP database.
+.TP 10
+*.ddict
+\fIFirstBase\fP database dictionary file.
+.PD
+.SH SEE ALSO
+awk(1), dbemit(1), dbload(1)
+.PP
+\fIFirstBase User's Guide and Reference Manual\fP
+.br

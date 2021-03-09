@@ -1,0 +1,18 @@
+
+                              Help on FirstBase
+
+                                MAIN menu
+
+        This menu provides you with a complete selection of FirstBase tools.
+
+	To change the name of a database object, use <CTL>-E to select the
+	Environment Screen and follow the instructions there.
+
+        To run a FirstBase tool, enter the chosen selection (the part in 
+	reverse video) and hit a <RETURN>. See the FirstBase User's Manual 
+	for more details.
+
+        Use a '-' (the standard END key) to exit from the FirstBase menu tool.
+
+        For lots more details on the FirstBase menu/shell tool, see the
+        standard manual page on dbshell(1).

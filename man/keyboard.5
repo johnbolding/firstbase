@@ -1,0 +1,256 @@
+.TH KEYBOARD 5 "12 September 1995"
+.FB
+.SH NAME
+keyboard \- \fIFirstBase\fP keyboard map file
+.SH SYNOPSIS
+.TP
+ .firstbase-kbmap
+.SH DESCRIPTION
+The keyboard map file is used to bind keystroke sequences to
+\fIFirstBase\fP actions and intraline editing commands. This map file is used
+with
+the \fIEditable Input\fP mode within \fIFirstBase\fP.
+See \fIsetup\fP(5) and \fIinput\fP(5) on how to enable this input mode.
+.PP
+When a \fIFirstBase\fP tool is used with \fIEditable Input\fP, the keyboard
+map is
+loaded from a \fI.firstbase-kbmap\fP file located in either the $HOME
+directory,
+somewhere along $PATH, or in the \fIFirstBase\fP home directory, in this order.
+The first file located is loaded.
+.SH KEYBOARD MAP
+The \fIFirstBase\fP keyboard map is a list of keyboard keystrokes,
+or \fIsequences\fP,
+and \fIEditable Input\fP commands, or \fIactions\fP. A \fIsequence\fP is
+bound to an \fIaction\fP using the following syntax:
+.sp 1
+.nf
+.nj
+.ft CW
+      setkey "sequence" action
+.ft
+.sp 1
+.fi
+.ju
+.PP
+The \fBsetkey\fP must be in the first character column \(em these are
+the only lines that will be processed. Blanks and tabs are used
+to separate the sequence and action parts of each \fIsetkey\fP line.
+Comments beyond the action are started using a pound sign (\fB#\fP).
+.SH SEQUENCE
+Each \fIsequence\fP is a series of characters delimited with
+double quotations. These characters (between the quote marks) represent
+complete
+escape and control keystroke sequences.
+.PP
+The first character of each sequence must be some kind of control character.
+Subsequent characters can be of any type.
+Function keys and arrow keys are in this category.
+.PP
+Control characters are denoted using one of the following:
+.sp 1
+.nf
+.nj
+.ft CW
+   \\^  .... Control
+   \\e  .... Escape
+   \\^? .... Del
+   \\\\   .... \\
+.ft
+.sp 1
+.fi
+.ju
+.PP
+For example, the sequence \fB\\^f\fP represents <CONTROL>-F, and \fB\\ek\fP
+represents <ESCAPE>-k. In these examples, the <CONTROL> character is
+depressed while typing the \fBf\fP character, but the <ESCAPE> is a single
+keystroke by itself, followed by the single keystroke \fBk\fP.
+.PP
+A \fIsequence\fP can be as long as needed. Furthermore, multiple sequences
+can be bound to the same \fIaction\fP.
+.SH ACTION
+The \fIaction\fP part of a \fIsetkey\fP line represents a \fIFirstBase\fP
+signal or
+an intraline editing command. Each action is a single word, or set of
+hyphenated words with no blanks. The following is a complete set of all
+\fIactions\fP allowed along with a few comments.
+.sp 1
+.RS 5
+.PD 0
+.TP 30
+beginning-of-line
+.TP 30
+end-of-line
+.TP 30
+delete-char-forward
+.TP 30
+delete-char-backward
+.TP 30
+delete-to-beginning-of-line
+.TP 30
+delete-to-end-of-line
+.TP 30
+move-char-forward
+.TP 30
+move-char-backward
+.TP 30
+delete-word-forward
+.TP 30
+delete-word-backward
+.TP 30
+move-word-forward
+.TP 30
+move-word-backward
+.TP 30
+quit
+quit from middle of command sequence
+.TP 30
+upcase-word
+.TP 30
+capitalize-word
+.TP 30
+downcase-word
+.TP 30
+end
+general END signal
+.TP 30
+help
+general HELP signal
+.TP 30
+abort
+general ABORT keystroke
+.TP 30
+next
+next field, database editors
+.TP 30
+prev
+previous field, database editors
+.TP 30
+redraw
+.TP 30
+pagedown
+database editors - pages, choice pages, etc.
+.TP 30
+pageup
+database editors - pages, choice pages, etc.
+.TP 30
+bsignal
+database editors - backward record
+.TP 30
+fsignal
+database editors - forward record
+.TP 30
+ssignal
+database editors - next matching record
+.TP 30
+qsignal
+database editors - ratio of matching records
+.TP 30
+writerec
+database editors - write record
+.TP 30
+deleterec
+database editors - delete record
+.TP 30
+system-stop
+UNIX stop - .firstbase-init controlled
+.TP 30
+system-interrupt
+UNIX interrupt - sometimes allowed
+.PD 0
+.RE 5
+.sp 1
+.SH SAMPLE KEYBOARD MAP
+The  following is a sample keyboard map. This map represents the
+standard \fIFirstBase\fP keyboard bindings as released with
+\fIFirstBase\fP.
+.sp 1
+.nf
+.nj
+.ft CW
+# intraline editing commands
+setkey "\\^a"	beginning-of-line
+setkey "\\^e"	end-of-line
+setkey "\\^d"	delete-char-forward
+setkey "\\^?"	delete-char-backward
+setkey "\\^u"	delete-to-beginning-of-line
+setkey "\\^k"	delete-to-end-of-line
+setkey "\\^f"	move-char-forward
+setkey "\\^b"	move-char-backward
+setkey "\\ed"	delete-word-forward
+setkey "\\e\\^?"	delete-word-backward
+setkey "\\^w"	delete-word-backward	# overload function 
+setkey "\\ef"	move-word-forward
+setkey "\\eb"	move-word-backward
+setkey "\\^g"	quit
+setkey "\\eu"	upcase-word
+setkey "\\ec"	capitalize-word
+setkey "\\el"	downcase-word
+
+# standard FirstBase signals
+setkey "\\e-"	end
+setkey "\\^h"	help
+setkey "\\^c"	abort                # general abort keystroke
+setkey "\\^n"	next                 # next field, dbedit
+setkey "\\^p"	prev                 # prev field, dbedit
+setkey "\\^l"	redraw
+setkey "\\^v"	pagedown             # dbedit data/choice pages ...
+setkey "\\ev"	pageup               # dbedit data/choice pages ...
+setkey "\\^x\\^b"	bsignal              # backward record, dbedit
+setkey "\\^x\\^f"	fsignal              # forward record, dbedit
+setkey "\\^x\\^s"	writerec             # dbedit writerec
+setkey "\\^x0"	deleterec            # dbedit delete record
+
+setkey "\\eh"	help
+
+# UNIX system signals
+setkey "\\e\\^z"	system-stop          # UNIX stop. setup(5).
+setkey "\\e\\^c"	system-interrupt     # UNIX interrupt. sometimes allowed
+
+# Arrow keys - may need tuning to your particular keyboard
+setkey "\\e[A"	prev                 # example of an arrow key
+setkey "\\e[B"	next                 # example of an arrow key
+setkey "\\e[C"	move-char-forward    # example of an arrow key
+setkey "\\e[D"	move-char-backward   # example of an arrow key
+.ft
+.fi
+.ju
+.sp 1
+.SH SPECIAL CASES
+A few standard \fIFirstBase\fP keystrokes are overloaded and built-in
+to provide default bindings in certain situations. The following will all be
+accepted as standard \fIFirstBase\fP signals when no input has been entered
+(or altered) and such a signal is allowed.
+.sp 1
+.PD 0
+.TP 10
+-
+END key. \fIFirstBase\fP standard END keystroke.
+.TP 10
+^F
+fsignal. database editors - forward one record.
+.TP 10
+^B
+bsignal. database editors - backward one record.
+.TP 10
+^D
+dsignal. database editors - autodefault signal.
+.TP 10
+^Q
+qsignal. database editors - report pattern matches.
+.TP 10
+^S
+ssignal. database editors - locate next pattern match.
+.TP 10
+^E
+esignal. dbshell - environment screen command.
+.TP 10
+^H
+help. from first column of an input area.
+.PD
+.sp 1
+.SH SEE ALSO
+input(5), setup(5)
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br

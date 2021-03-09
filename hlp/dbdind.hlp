@@ -1,0 +1,88 @@
+
+			       WELCOME
+
+            To the Dbdind (Index Generator Dictionary) Help File
+                              
+       The basic idea here is to list all of the criteria that will be
+       used to generate a FirstBase index. Usually, this list consists
+       of selected fields that have certain values.
+
+       For each critera, you must enter at least the field name and one 
+       selection value (and perhaps a second selection value also).
+       In addition, a Sort By field or fields must also be selected.
+
+       Please see Chapter 8 of the FirstBase User's Guide.
+       (Note: dbsql can also generate standard FirstBase indexes).
+
+       This Help File will explain the commands allowed in the creation
+       of an index generator  dictionary. 
+
+       In the Command List:
+       <CTL>   represents the CONTROL key. <CTL> should be depressed
+	       while the following command keystroke is performed.
+       <RET>   represents the RETURN key. <RET> should be depressed 
+	       after the preceding keystroke is performed.
+
+	           Now, let's begin our Command List
+
+       @<RET>  enters Auto Add mode. This command allows us to enter
+               new fields into the database dictionary.
+
+       #<RET>  (substitute an actual Field Number here for "#"). # allows 
+               us to go to a specific field and change it's parameters.
+                     
+       -       The standard END keystroke. - exits the program and
+	       keeps all changes.
+
+       <CTL>H  brings you to the Help File. This is where you are now.
+
+       <CTL>X  exits the program without overwriting the file.
+	       Any modifications made to the file are lost.
+                          
+       <RET>   pages 1 page forward in the database dictionary.
+	       Wrapping occurs after the last page in the file.
+
+       b<RET>  pages 1 page backward in the database dictionary.
+	       Wrapping occurs at the beginning of the file.
+
+       d<RET>  deletes a field from the database dictionary.
+	       After entering d<RET>, enter a valid Field Number
+	       and <RET>. The field will be removed and all fields
+	       below the deleted one will move up 1 position.
+
+       f<RET>  pages 1 page forward in the database dictionary.
+	       Wrapping occurs after the last page in the file.
+
+       i<RET>  allows the insertion of a new field before an existing
+	       field in a database dictionary. All subsequent fields
+	       will move down 1 position.
+
+       norm<RET> toggles the type of index produced --
+	       either a Btree index or a flat index can be chosen.
+
+       s<RET>  takes you to the "sort-by" portion of the index. The 
+               field(s) selected here determine how the records 
+	       captured by the index will be ordered. It is possible 
+	       to modify or simply view your chosen sort-by's using
+	       s<RET>.
+       
+       t<RET>  traces the index tree as you have defined it. This
+	       feature offers you a visual display of the index tree
+	       structure including the logical connectives and sort-by
+	       field(s) used.
+
+       ?d<RET>  displays a general field list.
+
+       ?f<RET>  displays a field list that also shows formula fields.
+
+       ?h<RET>  displays a field list that also shows user defined 
+		help fields
+
+       ?i<RET>  displays the index help screen. This is a list of
+                all fields in the current index. The total number of
+		index entries is also displayed.
+
+       ?N<RET>  (where N is a number representing a field in the 
+		database), displays the user defined help file (if
+		it exists) for the field. Each field can have its own
+		help file.

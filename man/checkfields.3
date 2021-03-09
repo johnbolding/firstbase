@@ -1,0 +1,27 @@
+.TH CHECKFIELDS 3 "12 September 1995"
+.FB
+.SH NAME
+checkfields \- check record values for integrity
+.SH SYNOPSIS
+#include <firstbase/fb.h>
+.sp 1
+int fb_checkfields(db, errflag)
+.br
+fb_database *db;
+.br
+int errflag;
+.br
+.PP
+.SH DESCRIPTION
+\fIFb_checkfields\fP is used to determine if the fields in the current record
+depicted by database \fIdb\fP fit range specifications and unique
+autoindex constraints.
+.PP
+A return status of FB_AOK means that all data fits the specs.
+Otherwise, an FB_ERROR is returned.
+.PP
+The \fIerrflag\fP argument is used to control the behavior of errors.
+When set to one (1), errors will cause error messages on the bottom two lines
+of the display. A setting of zero (0) suppresses these error messages.
+In any case, errors will return an FB_ERROR status.
+.br

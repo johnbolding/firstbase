@@ -1,0 +1,87 @@
+# Copyright (C) 2001 FirstBase Software, Inc. All rights reserved.
+#
+# $Id: Makefile.in,v 9.2 2001/01/22 17:27:14 john Exp $
+#
+# See the file LICENSE for conditions of use and distribution
+#
+#
+# Makefile for FirstBase doc/
+#
+
+PRODUCT = @PRODUCT@
+VERSION = @VERSION@
+
+SHELL = /bin/sh
+srcdir = @srcdir@
+VPATH = @srcdir@
+@SET_MAKE@
+
+CC = @CC@
+CFLAGS = @CFLAGS@
+INSTALL = @INSTALL@
+INSTALL_DATA = @INSTALL_DATA@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+LDFLAGS = @LDFLAGS@
+
+firstbasehome = @FIRSTBASEHOME@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+homedir = $(exec_prefix)/$(firstbasehome)
+bindir = $(exec_prefix)/$(firstbasehome)/bin
+infodir = $(prefix)/$(firstbasehome)/info
+libdir = $(prefix)/$(firstbasehome)/lib
+mandir = $(prefix)/$(firstbasehome)/man
+docdir = $(prefix)/$(firstbasehome)/doc
+includedir = $(prefix)/$(firstbasehome)/include
+
+.SUFFIXES:
+.SUFFIXES: .c .o
+
+all: Makefile
+
+mostlyclean: mostlyclean-recursive mostlyclean-local
+
+clean: clean-recursive clean-local
+
+distclean: distclean-recursive distclean-local
+
+realclean: realclean-recursive realclean-local
+
+extraclean: extraclean-recursive extraclean-local
+
+mostlyclean-recursive clean-recursive distclean-recursive \
+realclean-recursive extraclean-recursive:
+
+mostlyclean-local:
+
+clean-local: mostlyclean-local
+
+distclean-local: clean-local
+	rm -f Makefile
+
+realclean-local: distclean-local
+
+extraclean-local: distclean-local
+	rm -f patch* *~* *\#* *.orig *.rej *.bak core a.out
+
+DISTFILES = Makefile.in fb-manual.ps README
+
+dist: $(DISTFILES)
+	@echo "Copying distribution files from doc"
+	@for file in $(DISTFILES); do \
+	  ln $(srcdir)/$$file ../$(PRODUCT)-$(VERSION)/doc 2> /dev/null \
+	    || cp -p $(srcdir)/$$file ../$(PRODUCT)-$(VERSION)/doc; \
+	done
+
+install:
+	$(INSTALL) -d $(docdir)
+	for file in $(DISTFILES) ; do \
+	   $(INSTALL_DATA) $$file $(docdir); \
+        done
+
+Makefile: Makefile.in ../config.status
+	cd ../ && CONFIG_FILES=doc/$@ CONFIG_HEADERS= ./config.status
+
+# Tell versions [3.59,3.63) of GNU make not to export all variables.
+# Otherwise a system limit (for SysV at least) may be exceeded.
+.NOEXPORT:

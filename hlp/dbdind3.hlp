@@ -1,0 +1,8 @@
+#And/Or Connector
+#        Use these to control how the surrounding requests
+#        will be connected together:
+#
+a a AND. Both Must be true to satisfy. (default).
+o o OR.  Either one Must be true to satisfy.
+s s Simple And. Used to connect two conditions
+#                          inside of surrounding Or requests.

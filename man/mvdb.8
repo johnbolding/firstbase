@@ -1,0 +1,34 @@
+.TH MVDB 8 "12 September 1995"
+.FB
+.SH NAME
+mvdb \- move a \fIFirstBase\fP database to a new file name
+.SH SYNOPSIS
+.B mvdb
+\fIsource_database\fP \fIdestination_database\fP
+.SH DESCRIPTION
+.I Mvdb 
+is a simple shell script that moves a database and all
+necessary support files to a new destination. The move is done
+interactively using the \fB-i\fP option of \fImv\fP(1).
+\fIMvdb\fP will ask permission to destroy existing files.
+.PP
+Formally, three files are moved: the database itself, the database
+dictionary, and the database record map. The source files are actually
+just renamed \(em no copying takes place.
+.SH FILES
+.PD 0
+.TP 10
+*.cdb
+\fIFirstBase\fP database.
+.TP 10
+*.ddict
+\fIFirstBase\fP database dictionary.
+.TP 10
+*.map
+record map of \fIFirstBase\fP database.
+.PD
+.SH SEE ALSO
+mv(1), firstbase(5), dictionaries(5), cpdb(8)
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br

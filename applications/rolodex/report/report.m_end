@@ -1,0 +1,41 @@
+#
+# macro done at end of record creation for report records
+#
+# CREATE_RECORD assumed since this is dbvemit!
+#
+# S_ fields run from 12 through 21
+# go through each field, couting the 1's 2's 3's and 4's
+#
+S_START = 12
+S_END = 21
+flag_1 = 0
+flag_2 = 0
+flag_3 = 0
+flag_4 = 0
+for (i = S_START; i <= S_END; i++){
+   v = atof($i)
+   if (v > 0){
+      if (v == 1)
+         flag_1++
+      else if (v == 2)
+         flag_2++
+      else if (v == 3)
+         flag_3++
+      else if (v == 4)
+         flag_4++
+      }
+   }
+# test for no errors since thats easiest ...
+if (flag_1 <= 1 && flag_2 <= 1 && flag_3 <= 1 && flag_4 <= 1)
+   return(END)
+
+# now, which is causing error? say so.
+if (flag_1 > 1)
+   error("Too many PRIMARY Report Sort Fields")
+else if (flag_2 > 1)
+   error("Too many SECONDAY Report Sort Fields")
+else if (flag_3 > 1)
+   error("Too many LEVEL 3 Report Sort Fields")
+else if (flag_4 > 1)
+   error("Too many LEVEL 4 Report Sort Fields")
+return(ERROR)

@@ -1,0 +1,18 @@
+
+                              Help on FirstBase
+
+                                TOOLS menu
+
+        This menu provides you with a selection of more FirstBase tools.
+
+        These tools are more data tools (than generator tools) since they
+        do not require an additional dictionary to create their results.
+
+        To run a FirstBase tool, enter the chosen selection (the part in
+	reverse video) and hit a <RETURN>. See the FirstBase User's Manual
+	for more details.
+
+        Use a '-' (the standard END key) to exit from the FirstBase menu tool.
+
+        For lots more details on the FirstBase menu/shell tool, see the
+        standard manual page on dbshell(1).

@@ -1,0 +1,85 @@
+.TH DELREC 3 "12 September 1995"
+.FB
+.SH NAME
+delrec, b_delrec \- delete a record
+.SH SYNOPSIS
+#include <firstbase/fb.h>
+.sp 1
+fb_delrec(db)
+.br
+fb_database *db;
+.sp 1
+fb_b_delrec(db)
+.br
+fb_database *db;
+.br
+.SH DESCRIPTION
+As explained in the \fIdatabase\fP(4)
+manual page, a database structure contains
+all of the elements needed for an entire database, including an array of
+field structures, all file names and descriptors, and index information.
+Altogether, the array of field structures can hold one complete record.
+.PP
+These records are retrieved from the database file and stored into the
+field structures using \fIgetrec\fP(3) or \fIgetxrec\fP(3).
+Once a record has been
+loaded into these field structures, \fIfb_delrec\fP is used
+to mark current \fIdb\fP record as deleted.
+.PP
+\fIFb_delrec\fP will perform the following sequence of events:
+.sp 1
+.PD 0
+.TP 3
+1)
+The database header variables \fIdb->reccnt\fP and \fIdb->delcnt\fP are read.
+.TP 3
+2)
+An asterisk is stored in the last field slot of the array
+of field structures.
+This last field is always set up by the \fIFirstBase\fP system and never needs to be
+defined within a database dictionary.
+True database fields, as defined in a database dictionary,
+are indexed within the array
+of field structures beginning at 0 and going through the number of fields
+minus 1. The last, undefined field structure is used solely for marking
+a record as deleted.
+Most \fIFirstBase\fP tools and subroutines will ignore records marked for deletion.
+.TP 3
+3)
+The deleted
+record count is bumped to \fIdb->delcnt\fP + 1 and the record is replaced in
+the database using the \fIputrec\fP(3) routine.
+.TP 3
+4)
+The database header information is written back into the database.
+.PD
+.PP
+Note that \fIfb_delrec\fP does not attempt to modify any
+normal (flat) indexes, but btree indexes defined as autoindexes are maintained.
+See \fIindex\fP(4) and \fIautoindex\fP(4) for details.
+.PP
+Sometimes it is desirable to delete many records as fast as possible.
+Since \fIfb_delrec\fP will lock the database,
+synchronize the data files, and unlock the database
+for each record, it can be inefficient. The bulk record processing
+mechanism can be used in these cases. (See \fIbulkrec\fP(3)).
+.PP
+The bulk processing of records consists of three steps. First,
+\fIfb_bulkrec_begin\fP is called before any processing. This preliminary
+call will lock and synchronize the database, and read the database header.
+Then, \fIfb_b_delrec\fP and/or \fIfb_b_addrec\fP are called repeatedly 
+as needed.
+Finally, \fIfb_bulkrec_end\fP is used to write the header,
+synchronize the data files, and unlock the database.
+.SH CLIENT/SERVER
+The \fIfb_delrec\fP and \fIfb_b_delrec\fP routines will transparently
+make calls to \fIfb_delrec_clnt\fP and \fIfb_b_delrec_clnt\fP
+when the global \fIFirstBase\fP variable \fIcdb_use_rpc\fP is set to one.
+See \fIfb_clnt_create\fP(3) for more details.
+.SH SEE ALSO
+getrec(3), getxrec(3), opendb(3), addrec(3), bulkrec(3),
+database(4), dbpack(1), dbundo(1).
+.SH DIAGNOSTICS
+\fIFb_delrec\fP will return the error code FB_ERROR if any of its reads,
+writes, or seeks fail. An FB_AOK signal is returned on correct completion.
+.br

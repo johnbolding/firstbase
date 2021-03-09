@@ -1,0 +1,12 @@
+
+Generate Phone (TEL) Transactions
+ TimeStamp: 10:05 08/22/01
+
+5094 1406   Mack, Corwin 1-139 ...*
+1234         1-257 ... >>>No ClientID (no key)<<<
+5096 1406   Mack, Corwin 1-139 ...*
+4321         1-257 ... >>>No ClientID (no key)<<<
+
+Total number of stations examined: 6
+Number of clients needing charge work: 4
+Total number of phone transactions: 2

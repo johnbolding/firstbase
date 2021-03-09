@@ -1,0 +1,38 @@
+.TH FB_SYSTEM 3 "12 September 1995"
+.FB
+.SH NAME
+fb_system \- generalized system call
+.br
+.SH SYNOPSIS
+#include <firstbase/fb.h>
+.sp 1
+fb_system(s, rootperm)
+.br
+char *s;
+.br
+int rootperm;
+.br
+.PP
+.SH DESCRIPTION
+\fIFb_system\fP is an implementation of the UNIX \fIsystem\fP(3) call,
+but with one less process overhead. \fIFb_system\fP will \fIfork\fP
+or \fIvfork\fP a process,
+execute the string \fIs\fP, and then \fIwait\fP(2),
+instead of forking a shell that executes the command.
+.PP
+The other \fIfb_system\fP argument, \fIrootperm\fP,
+indicates root privileges, and
+is usually set to 0 (FB_NOROOT). If set to 1 (FB_WITHROOT), and the process
+is \fIsetuid\fP, then privileges are granted to the child process accordingly.
+.PP
+The \fIfb_system\fP call will properly recondition a terminal device after
+waiting for the child process to complete. (Set the global variable
+\fIcdb_batchmode\fP to one to avoid this reconditioning).
+Additionally, the return status of the child process is returned
+by \fIfb_system\fP.
+.SH CLIENT/SERVER
+The \fIfb_system\fP routine will transparently
+call \fIfb_system_clnt\fP
+when the global \fIFirstBase\fP variable \fIcdb_use_rpc\fP is set to one.
+See \fIfb_clnt_create\fP(3) for more details.
+.br

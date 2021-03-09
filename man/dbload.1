@@ -1,0 +1,187 @@
+.TH DBLOAD 1 " 4 April 1996"
+.FB
+.SH NAME
+dbload, dbrload \- load comma separated values into a \fIFirstBase\fP database
+.SH SYNOPSIS
+.B dbload
+[\fB-b\fP]\ [\fB-y\fP]\ [\fB-a\fP] [\fB-l\fP]
+[\fB-d\fP\ \fIdatabase\fP] [\fB-c\fP\ \fIseparator\fP]
+[\fIloadfile\fP]
+.br
+.B dbrload
+[\fB-b\fP] [\fB-y\fP]
+[\fB-d\fP \fIdatabase\fP]
+[\fB-i\fP \fIindex\fP]
+[\fB-c\fP \fIseparator\fP]
+[\fIloadfile\fP]
+.PD
+.SH DESCRIPTION
+.I Dbload
+reads comma separated values from 
+.I loadfile
+and builds a \fIFirstBase\fP database
+using the values for fields. Each line of the input is assumed to be one
+record. A valid \fIFirstBase\fP database dictionary is required.
+.PP
+\fIDbload\fP(1) can also be used with an existing database. Using the
+\fB-a\fP option will cause \fIdbload\fP(1) to append records from the
+loadfile to the database. The database map is also updated, so use of
+\fIdbclean\fP(1) is not required. To enforce field length checking,
+use the \fB-l\fP option.
+.PP
+.I Dbrload
+is similar to dbload, except that database records are replaced (updated)
+in an already existing database. To use \fIdbrload\fP(1), at least the
+database must exist already. For each line of the loadfile,
+\fIdbrload\fP(1) will
+determine if the record already exists by consulting the given index,
+which must be a FirstBase autoindex.
+.PP
+If the record exists, all non blank fields from the loadfile
+are written to the existing database record.
+To force the clearing of a field, use \fB$ERASE\fP as the field value.
+If the record does not exist, or if no index is given for \fIdbrload\fP(1)
+to search, a new record is appended to the end of the database.
+Again: without an index, \fIdbrload\fP(1) will append
+all records from the loadfile as if they were new.
+.PP
+To work properly on repeated duplicate records in the load file,
+\fIdbrload\fP(1) must update the
+given index as it adds new records to the database.
+The best use of this feature is with \fIFirstBase\fP Btree indexes
+which retain their order during record insertions.
+.PP
+Note that \fIdbrload\fP(1) will work on complex indexes \(em and the fields
+that make up this index do not need to be in any specific order.
+However, only one non-auto index will be updated by \fIdbrload\fP(1).
+.PP
+\fIDbrload\fP(1) also accepts the use of formulas for numeric fields.
+These formulas have
+the same basic format as those for \fIFirstBase\fP formula (virtual) fields
+defined via \fIdbdbas\fP(1).
+However, since the string passed in via dbrload could merely look like a
+formula, a special mechanism is used to tell \fIdbrload\fP(1)
+that the string is
+to be parsed as a formula \(em all dbrload formulas must begin with "$F:".
+.PP
+.I Formulas 
+use numbers to represent fields (eg. 16 for field 16)
+and a prepended 'C' or 'c' for constants (eg. C4.5 for 4.5).
+Addition 
+.I (+), 
+subtraction 
+.I (-), 
+multiplication 
+.I (*), 
+and division
+.I (/)
+are allowed as operators. 
+.PP
+.I Note:
+Only dollar, float, numeric and positive numeric
+fields can be used in formula
+calculations. This means references to other formulas will not work.
+Also, all formulas read from left to right, and there is no precedence
+among the operators.
+.PP
+The precision of a formula is specified by appending a colon 
+.I (:)
+to the formula followed by a number.
+Default precision is two.
+.PP
+For example, if the value of the third comma separated value of the rload
+file is \fB$F:3+C22:0\fP,
+then the contents of field three will be increased by
+22 \(em with the result having 0 places after the decimal.
+.PP
+The \fB-b\fP
+flag will run the \fIFirstBase\fP tool in batch mode, suitable for shell
+scripts.
+This mode produces no output on the terminal, thus can also be used
+when running the process in the background.
+The \fB-y\fP flag will run the tool at the terminal without pausing to ask
+the user if existing files can be destroyed and without displaying
+a 'picture' of the requested task.
+.PP
+If 
+.I loadfile 
+is not specified, the user is prompted for a
+file name. The default is \fI*.emit\fP, where * is the database file name.
+.I Note: 
+normally, 
+\fIdbload\fP(1) 
+will 
+.I not
+add the extension \fI.emit\fP to the
+.I loadfile.
+.PP
+If there are more fields defined in the dictionary than there are
+values in any one input line, 
+the excess fields are null padded. Excess values
+not defined in the dictionary are ignored.
+.PP
+Although it is not necessary to put alphanumeric data in quotes, this will
+not hinder dbload(1). Quotes must be used if the data includes
+embedded commas. The backslash (\\)
+is a metacharacter used to escape characters.
+To embed a quotation mark, use '\\"', 
+and to embed a backslash, '\\\\'.
+.PP
+.I Dbload(1)
+provides a convenient method of uploading from one 
+database management system into the
+.I FirstBase
+system. The 'comma separated field'
+format is compatible with many other database
+management packages.
+It is also possible to emit values out of a \fIFirstBase\fP database file. See
+\fIdbemit\fP(1).
+.PP
+The \fB-c\fP argument can be used to change the field separator to another
+character. For example, \fB-c \\|\fP could be used to change the separator to
+the vertical bar character ('|'). (Note the escaping of the pipeline
+character due to the shell.)
+.PP
+Note: Unless \fB-a\fP was used, \fIdbclean\fP(1)
+is automatically run at the completion of \fIdbload\fP(1) to
+create a map file for the new database.
+.SH FILES
+.PD 0
+.TP 10
+dbase
+default name of database.
+.TP 10
+*.cdb
+\fIFirstBase\fP database.
+.TP 10
+*.map
+record map of \fIFirstBase\fP database.
+.TP 10
+*.ddict
+\fIFirstBase\fP database dictionary file.
+.TP 10
+*.emit
+\fIFirstBase\fP database emit file (dbemit(1)), defaulted to for dbload(1).
+.PD
+.SH SEE ALSO
+dbcat(1), dbdbas(1), dbemit(1), dbjoin(1), firstbase(5)
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br
+.SH DIAGNOSTICS
+\fIDbload\fP(1)
+will ask permission before overwriting an existing \fIFirstBase\fP database.
+.sp 1
+Note: \fIdbrload\fP(1) tool will attempt to gain write access to a record
+before operating on that record. If access is currently locked, then the
+internal locking routine will respond according to the value of
+the \fIFirstBase\fP
+environment variable LOCKMESSAGE. See \fIsetup\fP(5).
+.sp
+Each of these tools normally will ignore interrupt signals. However, if
+the firstbase variable INTERRUPT is ON, these tools will terminate on
+an interrupt signal.
+However, if either of these database load tools is interrupted,
+the database and index objects being updated should be deleted using
+\fIrmdb\fP(8) and \fIrmidx\fP(8) before the database load is attempted again.
+.br

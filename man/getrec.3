@@ -1,0 +1,52 @@
+.TH GETREC 3 " 4 April 1996"
+.FB
+.SH NAME
+getrec
+.SH SYNOPSIS
+#include <firstbase/fb.h>
+.sp 1
+fb_getrec(rec, db)
+.br
+long rec;
+.br
+fb_database *db;
+.br
+.PP
+.SH DESCRIPTION
+As explained in the
+\fIdatabase\fP(4) manual page, a database structure contains
+all of the elements needed for an entire database, including an array of
+field structures, all file names and descriptors, and index information.
+Altogether, the array of field structures can hold one complete record.
+.PP
+\fIFb_getrec\fP
+retrieves logical record \fIrec\fP from the database pointed to by \fIdb\fP
+and initializes the array of field structures.
+The map file descriptor stored in \fIdb->mfd\fP
+is used to determine the location and length of the
+record in the database. The database file descriptor,
+stored in \fIdb->fd\fP, is used to read the indicated record.
+.PP
+As mentioned,
+\fIfb_getrec\fP sets up all of the database field descriptors so each
+individual field is readily available. Each field is accessed through
+an array of field descriptors, or key pointers. The base of this array
+is located in the database structure variable \fIdb->kp\fP.
+.PP
+A macro function, \fBFB_FLD(n, db)\fP can be used to access
+field number \fIn\fP of database \fIdb\fP, or use \fIfetch\fP(3).
+.SH CLIENT/SERVER
+The \fIfb_getrec\fP routine will transparently
+call the \fIfb_getrec_clnt\fP mechanism
+when the global \fIFirstBase\fP variable \fIcdb_use_rpc\fP is set to one.
+See \fIfb_clnt_create\fP(3) for more details.
+.SH SEE ALSO
+fetch(3), putrec(3), getirec(3), getxrec(3), opendb(3), database(4).
+.SH DIAGNOSTICS
+\fIFb_getrec\fP will return the error code FB_ERROR if any of its reads,
+writes, or seeks fail. On correct completion, the number of characters read
+will be returned.
+.PP
+Note: \fIgetrec\fP will lock record 0 to gain exclusive access to
+the database only if the LOCKLEVEL is \fB2\fP or more. See \fIsetup\fP(5).
+.br

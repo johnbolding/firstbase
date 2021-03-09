@@ -1,0 +1,176 @@
+.TH DBDPRT 1 "12 September 1995"
+.FB
+.SH NAME
+dbdprt \- define a \fIFirstBase\fP printout dictionary
+.SH SYNOPSIS
+.B dbdprt
+[\fB-d\fP \fIdatabase\fP] [\fB-i\fP \fIindex\fP]
+.SH DESCRIPTION
+.I Dbdprt
+allows definition and modification of a 
+.I FirstBase 
+printout dictionary via a screen oriented editor.
+The printout dictionary created
+is later used by 
+\fIdbpgen\fP(1)
+to create a ready to spool print image file of the report.
+.PP
+A printout dictionary consists of a list of valid database field names.
+The field names in the list can appear in any order
+and may appear more than once.
+A title and file name to store the printout can also be
+specified in the dictionary, along with the line spacing (single, double,
+etc), the line length (columns per page), and a detail option.
+.PP
+Normally, field names are used to build selection criteria.
+But, if the CHOOSEFIELD environment variable is ON, fields can be selected
+from a list of numbered entries. See \fIsetup\fP(5).
+.PP
+For each numeric field listed, the user can decide whether to total the
+field. Breaks can be defined for any field whether it is a totaled field or
+not. A break will produce a physical spacing between sections of the
+printout when the value of the field changes. Breaks are used to provide
+subtotals of fields according to their content.
+.PP
+At all times, \fIdbdprt\fP(1) shows
+how wide each field will be on the printout
+and gives a running total of how long the current
+print line up to and including that field will be.
+.PP
+This running line length total, 
+labeled 'Line Length', is used to indicate when a single printline is
+getting too long. The number in parenthesis indicates which line the field
+will fall on (1 or 2), or that the printline is 'TOO LONG' at that point.
+Such lines are silently  truncated during
+printout generation (\fIdbpgen\fP(1)).
+Two printlines per printout are allowed, and each
+printline can be up to 500 characters long. 
+.PP
+Numeric, Floating,
+and Dollar fields can be totaled for any printout. 
+Multiple level breaks for any field may also be defined. A 
+break on any level causes subtotals for that break level 
+and all higher break levels subtotals
+to be printed and cleared to zero (0)
+when that field changes values.
+.PP
+Simple breaks are also supported. These simple breaks will not display
+the value that was 'broken' on like a normal break, but will instead just
+provide a single blank line as the 'break', along with any totals requested.
+.PP
+For true floating and formula fields, the decimals for each value
+will usually not line up if printed as is, unless you have been very
+careful on user input. To make the decimals on these fields
+line up properly, provide a precision to the default area for the given
+field in the database dictionary.
+This precision is provided by using the colon (:) as described
+under the formula section of \fIdbdbas\fP(1).
+.PP
+Like all other \fIFirstBase\fP dictionary editors, \fIdbdprt\fP(1) has a set
+of commands
+that allow screen oriented modification of the printout dictionary.
+The following is a summary of the commands accepted by 
+\fIdbdprt\fP(1):
+.TP 7
+.B <CTL>-H
+displays a summary of these commands.
+.TP 7
+.B ?[dfhiN]
+displays help on the database, formulas,
+user defined help files, index, or field N.
+.TP 7
+.B <RETURN>
+(return, or enter) pages forward one page in the database
+dictionary (same as 'f')..
+Wrapping occurs at end of file.
+.TP 7
+.B @
+go into auto add mode.
+.TP 7
+.B #
+allow changes to line number #.
+.TP 7
+.B -
+standard END key \(em exits program and keeps all changes.
+.TP 7
+.B <CTL>-X
+aborts the program. The effect is to exit without
+overwriting the file, meaning all changes are lost.
+.TP 7
+.B b
+pages backward one page in the database printout dictionary. 
+Wrapping occurs at beginning of file.
+.TP 7
+.B d
+delete function. Allows deletion of a single dictionary entry.
+All entries below deleted entry slide up one slot.
+.TP 7
+.B i
+insert function. Inserts a standard dictionary entry before any given
+field.
+All entries below inserted entry slide down one slot.
+.TP 7
+.B m
+miscellaneous information screen. Changes can be made to the printout
+title, the output file name, the line spacing, the columns per line,
+and the option indicating whether to print 'all detail' or 'no detail'.
+The defaults for these are '<EMPTY>', 'cdbprt', 1, 80, 
+and 'all detail' respectively.
+This screen is jumped to on the way out of \fIdbdprt\fP(1) automatically.
+.sp 1
+The options 'all detail' and 'no detail' refer to the amount of actual lines
+that will be printed in the report. With 'all detail' on, each line of the
+report will be printed. However, with 'no detail' set, only subtotals and
+totals lines will be printed. This data suppression can be used with breaks and
+and totals to generate summary reports.
+.PP
+Interactive error checking is done to assure that all fields entered exist
+in the \fIFirstBase\fP database.
+A list of simple editor commands
+appears on the 24th line of the 
+screen at all times, with a complete summary only a help signal (<CTL>-H)
+away.
+.PP
+Upon successful completion of a printout dictionary, the user is given a
+chance to run the printout generator. All arguments given
+to \fIdbdprt\fP(1) are passed on to \fIdbpgen\fP(1).
+The processes are overlaid,
+meaning no new shells are generated in using this option.
+.SH FILES
+.PD 0
+.TP 10
+dbase
+default name for the \fIFirstBase\fP database.
+.TP 10
+index
+default name for the \fIFirstBase\fP index.
+.TP 10
+cdbprt
+default name for the \fIFirstBase\fP print image file.
+.TP 10
+*.idictp
+dictionary for a \fIFirstBase\fP printout.
+.TP 10
+*.cdb
+\fIFirstBase\fP database.
+.TP 10
+*.map
+record map of \fIFirstBase\fP database.
+.TP 10
+*.idx
+\fIFirstBase\fP index.
+.TP 10
+*.prt
+a \fIFirstBase\fP print image file.
+.PD
+.SH SEE ALSO
+dbpgen(1), firstbase(5), input(5), setup(5)
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br
+.SH DIAGNOSTICS
+\fIDbdprt\fP(1)
+will allow modification to any printout dictionary file at any time. These
+printout dictionary files should thus be write protected if they are not to be
+changed.
+.br

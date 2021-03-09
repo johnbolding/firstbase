@@ -1,0 +1,59 @@
+:
+echo -n "Enter the Names of the Files you want to COMBINE: "
+read file
+if [ -z "$file" ]
+   then
+   echo No name. Nothing Done.
+   exit
+fi
+for i in $file
+   do
+   if [ -d "$i" ]
+      then
+      echo $i is a Directory. You cannot COMBINE directories.
+      echo Perhaps you want the Move/Rename command?
+      echo Nothing Done.
+      exit
+   elif [ ! -f "$i" ]
+      then
+      echo "File '$file' is not found. Nothing Done."
+      exit
+   fi
+done
+echo -n "Now Enter the Name of the file to place COMBINED output : "
+read nname
+if [ -z "$nname" ]
+   then
+   echo No name to store combined output in. Nothing Done.
+   exit
+fi
+if [ -d "$nname" ]
+   then
+   echo "$nname is a directory. You cannot COMBINE into a directory."
+   echo "Nothing Done."
+   exit
+fi
+for i in $file
+   do
+   if [ "$i" = "$nname" ]
+      then
+      echo You cannot COMBINE $i back into $nname.
+      echo Use a different output file name.
+      echo Nothing Done.
+      exit
+   fi
+done
+if [ -f "$nname" ]
+   then
+   echo "Warning: File $nname already exists. "
+   echo -n "Do you want to continue ? ('y' or 'n') "
+   read select
+   if [ "$select" != "y" ]
+      then
+      echo Nothing done.
+      exit
+   fi
+fi
+echo cat $file > $nname
+cat $file > $nname
+echo Done. Files $file combined into $nname.

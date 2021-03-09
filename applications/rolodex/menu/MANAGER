@@ -1,0 +1,19 @@
+
+                           $Rolodex_Manager_Tasks
+
+                     $a. Check Rolodex Database Integrity
+                     $b. Clean Rolodex Database
+                     $c. Pack  Rolodex Database
+
+                     $-. Use '-' to return to the Main Menu.
+
+%
+
+$a
+        dbcheck -clp $ROLOHOME/rolodex
+
+$b -1
+        dbclean $ROLOHOME/rolodex
+
+$c -1
+        dbpack $ROLOHOME/rolodex

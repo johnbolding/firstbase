@@ -1,0 +1,229 @@
+.TH DDICT 5 "12 September 1995"
+.FB
+.SH NAME
+ddict \- \fIFirstBase\fP database dictionary file
+.SH SYNOPSIS
+Layout of \fIFirstBase\fP database dictionary files
+.SH DESCRIPTION
+A database dictionary file is a text file used to define \fIFirstBase\fP
+databases.
+This file describes each field by name, type and length, and also
+stores defaults, ranges, help file names, and other information.
+.PP
+Formally, this file, called a \fIddict\fP file,
+is edited using the \fIdbdbas\fP(1) tool. All \fIFirstBase\fP tools use this
+file at run time to determine the layout of the database being used or created.
+.PP
+This manual page describes the layout of database dictionary files
+so that creation of theses files can be accomplished using a text editor
+or program of some kind.
+.PP
+\fBWarning:\fP \fIdbdbas\fP(1) allows only limited changes to a \fIddict\fP
+file
+after a database has been created. In general, this rule should be followed
+by those who want to edit \fIddict\fP files by hand.
+.PP
+However, if you
+know what you are doing, using a text editor on a \fIddict\fP file can
+save lots of time during the design phase of application development, and can
+also be used on a working system without disturbing the data.
+As a rule, use \fIdbcheck\fP(8) with the \fB-clp\fP flags after
+the modifications to ensure a match between the data dictionary and
+data records.
+.SH DATABASE DICTIONARY
+A database dictionary consists of 
+a series of text lines representing
+field descriptors. Each field descriptor contains at least
+three field attributes: \fIfield_name\fP,  \fIfield_type\fP,
+and \fIfield_size\fP.
+All of the field descriptors together, the whole file,
+describe a single record.
+.PP
+Each field descriptor is on a line by itself, with
+each attribute separated by white space. The optional attributes are
+represented as switch settings and are defined on a field by field basis.
+The following represents an entire field attribute in BNF notation,
+with detailed descriptions below.
+(Though shown on two lines, each entry \fBmust\fP be a single line).
+.sp 1
+.nf
+.ft CW
+   Field_Name Field_Type Field_Size [-d default] [-c[ab] comment] [-l]
+      [-h helpfile] [-A] [-a[u] autoindex] [-r range] [-m macro]
+.ft
+.fi
+.sp 1
+.PP
+.PD
+.TP 12
+Field_Name
+The \fIField_Name\fP attribute is the sequence of characters that
+are used to label this field. The limit is ten (10) characters.
+Blanks and underscores can be used.
+.TP 12
+Field_Type
+The \fIField_Type\fP describes the data type that the field will be allowed
+to contain. This attribute is actually a single character depicting the
+formal FirstBase data type. The following is a list of all field types:
+.sp 1
+.RS 15
+.TP 10
+a - alphanumeric
+.TP 10
+b - binary
+.TP 10
+c - choice
+.TP 10
+d - date
+.TP 10
+$ - dollar
+.TP 10
+f - float
+.TP 10
+F - formula
+.TP 10
+l - link
+.TP 10
+n - numeric
+.TP 10
+N - positive numeric
+.TP 10
+A - strictly alpha
+.TP 10
+U - uppercase
+.TP 10
+X - extended choice (see \fIxchoice\fP(5))
+.TP 10
+C - silent choice
+.RE 15
+.sp 1
+.TP 12
+Field_Size
+The \fIField_Size\fP attribute contains the maximum number of characters
+allowed for the field. These fields are not blank-padded to this maximum,
+it merely provides an upper limit. Two special notes: \fIdate\fP fields should
+have a size of six (6), \fIlink\fP fields have a size of zero (0).
+.TP 12
+Default
+The \fIdefault\fP attribute of a field descriptor is used to denote the
+characters that will be placed in the field when no other characters
+are placed there and a <RETURN> is hit. This attribute consists of two
+parts, the \fB-d\fP flag, and the actual default \fIstring\fP.
+.sp 1
+Note that if no default is defined, the field becomes a FORCED ENTRY field,
+and users will not be able to add a new record without this field having
+information in it. Also, to use a "blank" as the default, use the
+underscore, as in "\fB-d _\fP".
+.sp 1
+One special use of the \fIdefault\fP attribute is for \fIlink\fP fields.
+The link address, as discussed in \fIdbdbas\fP(1), is stored in
+this attribute.
+.sp 1
+Another special use of the \fIdefault\fP attribute concerns the precision of
+\fIformula\fP and \fIfloat\fP data types. The precision, or the number of
+decimal places, is specified by appending a \fB:N\fP
+to the \fIdefault\fP string, where \fBN\fP is the desired precision.
+The default precision is two.
+.TP 12
+Comment
+The \fIcomment\fP attribute represents text that is used only in the
+\fIFirstBase\fP tool \fIdbedit\fP(1) and does not affect any other tools,
+not even \fIdbvedit\fP(1). This attribute consists of two parts, the comment
+flag and the comment text.
+.sp 1
+The comment flag is a \fB-c\fP, optionally followed by an \fBa\fP (\fIafter\fP)
+or a \fBb\fP (\fIbefore\fP). The comment flag is followed by the actual
+comment text.
+.TP 12
+Lock
+The \fB-l\fP flag controls the \fIlock\fP attribute. If used, the field
+will accept a value during record creation, but once the record exists,
+no modifications to this field can be done using the database editor.
+This is a good flag to use for items of information that should NOT be
+altered, like patient or student identification numbers.
+.TP 12
+Helpfile/Choicefile
+This attribute points to a file that is paged to the screen when
+a HELP keystroke is issued while editing this field from within
+either of the database editors. The syntax is \fB-h\fP \fIhelpfile\fP.
+.sp 1
+Note that full path names are not needed. When invoked from a distance,
+FirstBase tools will properly prepend the working directory to
+the \fIhelpfile\fP if needed.
+.sp 1
+Alternately, the \fIhelpfile\fP is used as a \fIchoicefile\fP for data fields
+of type \fBc\fP (choice), \fBC\fP (silent choice), and \fBX\fP (Extended
+Choice). Choice files are outlined in \fIchoice\fP(5) and \fIxchoice\fP(5).
+.sp 1
+An additional feature allows standard choice types (\fBc\fP and \fBC\fP)
+to have choice files that dynamically grow during the editing session.
+This feature is enabled using the \fB-A\fP flag.
+.TP 12
+Autoindex
+The \fIautoindex\fP attribute points to a \fIFirstBase\fP index that will be
+automatically updated during database additions and modifications.
+This feature is available from either of the database editors, or
+\fIaddrec\fP(3). The general syntax is \fB-a\fP \fIautoindex\fP.
+.sp 1
+An autoindex is a standard \fIFirstBase\fP index, but a very simple one.
+These indexes must be single field indexes, and must select ALL
+entries. The needed index dictionaries will be created automatically
+when a database editor is invoked. However, they can be created
+using \fIdbdind\fP(1) as well as long as the above rules are followed.
+.sp 1
+A \fIunique values\fP flag can be combined with the autoindex flag,
+and is denoted as \fB-au\fP. This flag
+will make the database editor enforce unique values for all values
+entered into the associated field.
+.TP 12
+Range
+The \fIrange\fP attribute allows the definition of enumerated data types.
+This attribute is marked with a \fB-r\fP flag, followed by the \fIrange\fP
+string.
+.sp 1
+Along the standard UNIX method, range strings are made up of single elements
+separated by commas. Each element is either a single value, or
+an element of the form \fBM-N\fP which covers all numbers or characters
+in the range \fBM\fP through \fBN\fP.
+For example, \fB-r 7,9,31\fP and \fB-r a-j,o,p,w-z\fP are both valid
+range specifiers.
+.TP 12
+Macro
+The \fImacro\fP attribute is used to specify a file that is used by the
+database editor \fIdbvedit\fP(1) in place of normal field editing.
+This macro file contains macro code, as described in \fImacro\fP(5).
+.PD
+.SH HINTS
+When building a new database dictionary, it might be a good idea to
+define excess fields that can quickly be used later. This will alleviate
+the use of \fIdbcgen\fP(1) or \fIdbemit\fP(1)/\fIdbload\fP(1) to expand the
+database schema.
+.PP
+Also, data types can be changed by hand if the user is sure of the
+data within the fields. For example, an \fBA\fP could be converted to an
+\fBa\fP, but the reverse might not hold true. There is no real difference in
+how the fields are stored, so conversion is generally alright. New records
+will be handled correctly, as well as modifications to old records.
+.PP
+Changing the size of a field by hand is also acceptable. In fact, increasing
+the size of a field will always work. However, decreasing the size must be
+done carefully. If you know that
+all the data in a certain field is less than 50 characters wide, yet its
+defined maximum is 75, changing it to 50 will not hurt anything.
+Again, \fIdbcheck\fP(8) with the \fB-clp\fP flags
+is a good sanity check after making direct changes to a \fIddict\fP file.
+.SH FILES
+.PD 0
+.TP 10
+*.ddict
+\fIFirstBase\fP database dictionary.
+.TP 10
+*.cdb
+\fIFirstBase\fP database data.
+.TP 10
+*.map
+\fIFirstBase\fP database map.
+.PD
+.SH SEE ALSO
+dbdbas(1), dbedit(1), database(4), choice(5), dictionaries(5), macro(5).
+.br

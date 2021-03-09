@@ -1,0 +1,110 @@
+# Copyright (C) 2001 FirstBase Software, Inc. All rights reserved.
+#
+# $Id: Makefile.in,v 9.0 2001/01/22 18:27:49 john Exp $
+#
+# See the file LICENSE for conditions of use and distribution
+#
+#
+# Makefile for Firstbase applications/phone
+#
+
+PRODUCT = @PRODUCT@
+VERSION = @VERSION@
+
+FIRSTBASEHOME = @FIRSTBASEHOME@
+
+DEMODIR = phone
+
+SHELL = /bin/sh
+srcdir = @srcdir@
+VPATH = @srcdir@
+
+CC = @CC@
+CFLAGS = @CFLAGS@
+CPPFLAGS = @CPPFLAGS@
+DEFS = @DEFS@
+INSTALL = @INSTALL@
+INSTALL_DATA = @INSTALL_DATA@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@ $(LIBEXTRA)
+
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = $(exec_prefix)/$(FIRSTBASEHOME)/bin
+scriptsdir = $(exec_prefix)/$(FIRSTBASEHOME)/scripts
+libdir = $(prefix)/$(FIRSTBASEHOME)/lib
+mandir = $(prefix)/$(FIRSTBASEHOME)/man
+docdir = $(prefix)/$(FIRSTBASEHOME)/doc
+includedir = $(prefix)/$(FIRSTBASEHOME)/include
+appdir = $(prefix)/$(FIRSTBASEHOME)/applications
+
+LIBFB = -lfb
+INCLUDES = -I$(includedir)
+
+COMPILE = $(CC) -c $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
+LINK = $(CC) $(LDFLAGS) -L$(libdir) -o $@
+
+FILES = Lname.* Phone.* Makefile.in README MAIN
+
+.SUFFIXES:
+.SUFFIXES: .c .o
+.c.o:
+	$(COMPILE) $< -o $@
+
+all:
+
+demo: Phone.cdb
+
+Phone.cdb::
+	@(  PATH=$(PATH):$(bindir):$(scriptsdir); export PATH; \
+	   FIRSTBASEHOME=$(prefix)/$(FIRSTBASEHOME); export FIRSTBASEHOME; \
+	   rmdb Phone; rmidx Lname; \
+	   echo Loading Phone Database; \
+	   dbload -d Phone -b Phone.emit ; \
+	   chmod 0666 Phone.* Lname.* ; \
+	   echo Checking Phone Database; \
+	   dbcheck -clp Phone ; \
+	)
+
+install::
+	@PWD=`pwd` && \
+        if [ "$(appdir)/$(DEMODIR)" != "$(PWD)" ] ; then \
+	   echo Installing to $(appdir)/$(DEMODIR); \
+	   $(INSTALL) -d -m 0777 $(appdir)/$(DEMODIR); \
+	   for file in $(FILES) Makefile ; do \
+	      $(INSTALL_DATA) -m 0666 $$file $(appdir)/$(DEMODIR) ; \
+	   done ; \
+	fi
+
+mostlyclean:
+	rmdb Phone
+	rmidx Lname
+
+clean: mostlyclean
+
+distclean: clean
+	rm -f Makefile
+
+realclean: distclean
+	rm -f TAGS
+
+extraclean:: distclean
+	rm -f patch* *~* *\#* *.orig *.rej *.bak core a.out
+
+Makefile::
+	cd ../../ && \
+	CONFIG_FILES=applications/$(DEMODIR)/$@ CONFIG_HEADERS= ./config.status
+
+DISTDIR = ../../$(PRODUCT)-$(VERSION)/applications/$(DEMODIR)
+DISTFILES = $(FILES)
+
+dist::
+	@echo "Copying ... applications/$(DEMODIR)"
+	@for file in $(DISTFILES); do \
+	   ln $(srcdir)/$$file $(DISTDIR) 2> /dev/null \
+	      || cp -p $(srcdir)/$$file $(DISTDIR); \
+	done
+
+# Prevent GNU make 3 from overflowing arg limit on system V.
+.NOEXPORT:

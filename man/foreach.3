@@ -1,0 +1,63 @@
+.TH FOREACH 3 "12 September 1995"
+.FB
+.SH NAME
+foreach, forxeach, blockeach \- function processing of index/database
+.SH SYNOPSIS
+#include <firstbase/fb.h>
+.sp 1
+fb_foreach(db, f)
+.br
+fb_database *db;
+.br
+int (*f)();
+.sp 1
+fb_forxeach(db, f)
+.br
+fb_database *db;
+.br
+int (*f)();
+.sp 1
+fb_blockeach(db, f)
+.br
+fb_database *db;
+.br
+int (*f)();
+.SH DESCRIPTION
+\fIFb_foreach\fP, \fIfb_forxeach\fP, and \fIfb_blockeach\fP
+provide very useful methods for processing
+multiple records in a database. These routines will call a separately
+defined function exactly once for each referenced record in the database.
+.PP
+The idea is to create a separate function, \fIf\fP,
+that takes exactly one argument \(em an \fIfb_database\fP
+pointer. This function must
+return the FB_AOK signal on correct completion, and FB_ERROR on an incorrect
+completion.
+.PP
+The function \fIf\fP is then passed into \fIforeach\fP, \fIforxeach\fP
+or \fIblockeach\fP as an argument. These routines do
+the actual looping through the database. The only difference between
+\fIforeach\fP and \fIforxeach\fP
+is which records are accessed: \fIforeach\fP will process the entire
+database whereas \fIforxeach\fP will follow the database index loaded into the
+db structure, calling \fIf\fP only
+for those records that the index references.
+.PP
+\fIBlockeach\fP is essentially the same as \fIforeach\fP, but record
+blocking is used to provide extremely fast throughput. However,
+\fIblockeach\fP does not follow the database map, meaning the
+"record number" is actually a positional number. If the database is
+clean (as in \fIdbclean\fP(1)) this number will be the same as the true
+(database map) record number. Alternately, in many cases the application
+program does not need the true record number. If \fIblockeach\fP can be
+used within these constraints, record processing will be much faster.
+.PP
+.SH SEE ALSO
+getrec(3), opendb(3), database(4), index(4).
+.SH DIAGNOSTICS
+All of these routines will return the FB_AOK signal when the end of the
+database or index is reached.
+If \fIf\fP
+returns an FB_ERROR signal, the looping process is halted, and an
+FB_ERROR signal is returned to the caller.
+.br

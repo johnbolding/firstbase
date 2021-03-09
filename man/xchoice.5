@@ -1,0 +1,113 @@
+.TH XCHOICE 5 "12 September 1995"
+.FB
+.SH NAME
+xchoice \- extended choice file for data entry
+.SH SYNOPSIS
+Layout of the \fIFirstBase\fP extended choice files
+.SH DESCRIPTION
+A \fIFirstBase\fP
+extended choicefile is a file that is used from \fIdbvedit\fP(1)
+to provide strict control over data entry of a particular field.
+The idea is that the
+user does not need to actually type out all of the input for a given
+field, but rather chooses a selection whose corresponding meaning is
+then inserted into the field.
+.PP
+This makes uniform data entry for fields with a set of known values
+quite easy \(em and eases the typing required for long, duplicate entries.
+.PP
+\fIFirstBase\fP extended choice fields behave very much like normal choice
+fields \(em the only difference is the storage \fIlocation\fP of
+the choices \fIdbvedit\fP(1) displays to the user. As explained in
+\fIchoices\fP(5), normal choice selections are stored directly in the 
+choicefile itself.
+.PP
+However, for extended choice fields, the choices are stored in
+a standard \fIFirstBase\fP database, and are accessed using
+a \fIFirstBase\fP index.
+Maintenance of the stored choices themselves becomes a simple
+database task using this feature.
+.PP
+Another feature of extended choices is fields from the
+current database are used to filter the choices presented during
+extended choice display. This feature allows the use of very large
+databases of choice selections which are filtered into a
+small subset of choices displayed during the actual extended choice
+selection.
+.PP
+Additionally, there is a setup variable, EX_FORCEONE, which, if set to ON,
+will cause the extended choice mechanism to force the choice selection
+when there is only a single choice to choose from.
+.PP
+The extended choicefile is really a data dictionary
+extension of the standard database dictionary. Inside of the extended
+choicefile are pointers to the choice database and index, display fields,
+filter fields, a return field, and optional comment and helpfile lines.
+.PP
+The following is a list of the lines in an extended choicefile:
+.nf
+.nj
+.ft CW
+.sp 1
+   a) $DBASE dbase
+   b) $INDEX index
+   c) $FILTERS \fIlocal-field\fP [\fIlocal-field\fP ...]
+   d) $DISPLAYS \fIchoice-database-field\fP [\fIchoice-database-field\fP ...]
+   e) $RETURN \fIchoice-database-field\fP
+   f) $HELP helpfile 
+   g) $PROMPT Prompt_String
+   h) "Text Text Text":row,col
+.ft
+.fi
+.ju
+.PP
+Here is an explanation of each of the sections:
+.TP 12
+$DBASE
+The choice database. Must be a valid \fIFirstBase\fP database.
+.TP 12
+$INDEX
+The choice index. Must be a valid \fIFirstBase\fP index, generated from the
+database indicated by $DBASE. Furthermore, this index \fBMUST\fP
+be \fIsorted by\fP a superset (or complete set) of all the fields requested
+in the $FILTERS line.
+.sp 1
+For example, if you want to filter by FieldA and by FieldB,
+then the choice database itself should contain FieldA and FieldB,
+and the choice database index should be generated (\fIdbigen\fP(1)) so
+that the result is sorted by FieldA then by FieldB (in that order).
+.TP 12
+$FILTERS
+The fields from the current database that will be used to generate a search
+key request for matching choice database records.
+An error message will  display if no extended choice selections fit
+the contents of the $FILTERS line.
+Note: these fields are logically related to the architecture of the
+$INDEX specificed, as detailed above.
+.TP 12
+$DISPLAYS
+The fields from the choice database that will be displayed in
+a spreadsheet manner during extended choice display.
+Only records matching the $FILTERS will be displayed.
+.TP 12
+$RETURN
+The \fIone\fP field from the choice database that will be returned
+when a valid extended choice is selected.
+.TP 12
+$HELP
+A pointer to yet another help file that can be paged to the screen during
+the extended choice display by use of <CTL>-H or <FUNCTION>-HELP.
+.TP 12
+$PROMPT
+A string value used as the prompt for this extended choice selection.
+The default value is the same as PROMPT_CHOICEMSG.
+.TP 12
+"Text Text":row,col
+Persistent comments that are mapped to the screen using the standard
+view dictionary screen text mapping mechanism.
+.PD
+.SH SEE ALSO
+dbedit(1), dbdbas(1), choice(5), setup(5)
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br

@@ -1,0 +1,35 @@
+: fbdate - simple shell script that returns cdb date when fed `date`.
+:
+if [ $# -le 5 ]
+   then
+   echo "usage: fbdate UNIX-DATE (i.e. fbdate \`date\`)."
+   exit
+fi
+case $2 in
+   Jan) MM="01" ;;
+   Feb) MM="02" ;;
+   Mar) MM="03" ;;
+   Apr) MM="04" ;;
+   May) MM="05" ;;
+   Jun) MM="06" ;;
+   Jul) MM="07" ;;
+   Aug) MM="08" ;;
+   Sep) MM="09" ;;
+   Oct) MM="10" ;;
+   Nov) MM="11" ;;
+   Dec) MM="12" ;;
+esac
+DD=$3
+if [ $DD -lt 10 ]
+   then
+   DD="0$DD"
+fi
+if [ $6 -lt 2000 ] ; then
+   YY=`expr $6 - 1900`
+else
+   YY=`expr $6 - 2000`
+   if [ "$YY" = "0" ] ; then
+      YY="00"
+   fi
+fi
+echo ${MM}${DD}${YY}

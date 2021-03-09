@@ -1,0 +1,14 @@
+
+
+         $Sample_Source_Code
+
+   $1. Display Terminal Test
+   $2. Interactive Read/Write Record Test
+
+%
+
+$1
+exec $SAMPLE_SRC/termtest
+
+$2
+exec $SAMPLE_SRC/rectest

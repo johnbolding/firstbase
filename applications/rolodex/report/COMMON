@@ -1,0 +1,57 @@
+#
+# these are common subroutines shared by the scripts in the Rolodex application.
+#
+#
+
+NODATA(){
+   echo "                                      "
+   echo "                                      "
+   echo "          No data entered.            "
+   echo -n "          Enter RETURN to Continue.   "
+   read garbage
+   exit;
+   }
+
+NORECORDS(){
+   echo    "                                            "
+   echo    "                                            "
+   echo    "       No records found matching that query."
+   echo -n "       Enter RETURN to continue.            "
+   read garbage
+   exit;
+   }
+
+#
+#
+# these are common definitions shared by these scripts
+
+DIRECTORY=$ROLOHOME/
+# BINDIR=${DIRECTORY}bin/
+DATABASE=${DIRECTORY}rolodex
+TEMPDIR=/usr/tmp/
+INQIDX=${TEMPDIR}fb$$
+INDEXDICT=${INQIDX}.idicti
+INDEXFILE=${INQIDX}.idx
+VEMIT_FILE=${TEMPDIR}VEMIT1_$$
+VEMIT_FILE2=${TEMPDIR}VEMIT2_$$
+# 
+SQL_SCRIPT=${TEMPDIR}DBSQL$$
+NROFF_FILE=${TEMPDIR}NROFF$$
+OUTPUT=${TEMPDIR}OUTPUT$$
+#
+# report database variables
+#
+REPORT_DIRECTORY=${DIRECTORY}report/
+REPORT_DATABASE=${REPORT_DIRECTORY}report
+AWKSCRIPT=${REPORT_DIRECTORY}vemit-sql.awk 		# vemit to dbsql
+
+#
+# each report script can be called with an optional PROJECT argument
+# If not argument is present, all records will be chosen.
+# If selected, the Project will be limited to one of the selections.
+#
+#
+# PROJECT="ALL"
+# if [ $# -ge 1 ] ; then
+#    PROJECT=$1
+# fi

@@ -1,0 +1,159 @@
+.TH DBDCNV 1 "12 September 1995"
+.FB
+.SH NAME
+dbdcnv \- define a \fIFirstBase\fP database conversion dictionary
+.SH SYNOPSIS
+.B dbdcnv
+[\fB-d\fP \fIdatabase\fP] [\fB-i\fP \fIindex\fP]
+.SH DESCRIPTION
+.I Dbdcnv
+allows definition and modification of a 
+.I FirstBase
+database conversion dictionary. This dictionary will be used
+by 
+\fIdbcgen\fP(1)
+to generate converted databases.
+.PP
+A database conversion dictionary consists of 
+a series of field descriptors. Each field descriptor 
+contains at least a 
+.I field_name,
+with an optional
+.I field_size.
+.PP
+\fIDbdcnv\fP(1)
+allows creation and deletion of conversion dictionary
+field descriptors, as well as interactive
+information on the status of each field in the conversion.
+Every conversion field falls into one of the following three categories:
+.PD 1
+.TP 5
+.I existing field_name - matching sizes
+This field exists in the current database and the request size matches
+the actual size. This field will be copied as is to the converted
+database, and is marked
+.B <image>
+in the conversion status column.
+.TP 5
+.I existing field_name - mis-matched sizes
+This field exists in the current database and the request size does not
+match the actual size. Truncation or expansion of any field is allowed.
+(Except a date field!). This field will be marked with either
+.B <truncated>
+or 
+.B <expanded>
+in the conversion status column.
+.TP 5
+.I new field_name
+This field does not exist in the current database.
+This new name signifies that a new field of the specified size
+will be added to every record in the database.
+The contents of the field will be blanks.
+.PD
+.PP
+The status of every conversion field is displayed with the field
+on the screen during the
+editing session. 
+Fields not listed will not appear in the new database.
+It is also possible to specify the name of the
+new database-to-be.
+.PP
+For each pre-existing conversion field entered, the default size of the
+field is the size of that field as defined by the database dictionary.
+Thus, by using a series of <RETURN>s, \fIdbdcnv\fP(1) will set up an image
+conversion dictionary.
+.PP
+Like all other \fIFirstBase\fP dictionary editors, \fIdbdcnv\fP(1) has a
+set of commands
+that allow screen oriented modification of the conversion dictionary.
+The following is a summary of the commands accepted by 
+\fIdbdcnv\fP (1):
+.PD 0
+.TP 7
+.B <CTL>-H
+displays a summary of these commands.
+.TP 7
+.B ?[dfhiN]
+displays help on the database, formulas,
+user defined help files, index, or field N.
+.TP 7
+.B <RETURN>
+(return, or enter) pages forward one page in the database
+dictionary (same as 'f').
+Wrapping occurs at end of file.
+.TP 7
+.B @
+go into auto add mode.
+.TP 7
+.B #
+allow changes to line number #.
+.TP 7
+.B -
+standard END key \(em exits program and keeps all changes.
+.TP 7
+.B <CTL>-X
+aborts the program. The effect is to exit without
+overwriting the file, meaning all changes are lost.
+.TP 7
+.B b
+pages backward one page in the database conversion dictionary. 
+Wrapping occurs at beginning of file.
+.TP 7
+.B d
+delete function. Allows deletion of a single dictionary entry.
+All entries below deleted entry slide up one slot.
+.TP 7
+.B i
+insert function. Inserts a standard dictionary entry before any given
+field.
+All entries below inserted entry slide down one slot.
+.TP 7
+.B m
+miscellaneous information screen. Changes can be made to the conversion
+output file name.
+The default is 'convrt'.
+This screen is jumped to on the way out of \fIdbdcnv\fP(1) automatically.
+.PD
+.PP
+A list of simple editor commands appears on the 24th line of the 
+screen at all times, with help available by using the standard help 
+signal (<CTL>-H).
+Complete interactive error checking is done on the contents of
+all conversion descriptors.
+.PP
+Upon successful completion of a conversion dictionary, the user is given a
+chance to run the conversion generator. All arguments given
+to \fIdbdcnv\fP(1) are passed on to \fIdbcgen\fP(1).
+The processes are overlaid,
+meaning no new shells are generated in using this option.
+.SH FILES
+.PD 0
+.TP 10
+dbase
+default name for the database
+.TP 10
+index
+default name for the index
+.TP 10
+convrt
+default name for the converted database
+.TP 10
+*.idictc
+dictionary for conversion generator.
+.TP 10
+*.cdb
+\fIFirstBase\fP database.
+.TP 10
+*.map
+record map of \fIFirstBase\fP database.
+.PD
+.SH SEE ALSO
+dbedit(1), dbcgen(1), input(5)
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br
+.SH DIAGNOSTICS
+\fIDbdcnv\fP(1)
+will allow editing and modifying of any conversion dictionary at any time.
+These dictionary files should be write protected for complete protection.
+.br

@@ -1,0 +1,56 @@
+.TH FB_SYNC 3 "12 September 1995"
+.FB
+.SH NAME
+fb_sync \- synchronize memory with disk data
+.SH SYNOPSIS
+#include <firstbase/fb.h>
+.sp 1
+fb_sync(db)
+.br
+fb_database *db;
+.PP
+.SH DESCRIPTION
+The \fIFirstBase\fP system allows the use of multiple processes
+to read and write to the same database and index objects at the same time.
+\fIFb_sync\fP forces all data in memory to be
+written to the disk and updates the status of open database and index
+file descriptors.
+.PP
+By using \fIfb_sync\fP with \fIfb_lock\fP, the \fIFirstBase\fP system
+provides safe access to
+changing database objects, even under a Network File System (NFS).
+.PP
+For example, if multiple processes need to share an index, like the
+\fIFirstBase\fP tool \fIdbvedit\fP, then calls to \fIgethead\fP and
+\fIgetxhead\fP will be needed, and maybe even \fIgetxrec\fP.
+To ensure that data within the database is unchanging during these calls,
+this critical section can be protected by locking record zero. \fIFb_sync\fP
+is then used to force the current process to update each open
+file descriptor.
+.sp 1
+.nj
+.nf
+.ft CW
+   fb_lock(0, db, FB_WAIT);
+   fb_sync(d);
+   fb_getxhead(db->ihfd, &db->bsmax, &db->bsend);
+   fb_gethead(db);
+   if (fb_getxrec(key, d) == FB_AOK)
+      ...
+   fb_unlock(0, db);
+.ft
+.fi
+.ju
+.sp 1
+.PP
+.SH CLIENT/SERVER
+The \fIfb_sync\fP routine will transparently
+call the \fIfb_sync_clnt\fP mechanism
+when the global \fIFirstBase\fP variable \fIcdb_use_rpc\fP is set to one.
+See \fIfb_clnt_create\fP(3) for more details.
+.SH SEE ALSO
+database(4), fb_lock(3).
+.SH DIAGNOSTICS
+Mainly needed with NFS disks and files, \fIfb_sync\fP
+uses the UNIX fsync(2) utility.
+.br

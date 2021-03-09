@@ -1,0 +1,140 @@
+.TH OPENDB 3 "12 September 1995"
+.FB
+.SH NAME
+opendb, closedb \- open/close a \fIFirstBase\fP database
+.SH SYNOPSIS
+#include <firstbase/fb.h>
+.sp 1
+fb_opendb(db, mode, ixflag, ixoption)
+.br
+fb_database *db;
+.br
+int mode;
+.br
+int ixflag;
+.br
+int ixoption;
+.sp 1
+fb_closedb(db)
+.br
+fb_database *db;
+.PP
+.SH DESCRIPTION
+As explained in the \fIdatabase\fP(4)
+manual page, a database structure contains
+all of the elements needed for an entire database, including an array of
+field structures, all file names and descriptors, and index information.
+Altogether, the array of field structures can hold one complete record.
+.PP
+\fIFb_opendb\fP and \fIfb_closedb\fP provide mechanisms to open and close an
+entire
+database \(em including simple and autoindex structures. In other words, the
+entire database structure is initialized, with all needed file descriptors
+and structure pointers.
+\fIFb_opendb\fP will also provide file name extensions if needed.
+.PP
+The database structure needs to be allocated and the
+file names need to be in the
+database structure prior to the \fIfb_opendb\fP call. Typically, these
+preliminary tasks are done using \fIdballoc\fP(3) and \fIdbargs\fP(3).
+.PP
+The \fImode\fP reflects desired permissions to the
+database, with three possibilities \(em READ, WRITE, and READWRITE.
+If a database does not exist, and the mode is WRITE or READWRITE, 
+\fIfb_opendb\fP creates a database and database map, and initializes both.
+.PP
+The other two parameters are for database indexes. \fIIxflag\fP can take on
+three values. FB_NOINDEX means that no index will be opened at all.
+FB_WITHINDEX indicates that only the database index is to be opened.
+FB_ALLINDEX means that all indexes, including the autoindexes, are to be
+opened.
+.PP
+\fIIxoption\fP controls what \fIfb_opendb\fP will do if index errors occur
+during the database initialization.
+It also has three possible settings.
+FB_OPTIONAL_INDEX means that no error messages are produced.
+FB_MAYBE_OPTIONAL_INDEX will make error messages appear, but
+control returns to the caller.
+FB_MUST_INDEX will make \fIfb_opendb\fP die after displaying the
+error message.
+.PP
+Fb_closedb closes all open file descriptors (databases, indexes, and the
+database map), and frees up (most) all allocated space.
+.PP
+NOTE: There are allocated areas that fb_closedb does not free up
+due to the underlying \fIFirstBase\fP structures for handling more than one
+open database. To free and reset these areas, use \fIfree_globals\fP(3)
+after all the databases have been closed using \fIfb_closedb\fP.
+.SH EXAMPLES
+Before opening a database from a C program, the database needs to be
+defined using the \fIFirstBase\fP tool \fIdbdbas\fP(1).
+Then, assuming the database is
+named \fIPhone\fP, the following could be used to initialize and
+open this database without any indexes:
+.nf
+.sp 1
+.ft CW
+   fb_database *db;
+   ...
+   db = fb_dballoc();
+   fb_dbargs("Phone", NIL, db);
+   fb_opendb(db, READWRITE, FB_NOINDEX, 0);
+.ft
+.sp 1
+.fi
+As another example, the following code fragment will set up the database
+variables and open the database named \fIPhone\fP using an index
+named \fIClients\fP:
+.nf
+.sp 1
+.ft CW
+   fb_database *db;
+   ...
+   db = fb_dballoc();
+   fb_dbargs("Phone", "Clients", db);
+   fb_opendb(db, READWRITE, FB_WITH_INDEX, FB_MUST_INDEX);
+.ft
+.sp 1
+.fi
+.sp 1
+.fi
+.SH FILES
+.PD 0
+.TP 10
+dbase
+default name of \fIFirstBase\fP database and screen.
+.TP 10
+index
+default name of \fIFirstBase\fP index.
+.TP 10
+\\\\.cdb
+extension of \fIFirstBase\fP database.
+.TP 10
+\\\\.map
+extension of record map for \fIFirstBase\fP database.
+.TP 10
+\\\\.idx
+extension of \fIFirstBase\fP database index.
+.TP 10
+\\\\.ddict
+extension of \fIFirstBase\fP database dictionary.
+.TP 10
+\\\\.idict
+extension of \fIFirstBase\fP database index dictionary.
+.PD
+.SH CLIENT/SERVER
+The \fIfb_opendb\fP and \fIfb_closedb\fP routines will transparently
+call the \fIfb_opendb_clnt\fP and \fIfb_closedb_clnt\fP
+mechanisms when the global \fIFirstBase\fP variable \fIcdb_use_rpc\fP
+is set to one. See \fIfb_clnt_create\fP(3) for more details.
+.SH SEE ALSO
+database(4), index(4), dballoc(3), dbargs(3), openidx(3), fb_free_globals(3).
+.SH DIAGNOSTICS
+If \fIfb_opendb\fP
+cannot open the database file, it will die with an error message.
+However, if a program sets the global variable \fIcdb_returnerror\fP to one
+before calling \fIfb_opendb\fP, then the process will not terminate on errors.
+In this case, \fIfb_opendb\fP will return either FB_AOK or FB_ERROR. The global
+variable \fIcdb_error\fP will be set on FB_ERROR returns. See \fIsetup\fP(5)
+for details on these and other global variables.
+.br

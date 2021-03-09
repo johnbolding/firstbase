@@ -1,0 +1,96 @@
+.TH DBDSCR 1 "12 September 1995"
+.FB
+.SH NAME
+dbdscr \- define a \fIFirstBase\fP database screen dictionary
+.SH SYNOPSIS
+.B dbdscr
+[\fB-d\fP \fIdatabase\fP] [\fB-s\fP \fIscreen\fP]
+.SH DESCRIPTION
+.I Dbdscr
+allows definition and modification of a 
+.I FirstBase
+database screen dictionary. 
+The created dictionary can later be used by
+\fIdbedit\fP(1)
+to effectively mask off and/or reorder the fields of a database.
+In other words, a screen dictionary can be used to provide a logical
+to physical map for the database fields.
+.PP
+A database screen dictionary consists of 
+a series of screen descriptors. Each screen descriptor 
+contains a
+.I field_name,
+and an optional
+.I default-string.
+.PP
+Like all other \fIFirstBase\fP dictionary editors, \fIdbdscr\fP(1) has a set of commands
+that allow screen oriented modification of the screen dictionary.
+The following is a summary of the commands accepted by 
+\fIdbdscr\fP(1):
+.TP 7
+.B <CTL>-H
+displays a summary of these commands.
+.TP 7
+.B ?[dfhiN]
+displays help on the database, formulas,
+user defined help files, index, or field N.
+.TP 7
+.B <RETURN>
+(return, or enter) pages forward one page in the database
+dictionary (same as 'f').
+Wrapping occurs at end of file.
+.TP 7
+.B @
+go into auto add mode.
+.TP 7
+.B #
+allow changes to line number #.
+.TP 7
+.B -
+standard END key \(em exits program and keeps all changes.
+.TP 7
+.B <CTL>-X
+aborts the program. The effect is to exit without
+overwriting the file, meaning all changes are lost.
+.TP 7
+.B b
+pages backward one page in the database screen dictionary. 
+Wrapping occurs at beginning of file.
+.TP 7
+.B d
+delete function. Allows deletion of a single dictionary entry.
+All entries below deleted entry slide up one slot.
+.TP 7
+.B i
+insert function. Inserts a standard dictionary entry before any given
+field.
+All entries below inserted entry slide down one slot.
+.PP
+A list of simple editor commands appears on the 24th line of the 
+screen at all times, with help available by using the standard help 
+signal (<CTL>-H).
+Complete interactive error checking is done on the contents of
+all screen descriptors.
+.PP
+Upon successful completion of a screen dictionary, the user is given a
+chance to run the database editor. All arguments given
+to \fIdbdscr\fP(1) are passed on to \fIdbedit\fP(1).
+.SH FILES
+.PD 0
+.TP 10
+dbase
+default name for the database screen
+.TP 10
+*.sdict
+dictionary for database screen.
+.PD
+.SH SEE ALSO
+dbedit(1), dbdbas(1)
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br
+.SH DIAGNOSTICS
+\fIDbdscr\fP(1)
+will allow editing and modifying of any screen dictionary at any time.
+These dictionary files should be write protected for complete protection.
+.br

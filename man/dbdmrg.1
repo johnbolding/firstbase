@@ -1,0 +1,169 @@
+.TH DBDMRG 1 "12 September 1995"
+.FB
+.SH NAME
+dbdmrg \- visual merge editor based on \fIvi\fP(1)
+.SH SYNOPSIS
+.B dbdmrg
+[\fB-d\fP\ \fIdatabase\fP]
+[\fB-i\fP\ \fIindex\fP]
+[\fB-s\fP \fIscreen\fP ] \
+[\fB-w\fP\ \fIwidth\fP]
+mergefile
+.PD
+.SH DESCRIPTION
+.I Dbdmrg
+is a full screen editor that allows creation of \fIFirstBase\fP merge documents
+in a "what you see is what you get" style.
+During this editing, \fIdbdmrg\fP(1) displays the document almost as it will
+look after running \fIdbmerge\fP(1) on it. The names of any merged fields
+are used in place of actual data.
+.PP
+Since \fIdbdmrg\fP(1) is based on the common UNIX editor \fIvi\fP(1),
+even users unfamiliar with \fIdbdmrg\fP(1) will be able to create custom
+printouts.
+Many of the standard \fIvi\fP(1) commands for editing lines and controlling
+screen and cursor motion have been implemented, including arrow keys.
+.PP
+The general idea is to use \fIdbdmrg\fP(1) to develop printouts or look
+through the database. The \fImergefile\fP that is created can be used
+by \fIdbmerge\fP(1) without going through \fIdbdmrg\fP(1).
+.PP
+\fIDbdmrg\fP(1) keys on the character \fB$\fP to denote the position of
+a database field token. Normally, when in input mode, \fIdbdmrg\fP(1) will
+merely copy the characters typed into the current \fImergefile\fP.
+But, when a \fB$\fP is used, \fIdbdmrg\fP(1) goes into Token Level
+to accept the definition of the indicated token.
+.PP
+Token Level editing, which occurs in a pseudo-window in either the
+upper right or lower right corner, is done using the same keystrokes
+as when entering normal text, i.e. \fIvi\fP(1) keystrokes.
+Again, the arrow keys can be used.
+.PP
+Two items are selected at Token Level: the field name, and the display size.
+When editing the field name, \fIdbdmrg\fP(1) produces a list of the possible
+tokens to select from. This list can be examined using standard \fIvi\fP(1)
+keystrokes, i.e. scrolling up and down, jumping to a certain line, etc.
+.PP
+Also edited at Token Level is the display size for that one token.
+This size is used by \fIdbdmrg\fP(1) to show what the size of the field
+(in reverse video) and by \fIdbmerge\fP(1) when results are generated.
+If a size is provided, the token width will be adjusted, blank padded or
+truncated to an exact fit. The default width is 80.
+.PP
+To enter an actual dollar sign (\fB$\fP) let the token remain empty.
+Use a \fI$\fP command from Token Level if the token is already defined.
+A dollar sign always has a width of one.
+.PP
+One command in \fIdbdmrg\fP(1) not in vi is the \fB:m\fP or \fB:merge\fP
+command. This command invokes Merge Level and
+provides a method of generating the results of the
+\fImergefile\fP being edited without exiting \fIdbdmrg\fP(1).
+The screen is split in two, and the user is allowed to edit two pieces
+of information that will control the merge process: database index name
+and number of records to process.
+.PP
+Of course, these Merge Level pieces of information are also edited using
+standard \fIvi\fP(1) keystrokes, including the arrow keys.
+.PP
+If a <RETURN> is entered while in Merge Level with the cursor over the \fBy\fP
+on the final "Run Merge Request?" question, the \fImergefile\fP will be written
+out and used with \fIdbmerge\fP(1) to generate a temporary output file.
+This output file is paged in the Merge Level window.
+.PP
+Using \fB-s\fP to set a screen dictionary limits the set of field names
+that are displayed during the editing of field tokens.
+The \fB-w\fP switch allows setting the width of the \fImergefile\fP being
+created. It is used for documents wider than a display terminal.
+\fIDbdmrg\fP(1) will properly scroll left and right as needed.
+.SH COMMANDS
+Here is a list of the \fIvi\fP(1) commands implemented for \fIdbdmrg\fP(1):
+.br
+.nf
+.nj
+.ft CW
+.sp 1
+^B          - back page
+^D          - down 1/2 page
+^E          - down one line
+^F          - forward full page
+^L or ^R    - redraw
+^N or >     - page right (or Next Field at Token Level)
+^P or <     - page left (or Previous Field at Token Level)
+^U          - up half page
+^X^E        - merge command (:m)
+^Y          - up one line
+SPACE       - right one cell
+DOT         - (\fB\.\fP) repeat last non-motion command
+(           - left edge of window
+)           - right edge of window
+RETURN      - down one cell
+j           - down one cell
+k           - up one cell
+l           - right one cell
+h           - left one cell
+0           - begin on line
+$           - end of line
+(count) G   - go to to count line, default is end of mergefile
+zCR         - redraw with current line at top
+z-          - redraw with current line at bottom
+z.          - redraw with current line at middle
+(count) x   - delete character (works inside a token to delete entire token)
+i           - insert
+a           - append
+r           - replace one character
+R           - replace until escape
+D           - delete from cursor to end of line
+dd          - delete line
+dw          - delete word (or token)
+J           - join line
+w           - word forward
+b           - word backward
+e           - end of word
+O           - open line above
+o           - open line below
+P           - put line above
+p           - put line below
+(count) y   - yank count lines (default is 1)
+:m          - invoke Merge Level
+:w          - write file
+:q          - quit file
+:q!         - quit without keeping changes
+ZZ          - write file and quit
+^W          - word erase (during insert)
+^U          - line erase (during insert)
+$           - during insert goes into Token Level
+$           - during Token Level inserts a dollar sign ($)
+.sp 1
+.ft
+.fi
+.ju
+.SH NOTES
+\fIDbdmrg\fP(1) has the ability to use the display hardwares insert and delete
+capabilities to provide more efficient text editing and display.
+However, when using bit mapped displays, it is much cleaner to \fInot\fP
+allow the hardware to do the inserts and deletes. The default is to \fInot\fP
+use these hardware insert and delete features.
+.PP
+To \fIenable\fP the hardwares use of insert and delete capabilities,
+the FirstBase environment variable USE_INSERT_CHAR must be set to ON.
+See \fIsetup\fP(5).
+.SH FILES
+.PD 0
+.TP 10
+dbase
+default name of database.
+.TP 10
+*.cdb
+\fIFirstBase\fP database.
+.TP 10
+*.map
+record map of \fIFirstBase\fP database.
+.TP 10
+*.ddict
+\fIFirstBase\fP database dictionary file.
+.PD
+.SH SEE ALSO
+dbmerge(1), dbigen(1), dbawk(1), dbemit(1), dbpgen(1)
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br

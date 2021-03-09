@@ -1,0 +1,28 @@
+:
+echo Your Current Working Directory is: `pwd`
+echo
+echo -n "Name of directory(s) to create? "
+read dir
+echo
+if test -z "$dir"
+   then
+   exit
+fi
+if test -r "$dir"
+   then
+   echo "A directory or file by that name already exists."
+   echo "Nothing has been done."
+   exit
+fi
+echo Your new directory will be named: `pwd`/$dir
+echo
+echo -n "If this is Not correct, <break> out now, or use 'n' "
+read response
+if [ "$response" = n ]
+   then
+   echo "Nothing has been done."
+else
+   mkdir $dir
+   echo
+   echo "A directory named `pwd`/$dir has been created."
+fi

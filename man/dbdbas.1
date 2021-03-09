@@ -1,0 +1,466 @@
+.TH DBDBAS 1 "12 September 1995"
+.FB
+.SH NAME
+dbdbas \- define a \fIFirstBase\fP database dictionary
+.SH SYNOPSIS
+.B dbdbas
+[\fB-d\fP \fIdatabase\fP]
+.SH DESCRIPTION
+.I Dbdbas
+allows definition and modification of a 
+.I FirstBase
+database dictionary. This dictionary will be used by 
+\fIdbedit\fP(1)
+to create and maintain the actual database. Furthermore, virtually
+every program in the 
+.I FirstBase
+system reads this dictionary to determine the size and shape
+of the database it is working on.
+.PP
+A database dictionary consists of 
+a series of field descriptors. Each field descriptor contains at least
+three field attributes:
+.I field_name, field_type,
+and
+.I field_size.
+These and optional field attributes are described below.
+.PP
+\fIDbdbas\fP(1)
+allows creation and deletion of field descriptors, as well as modification
+of field attributes without disturbing attributes already in place.
+The overall effect is a 
+.I database-dictionary 
+.I screen editor
+complete with an auto add mode, as well as insert and delete capabilities.
+.PP
+A list of simple editor commands appears on the 24th line of the 
+screen at all times, with the standard help signal offering a longer
+summary of possible commands.
+Complete interactive error checking is done on the contents of
+all attributes.
+.PP
+The following is a list of all field attributes and their purpose:
+.TP 8
+.B name
+gives a label to a field. 
+This label or field name
+appears on all screens involving the corresponding field, and 
+is also used to match indexes with \fIFirstBase\fP
+generator requests, etc. Unique naming is enforced (i.e. it is an error for
+two fields to have the same label as their names). The name needs to be 
+alphanumeric also, although blanks are allowed.
+.TP 8
+.B type
+provides the type code of the field. Valid types are:
+.sp 1
+.B a 
+- alphanumeric
+.br
+.B b 
+- binary
+.br
+.B A 
+- alpha
+.br
+.B c
+- choice
+.br
+.B C
+- choice (no screen display)
+.br
+.B d 
+- date
+.br
+.B f 
+- floating point
+.br
+.B F
+- Formula (virtual)
+.br
+.B L
+- Link (to another database)
+.br
+.B n 
+- numeric
+.br
+.B N 
+- positive numeric (>= 0)
+.br
+.B U 
+- Uppercase. (Alphanumeric).
+.br
+.B X 
+- Extended Choice/Help.
+.br
+.B $ 
+- dollar
+.sp 1
+Input into the described field (using dbedit)
+will be checked according to the value
+of this field attribute. Note that binary fields can only be manipulated
+through the use of the FirstBase Library routines \fIfetch\fP(3) and \fIstore\fP(3).
+.sp 1
+For more details on the behavior of each of these field types, see the
+chapter on dbedit in the \fIFirstBase\fP User's Guide and Reference Manual.
+.TP 8
+.B size
+maximum size of the field. This size is limited only by the hardware.
+.TP 8
+.B default
+characters that match the type of the field that are used in case of
+user default when editing the field (using \fIdbedit\fP(1)).
+If no default attribute is defined, the
+field is given 
+.B *forced entry* 
+status. If blanks are used as the default,
+this is redisplayed as a single '_' (underscore) for visibility.
+.sp 1
+Special meta-defaults that allow softer, less rigid defaults are:
+.sp 1
+.RS 8
+.TP 14
+.B $AUTODATE
+is not really a true default, just an aid. AUTODATE is used for large text
+fields that are intended to be used as note collection places, i.e. for
+phone logs or meeting notes. When a long field is edited using the visual
+editor, \fIdbvedit\fP(1) will concatenate the current date and time
+to the end of the field before the user gets it.
+.TP 14
+.B $AUTOINCR
+consults the pre defined auto index to determine the last number in use.
+This number is incremented and used when writing the current record.
+Until that time, a \fB*\fP marker is used. (The marker is used in case the
+record is aborted without being saved).
+.sp 1
+Remember:
+the field using this auto increment feature MUST be auto indexed.
+Auto increments work in a multi-user environment.
+Also, there is an environment variable, \fIFORCEAUTOINCR\fP, that can be
+used to alleviate the need for the <RETURN> during editing of these fields.
+.sp 1
+Additionally, for ensured proper behavior, fields using the automatic
+increment function should be locked (see \fBlock\fP below) so that
+the increment key is not overwritten (inadvertently).
+.TP 14
+.B $DATE
+defaults to current date.
+.TP 14
+.B $INCR
+defaults to 'previous entry plus one'.
+.TP 14
+.B $MINUS
+defaults to current entry for the field, minus one.
+.TP 14
+.B $MTIME
+defaults to the current (military) time. Format is HH:MM:SS.
+.TP 14
+.B $NPREV
+defaults to negative of previous entry for that field.
+.TP 14
+.B $PLUS
+defaults to current entry for the field, plus one.
+.TP 14
+.B $PREV
+defaults to previous entry for that field.
+.TP 14
+.B $TIME
+defaults to the current time. Format is HH:MM.
+.TP 14
+.B $USER
+defaults to the name of the user.
+.br
+.sp 1
+.RE 8
+'	# need to reset the outside layer for note. use 'blank' label.
+.TP 8
+\
+\
+.br
+.sp 1
+Note: all database fields have their own increment and previous areas
+that are used for $INCR and $PREV.
+.sp 1
+In the case of a 
+.B formula
+field, the default input is specialized to achieve formula input.
+Formulas use numbers to represent fields (i.e. 16 for field 16)
+and a prepended 'C' or 'c' for constants (i.e. C4.5 for 4.5).
+Addition 
+.B (+), 
+subtraction 
+.B (-), 
+multiplication 
+.B (*), 
+and division
+.B (/)
+are allowed as operators. 
+.sp 1
+.B Note:
+Only dollar, float, numeric and positive numeric
+fields can be used in formula
+calculations. This means references to other formulas will not work.
+Also, all formulas read from left to right, and there is no precedence
+among the operators.
+.sp 1
+The precision of a formula is specified by appending a colon 
+.B (:)
+to the formula followed by a number.
+Default precision is two.
+.sp 1
+For example, if field 5 is hours and field 16 is days, then
+.I 5*C4.5:2
+would specify a field that would show the pay due to anyone working
+at $4.50 per hour. And
+.I 5/16:6
+would show the average number of hours worked per day, carried out to
+six (6) decimal places.
+.sp 1
+All formula entries are parsed to determine whether the formula is valid
+at that moment, with interactive error messages to help debug long
+formulas. This means re-editing of a formula may be necessary if it has
+forward references in it. (A forward reference is a reference to a field
+not yet defined).
+.sp 1
+Note: these basic formulas are subsumed by the macro field feature.
+If this simplistic formula entry described here is inadequate,
+use a macro field to provide a more complex default. See
+the description of macro files below, and the manual page \fImacro\fP(5).
+.sp 1
+In the case of a 
+.I link
+field, the default input is specialized to handle a link address.
+Link addresses contain four parts or components, with
+each component separated by an exclamation point.
+.sp 1
+An entire link address looks something like
+.ti 9
+.ft CW
+local-field!link-index!link-dbase!far-field
+.ft
+.br
+where \fIlocal-field\fP is in the current database,
+\fIlink-index\fP and \fIlink-dbase\fP are an actual \fIFirstBase\fP
+index/database pair, and the \fIfar-field\fP is in the \fIlink-dbase\fP.
+The following is a list of each component and its meaning:
+.br
+.RS 8
+.TP 12
+.B local-field
+The first link address component is a field name that designates a Link 
+Cross Reference Field Value, a field
+from the current database that 
+will be used to locate the linked 
+record in the \fIfar\fP (linked) database.
+.TP 12
+.B link-index
+The \fIfar\fP index that is searched to 
+locate the value indicated by the Link 
+Cross Reference Field Value.
+.TP 12
+.B link-dbase
+The database where the actual linked 
+record exists. The record number found in 
+the link-index is used to extract a record 
+from this \fIfar\fP database.
+.TP 12
+.B far-field
+The last link address component is a field name that designates the actual 
+Link Field Value from 
+the \fIfar\fP database. This field name
+points to the field that will be 
+available in the current database, but
+is actually stored in the \fIfar\fP (link) database.
+.br
+.RE 8
+'	# need to reset the outside layer for note. use 'blank' label.
+.TP 8
+\
+\
+.br
+.sp 1
+There is also a link method that allows pointing to absolute records.
+In this case, although a link-index value is listed in the link formula,
+the link index is ignored, and the absolute record number indicated is
+used as the link record.
+.sp 1
+The entire link address using this feature looks like
+.ti 9
+.ft CW
+R@local-field!link-index!link-dbase!far-field
+.ft
+.br
+where \fBR\fP
+is the absolute record number of the link record. Note that these link
+values will appear on \fIdbedit\fP(1) and \fIdbvedit\fP(1) screen pages even
+in Command Level.
+.sp 1
+.TP 8
+.B comment
+words or characters that can appear on the screen with the field whenever that
+field is edited (using \fIdbedit\fP(1)).
+Note: the length of a comment plus the
+length of the corresponding field must fit into the \fIdbedit\fP(1) display
+window (50 characters wide). Comments have no meaning for
+fields larger than this window size.
+.TP 8
+.B comment location
+specifies whether user defined screen comment appears (b)efore or (a)fter the
+edit-field space.
+.TP 8
+.B lock
+allows locking of a field. If set to y(es), the field may not be edited
+after initial input. Otherwise, it is set to n(o).
+.TP 8
+.B help
+allows the specification of a file that is bound to that field. The
+contents of this file are available to the user in many programs 
+through the ?N help
+mechanism where N represents the number of the field. \fIDbedit\fP(1)
+also allows
+this file to be displayed upon receiving the standard help signal
+(<CTL>-H) during the input process for that field.
+.TP 8
+.B choice
+allows the specification of a file that will be used as the choice input
+definitions for a field in the database. Note that if there is a choice 
+file, the only way to tie in a different helpfile is by using the
+\fB$HELP\fP directive \fIwithin\fP the actual choicefile.
+.sp 1
+The choice file is only allowed for a field defined to be of type choice. 
+See \fIchoice\fP(5) for a definition of the choice file layout.
+In addition, the AddChoice option flag  can be set so users can add
+new selections to a choicefile (for future use).
+.TP 8
+.B extended choice
+allows the specification of a file that will be used as the extended
+choice file, a dictionary file of sorts that is used during extended
+choice selections.
+Note that if there is an extended choice 
+file, there is no help nor choice file.
+The extended choice file is only allowed for a field
+defined to be of type extended choice. 
+See \fIxchoice\fP(5) for a definition of the extended choice file layout.
+.TP 8
+.B autoindex
+indicates to \fIFirstBase\fP that an index for this field is to be
+maintained by dbedit. The index name must be unique among the other
+autoindex names, and will only be used
+for tracking all of the entries in the database by the indicated
+field. This means that
+all aspects of index maintenance can be automated for this index.
+.sp 1
+An autoindex can also be defined to only allow unique entries into the
+field during use of \fIdbedit\fP(1). For example, if a field for an 
+account number was being autoindexed with the unique entry option set,
+then you could not enter two account number 101's into the dbase.
+.sp 1
+NOTE: A better method for defining autoindex fields is available using
+a *.auto file. See \fIautoindex\fP(5).
+.TP 8
+.B range
+allows the specification of a valid range for fields values.
+All ranges are of the form 'xxx-yyy' where xxx is the low end of the
+range and yyy is the high end.
+Ranges work with any field, but date fields must define the range
+using YYMMDD format.
+.sp 1
+Ranges can also be defined using comma separated fields of accepted values.
+In other words, the range 'y,n' will only accept a 'y' or an 'n'.
+Any number of comma separated values can be used.
+.TP 8
+.B macro
+allows the specification of a macro file that will be used in place of the
+normal editing of this field during the use of the database editor
+\fIdbvedit\fP(1). (Again: this works for \fIdbvedit\fP(1) only!)
+.sp 1
+The macro file specified can assign a default string or value
+to the field, or can provide the entrance to conditional editing of
+other fields. The contents of the current record can be tested,
+additional input can be requested, or complex functions can be generated.
+.sp 1
+A full description of macro files is in \fImacro\fP(5).
+.PP
+Per normal \fIFirstBase\fP programs, the user is given a chance to change and
+modify
+data on the screen via the standard 'any change' screen. This prompt
+is displayed at the bottom of the screen and the program awaits
+interactive commands.
+The following is a list of valid 
+\fIdbdbas\fP(1)
+commands:
+.TP 7
+.B <CTL>-H
+displays a summary of these commands.
+.TP 7
+.B ?[dfhiN]
+displays help on the database, formulas,
+user defined help files, index,
+or field N.
+.TP 7
+.B <RETURN>
+(return, or enter) pages forward one page in the database
+dictionary.
+Wrapping occurs at end of file.
+.TP 7
+.B @
+go into auto add mode. Note that once a database has data in it,
+only Formula and Link type fields can be added.
+.TP 7
+.B #
+allow changes to line number #.
+.TP 7
+.B -
+standard END key \(em exits program and keeps all changes.
+.TP 7
+.B <CTL>-X
+aborts the program. The effect is to exit without
+overwriting the file, meaning all modifications are lost.
+.TP 7
+.B b
+pages backward one page in the database dictionary. 
+Wrapping occurs at beginning of file.
+.TP 7
+.B d
+delete function. Allows deletion of a single dictionary entry.
+All entries below deleted entry slide up one slot.
+.TP 7
+.B i
+insert function. Inserts a standard dictionary entry before any given
+field.
+All entries below inserted entry slide down one slot.
+.PP
+\fBNOTE:\fP in the \fIFirstBase\fP database dictionary some
+file names are used to specify other data objects: helpfiles, choicefiles,
+auto indexes, and database link files. When a \fIFirstBase\fP tool is invoked,
+if the working database is in 
+a different directory, these file names are expanded to reflect the working
+directory. File names beginning with a dot (.) or a slash (/) will not be
+expanded.
+.SH FILES
+.PD 0
+.TP 10
+dbase
+default name of \fIFirstBase\fP database
+.TP 10
+*.ddict
+dictionary for database.
+.TP 10
+*.cdb
+database.
+.TP 10
+*.map
+record map of \fIFirstBase\fP database.
+.PD
+.SH SEE ALSO
+dbedit(1), dbcgen(1), choice(5), ddict(5),
+defaults(5), input(5), macro(5), screens(5),
+setup(5), xchoice(5)
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br
+.SH DIAGNOSTICS
+\fIDbdbas\fP(1) will not allow structure
+modifications to a dictionary file if a database for that
+dictionary exists in the working directory. Modifications of
+defaults, index names, etc. are allowed whenever desired.
+.br

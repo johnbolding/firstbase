@@ -1,0 +1,141 @@
+.TH DBIGEN 1 " 4 April 1996"
+.FB
+.SH NAME
+dbigen \- generate a \fIFirstBase\fP index
+.SH SYNOPSIS
+.B dbigen
+[\fB-b\fP] [\fB-c\fP] [\fB-f\fP] [\fB-n\fP] [\fB-r\fP] [\fB-y\fP] [\fB-B\fP]
+[\fB-d\fP \fIdatabase\fP]
+[\fB-i\fP \fIindex\fP] [\fB-x\fP \fIxref-index\fP]
+[\fB-btree\fP]
+.SH DESCRIPTION
+.I Dbigen
+generates a \fIFirstBase\fP Btree+ index or a Normal or Flat index using an
+index generator dictionary defined via
+\fIdbdind\fP(1).
+This index dictionary is traversed during
+index generation to selectively
+determine which records are to be included in the
+index being built.
+.PP
+The default type of index defined via \fIdbdind\fP(1) is a Btree+ index.
+However, by using the \fB-btree\fP command line flag,
+\fIdbigen\fP(1) can be forced to create a Btree+ index even when the
+dictionary represents a normal index.
+.PP
+For more information on the selection criteria in the index dictionary,
+see the discussion in \fIdbdind\fP(1).
+.PP
+Note that \fIdbigen\fP(1) can detect when an index is already up to date.
+In this case, an index will not be generated. Override this with the
+\fB-f\fP (force) option.
+.PP
+The \fB-B\fP flag will enable the fastest throughput of records from the
+database. However, since the database map is not followed when this option
+is used, the database must be clean (as in \fIdbclean\fP(1)),
+with no free list entries.
+(See \fIdatabase\fP(4)). If this flag can be used, the index
+generation is speeded up a great deal by internal record buffering.
+Note that no cross reference index can be used with record buffering, and
+that record locking is disabled.
+.PP
+The \fB-b\fP
+flag will run the \fIFirstBase\fP tool in batch mode, suitable for shell
+scripts.
+This mode produces no output on the terminal, thus can also be used
+when running the process in the background.
+The \fB-y\fP flag will run the tool at the terminal without pausing to ask
+the user if existing files can be destroyed and without displaying
+a 'picture' of the requested task.
+.PP
+The \fB-c\fP flag is for \fIcase-insensitive\fP searching. All tests for
+string matches, both normal and regular expressions, are done using
+UPPERCASE so that matches are case insensitive.
+.PP
+The \fB-f\fP flag is used to force \fIdbigen\fP(1) to run \(em even if it
+thinks it does not need to. Use of this flag is equivalent to
+runing \fIrmidx\fP(8) before running \fIdbigen\fP(1).
+.PP
+When using the regular expression pattern matching mechanism, some
+machines allow the meta character '.' to match a newline character and some
+do not. Typically, BSD UNIX allows this match and UNIX System V does not.
+The \fB-n\fP flag can be used to force \fIFirstBase\fP running on System V UNIX
+to map newlines to blanks
+so that the '.' within regular expressions \fIwill\fP match a newline.
+.PP
+The \fB-r\fP
+flag will cause dbigen to report
+the actual number of records selected \(em written to the standard output \(em 
+even when the process is run in batch mode.
+.PP
+\fIDbigen\fP(1)
+parses the index dictionary and displays an image of what it
+will generate. The user can abort at this point if necessary.
+.PP
+The \fB-x\fP command line
+option can be used to enter the name of an existing \fIFirstBase\fP index to
+use
+in building the new index. If this existing index is to be used to process
+the database to build the target index, and if this existing index is out
+of date, an attempt is made to automatically update it first.
+.PP
+Thus, when using the \fB-x\fP option,
+the existing index becomes a cross reference index.
+Without this option, the entire \fIFirstBase\fP database is used to select
+and build the requested index.
+.PP
+After successful index generation, the index is sorted automatically.
+The standard UNIX sort facility, \fIsort\fP(1), is used for this task.
+.PP
+.I Note:
+date field indexes are reformatted before being written to the index
+to enable the system sort to work properly. The internal representation of
+indexed dates is YYMMDD (year/month/day) instead of the normal MMDDYY.
+This is meant to be transparent to users.
+.PP
+All NEWLINE characters in the sort by strings are converted to BLANKs.
+.SH EXAMPLES
+To run a simple interactive dbigen, use
+.sp 1
+.ti +5
+dbigen -d dbase -i index
+.sp 1
+To run this in batchmode, providing a second index to work from, use:
+.sp 1
+.ti +5
+dbigen -b -d dbase -i index -x xindex
+.SH FILES
+.PD 0
+.TP 10
+dbase
+default name for the \fIFirstBase\fP database.
+.TP 10
+index
+default name for the \fIFirstBase\fP index.
+.TP 10
+*.idicti
+dictionary for index generator.
+.TP 10
+*.idict
+index header information.
+.TP 10
+*.cdb
+\fIFirstBase\fP database.
+.TP 10
+*.idx
+\fIFirstBase\fP index.
+.TP 10
+*.map
+record map of \fIFirstBase\fP database.
+.PD
+.SH SEE ALSO
+dbdind(1), dbedit(1), sort(1), dbfilter(1), firstbase(5), rmidx(5)
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br
+.SH DIAGNOSTICS
+If the index file already exists, \fIdbigen\fP(1)
+will pause and ask permission to overwrite it, unless batch mode or yes mode
+is indicated, in which case dbigen will assume it is ok to overwrite
+the existing index.
+.br

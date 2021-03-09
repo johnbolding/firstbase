@@ -1,0 +1,358 @@
+.TH DBDIND 1 "12 September 1995"
+.FB
+.SH NAME
+dbdind \- define a \fIFirstBase\fP index generator dictionary
+.SH SYNOPSIS
+.B dbdind
+[\fB-d\fP \fIdatabase\fP] [\fB-i\fP \fIindex\fP] [\fB-n\fP]
+.SH DESCRIPTION
+.I Dbdind
+allows definition and modification of a 
+\fIFirstBase\fP index generator dictionary via a screen oriented editor.
+This dictionary is then used by
+\fIdbigen\fP(1)
+to produce a \fIFirstBase\fP 
+.I index.
+.PP
+Note: the default index produced is a FirstBase Btree+ index.
+.PP
+Many tools in the \fIFirstBase\fP use indexes to provide structure and
+order for a database. Any index created can be used anywhere an index
+is allowed \(em regardless of the size and shape of the index.
+An index can contain an entry for each record of a database, or a selected
+few. \fIDbdind\fP(1) is the formal mechanism for defining the index dictionary
+needed by \fIdbigen\fP(1) to create the index.
+.PP
+The index dictionary is a list of selection criteria items
+that are used as a road map to determine
+which records of a database are to be referenced by the index-to-be.
+This list of items is held together by 'logical connectors' \(em 
+connectors that allow a selective road map to be built.
+.PP
+Often, the index dictionary contains a single criterion
+used to select all records of a database.
+This complete index is used merely
+to impose some form of sorted order on a database.
+.PP
+Other times, the index dictionary contains many selection criteria.
+In these cases,
+a record from the database is included in the final index only if
+it passes some or all of the tests indicated by each
+selection criterion.
+.PP
+A single selection criterion
+consists of a valid database field name along with
+two values that govern selection of records based on the contents of
+the specified field within each record.
+These two selection values
+effectively collect a selected group of records that fall
+within specific ranges of values for that
+particular database field.
+.PP
+Two or more selection criteria items are bound together by a logical
+connector \(em either an 'AND' or an 'OR' connection. By placing many
+selection criteria together and binding them with logical connections,
+a very selective index can be created.
+.PP
+For example, if you wanted a list of all clients from a database that
+are between the ages of 25 and 30 AND live in New York AND are
+teachers, you would have three selection criteria \(em each bound together with
+the logical connector 'AND'.
+.PP
+In this example, the first criterion is 'Age', and the age must fall
+between 25 and 30. The '25' and the '30' are the two selection values
+for the Age item that provide an acceptable range of values.
+The next selection criterion is 'Home Address', and
+the desired range is very small \(em 'New York'. These two selection
+criteria \(em 'Age' and 'Home Address' \(em are bound together with
+an 'AND' connector. The same follows for the third criterion, 'Profession'.
+.PP
+Of the possible logical connectors, the 'And' has a higher precedence,
+meaning it is stronger than any 'Or' connections. However, there
+is a 'Simple And' connector that can be used in the midst of 'Or'
+connectors. This 'Simple And' has lower precedence than the 'Or'
+connector.
+.PP
+As mentioned, each selection criterion consists of a field name along with
+two selection values. Special 'meta-value' entries are used as these selection
+values to limit selection, gather all records, or even to negate
+a criterion.
+.PP
+To capture all the records of a database, regardless of what is stored in
+the database under the listed selection field_name is accomplished
+by using the meta-value '$ALL' as the first selection value.
+This is the default for the first selection value.
+.PP
+Records that match
+one value exactly can be selected by entering the first value and
+using the meta-value '$NONE' as the second value. This is the
+default for the second selection value.
+.PP
+Records that have
+a null or empty value can be selected by
+using the meta-value '$EMPTY' as the first value. Alternately, '$NOT' can
+be the first value, '$EMPTY' the second value to capture records that
+DO NOT have an empty or null value.
+.PP
+Records that match
+a UNIX style regular expression
+can be selected by entering the regular expression as the first value,
+and using the meta-value '$PATTERN' as the second value.
+(Use a '\\' to escape an underscore since underscores usually represent
+blanks).
+.PP
+NOTE: Under BSD UNIX, multiple regular expressions in a single dictionary
+are expensive, but they do work.
+Using SYS V UNIX, multiple patterns are easily handled.
+.PP
+Selection of records with
+field entries NOT equal to a value can be
+specified by using the meta-value '$NOT' as the first value, and the value
+to exclude as the second value.
+For example, this would be used to capture all clients not living in Phoenix.
+.PP
+A wildcard mechanism for selection of all entries that begin (or do not
+begin) with a pattern also exists. To use this feature, put an
+asterisk ('*') as the last character of the pattern to match.
+.PP
+For example, using "Smith*" for a selection value will capture all records
+whose key field
+begins with 'Smith', without considering 'Smythe' or other values.
+This wildcard feature is really only useful when used in conjunction with
+meta-values of $NOT, $NONE and $ALL.
+.PP
+The following is a list of all index dictionary attributes
+and their purpose:
+.TP 7
+.B field
+is the actual name of the already-defined field from
+the database dictionary. This entry defaults to the first field in the
+database dictionary.
+.TP 7
+.B Val1
+is the greater than or equal value point, i.e. the left end of the
+range of records to trap. The default for the entry is $ALL, meaning
+all records that have ANY data in this field will be chosen.
+.sp 1
+If
+.B $NOT
+is used, then records will pass this test only if their field value is 
+.B not equal
+to the value indicated in the Val2 field of this selection element.
+.sp 1
+Optionally, any of a set of comparative operators can be used as Val1.
+These operators, such as $GT for 'greater than', allow comparisons to be
+done between two fields of the record. The whole set of comparative
+operators is:
+.sp 1
+.nf
+.nj
+- $EQ Equal
+- $GE Greater Than or Equal
+- $GT Greater Than
+- $LE Less Than or Equal
+- $LT Less Than
+- $NE Not Equal
+.fi
+.ju
+.sp 1
+.TP 7
+.B Val2
+is the less than or equal value point, i.e., the right end of the
+range of records to trap. If defaulted, the value is $NONE, meaning that
+only those records with the EXACT value of Val1 are chosen and Val2
+is ignored. If Val2 is entered, then it behaves as the upper limit
+on the selections of records. I.E., only records with a field value
+greater than or equal to Val1 AND less than or equal to Val2 are selected.
+.sp 1
+Alternatively, if Val1 is '$NOT', then Val2 is required, and acts to
+keep records with this value out of the generated index.
+.sp 1
+.B Note:
+if entries are given for Val1 or Val2 and the 
+selection field is of type 
+.B date, 
+then 6 characters are required as input.
+.sp 1
+If Val1 has been defined as a comparative operator, then Val2 will need to
+be the name of a valid field. During index generation,
+the contents of this field will be compared
+to the contents of the previously specified field using the
+comparative operator defined in Val1.
+.TP 7
+.B And/Or
+represents the possible logical connectors that can be used to
+bind the list of selection items together.
+This field is prompted for between the lines representing
+each criterion,
+and is used to connect two or more criterion together.
+This means the And/Or slot is meaningless unless two or more selection
+criterion are used. In these cases, this item is not prompted for.
+.sp 1
+The default is 
+.B $AND,
+meaning the criterion above and the criterion below will be
+connected with a logical
+.B and
+during record selection. Valid entries here are either an 
+.B a 
+for 
+.B $AND 
+an 
+.B o 
+for 
+.B $OR,
+or an \fIs\fP for Simple And.
+.sp 1
+The "Simple And" connective allows a sequence of 'Or' items to
+have embedded logical \fIand\fP connectives without disturbing
+the surrounding 'Or's.
+This mechanism allows logical choices such as:
+All A OR B OR (C and D) OR E. The 'C and D' are held together
+with the use of the Simple And connective.
+.PP
+\fIDbdind\fP(1)
+interactively allows creation and editing of this list of selection
+criteria,
+along with specification of what fields will appear
+in the index. These are the fields that will be usable for database
+scanning after the index is generated.
+Of course, these fields must exist, meaning they may not be formulas.
+However, selection by formulas is valid.
+.PP
+Normally, field names are used to build selection criteria.
+But, if the CHOOSEFIELD environment variable is ON, fields can be selected
+from a list of numbered entries. See setup(5).
+.PP
+Furthermore, using CHOOSEFIELD,
+the editing of the Val1, Val2 and And/Or columns will be done
+using a standard choice screen. The use of this 'choose value' feature
+can be disabled by using the \fB-n\fP option from the argument line.
+.PP
+A list of simple editor commands appears on the 24th line of the 
+screen at all times, with a complete summary available using the
+standard help signal (<CTL>-H).
+Complete interactive error checking is done on the contents of
+all branches and elements.
+.PP
+Per normal \fIFirstBase\fP programs, the user is given a chance to change and
+modify
+data on the screen via the standard 'any change' screen. This prompt
+is displayed at the bottom of the screen and the program awaits
+interactive commands.
+The following is a list of valid 
+\fIdbdind\fP(1)
+commands:
+.TP 7
+.B <CTL>-H
+displays a summary of these commands.
+.TP 7
+.B ?[dfhiN]
+displays help on the database, formulas,
+user defined help files, index, or field N.
+.TP 7
+.B <RETURN>
+(carriage return, or enter) pages forward one page in the index
+dictionary.
+Wrapping occurs at end of file.
+.TP 7
+.B @
+go into auto add mode.
+.TP 7
+.B #
+allow changes to line #.
+.TP 7
+.B -
+standard END key \(em exits program and keeps all changes.
+.TP 7
+.B <CTL>-X
+aborts the program. The effect is to exit without
+overwriting the file, meaning all changes are lost.
+.TP 7
+.B b
+pages backward one page in the index dictionary.
+Wrapping occurs at beginning of file.
+.TP 7
+.B d
+delete function. Allows deletion of a single dictionary entry.
+All entries below deleted entry slide up one slot.
+.TP 7
+.B s
+goes into the 'sort-by' part of the index editor which allows modification
+of the fields that will actually be written to the index during
+index generation. These are the fields that will be sorted, and they
+are referred to as
+.B sort-by 
+fields.
+.sp 1
+If there are no sort-by fields at the time of a normal exit, \fIdbdind\fP(1)
+assumes that the first field in the database
+dictionary is the only sort-by field. The first time through,
+\fIdbdind\fP(1) also drops the program into
+the 'sort-by screen' to allow changes, just as if the user had used 
+the 's' command from the main any change screen.
+.sp 1
+On the Sort-By screen, 
+the user is asked if there is 'Any Change ?' to be made to the
+current selection of sort-by fields. A <RETURN> means no changes, while a 'y'
+says there are changes.
+.sp 1
+If changes are to be made, 
+all possible fields are displayed onto the screen.
+This display shows field names and their corresponding
+number along with other field information. 
+Then the user enters a string of space separated numbers
+that correspond to the numbers on the screen beside each database
+field name.
+.sp 1
+To exit the Sort-By screen, use the standard 
+.B END 
+key. This will either
+end the program (if the program did the sort-by screen on its own), or go
+back into the main screen (if the user called it via the 's' command).
+.TP 7
+.B norm
+toggles the type of index being generated. Either a Btree index or a Flat
+index can be chosen. The index type appears in the lower right corner of the
+screen.
+.TP 7
+.B t
+trace the tree built so far.
+This feature allows the user to see a visual display of the tree structure
+and logical connectives being defined. The sort-by fields are also shown.
+.PP
+Upon successful completion of an index dictionary, the user is given a
+chance to run the index generator. All arguments given
+to \fIdbdind\fP(1) are passed on to \fIdbigen\fP(1).
+The processes are overlaid,
+meaning no new shells are generated in using this option.
+.SH FILES
+.PD 0
+.TP 10
+dbase
+default name for the \fIFirstBase\fP database.
+.TP 10
+index
+default name for the \fIFirstBase\fP index.
+.TP 10
+*.?dict
+dictionary for \fIFirstBase\fP database or index.
+.TP 10
+*.idicti
+dictionary for index generator.
+.TP 10
+*.cdb
+database.
+.TP 10
+*.map
+record map of \fIFirstBase\fP database.
+.TP 10
+*.idx
+\fIFirstBase\fP index.
+.PD
+.SH SEE ALSO
+dbedit(1), dbigen(1), dbregen(1), dbfilter(1), btree(4),
+index(4), firstbase(5), input(5), setup(5).
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br

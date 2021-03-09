@@ -1,0 +1,234 @@
+.TH INPUT 5 "12 September 1995"
+.FB
+.SH NAME
+input \- Overview of \fIFirstBase\fP input routine
+.SH SYNOPSIS
+Description of the \fIFirstBase\fP input routine: features and rules
+.SH DESCRIPTION
+All user input into any part of
+.I FirstBase
+is monitored. \fIFirstBase\fP interactively checks all \fIkeystrokes\fP
+for acceptable type and \fIentries\fP for acceptable length.
+.PP
+The \fIFirstBase\fP supports two basic kinds of input mechanisms.
+The first, the default, is labeled \fIBasic Input\fP. The second,
+a more advanced version, is called \fIEditable Input\fP.
+A simple \fIFirstBase\fP setup variable, \fIEDITINPUT\fP, controls
+which input mechanism is used. See \fIsetup\fP(5) and \fIkeyboard\fP(5) for
+more details.
+.SH BASIC INPUT
+When user input is required,
+\fIFirstBase\fP displays a series of dots on the screen and positions the 
+cursor at the first dot. These dots represent
+the maximum number of characters the current program will allow for that
+particular entry. 
+.I Note: 
+for entries only one character long, the dot appears under the
+cursor, and may be hard to see.
+.PP
+Alternately, \fIFirstBase\fP provides control over the use of input dots
+and the clearing of these fields before accepting input.
+These tunable variables are described in \fIsetup\fP(5).
+.PP
+If an invalid keystroke is received, or an entry length is exceeded,
+.I FirstBase 
+pauses with an error message on the 23rd line of the display terminal.
+The user must then acknowledge the error by touching any key on the
+keyboard to recover from the error.
+\fIFirstBase\fP then continues where it left off.
+.PP
+In this way, only potentially correct data is passed on to waiting
+programs. The following is a summary of features and rules
+concerning user input into
+.I FirstBase:
+.TP 5
+--
+All real input into the \fIFirstBase\fP system 
+.I requires a <RETURN> 
+or <ENTER>
+keystroke at the end of the entered characters
+to allow the \fIFirstBase\fP programs to 'see' the input. 
+However, signals to programs, such as the 
+.I ABORT, END, ERASE, HELP, 
+and
+.I WORD-ERASE
+keystrokes (see below) do not need a <RETURN>.
+.TP 5
+--
+If an entry field has a
+.I default value,
+the default is assigned to the entry AS IF THE USER HAD TYPED IT
+by merely hitting the <RETURN> key. If a default is not allowed, an error
+message is displayed, and the user is forced to enter something valid.
+.TP 5
+--
+Date data in the \fIFirstBase\fP system must be entered in month day year
+(MMDDYY) format. The date will
+be redisplayed in MM/DD/YY format with slashes. Like all entered data,
+the date is checked for validity by the input routine.
+For example, enter
+.B 051684
+for May 16, 1984. \fIFirstBase\fP will redisplay the date as
+.I 05/16/84.
+(However, see DATEDISPLAY in \fIsetup\fP(5) for more details).
+.sp 1
+Also accepted as date input are strings that have embedded slashes or
+dashes in them. Using this method, \fB1-5-89\fP would redisplay
+as \fI01/05/89\fP.
+.TP 5
+--
+Dollar data in the \fIFirstBase\fP
+system should be entered without a dollar sign or a
+decimal point.
+Furthermore, all trailing 
+zeros should be supplied. The system will
+echo a properly formatted dollar string. For example, enter \fB123456\fP
+for the dollar amount of \fI1,234.56\fP.
+.sp 1
+Alternately, the environment variable DECIMAL can be used to allow
+a decimal point to be entered.
+.sp 1
+Negative dollar amounts will be redisplayed within parenthesis or
+with a negative sign, depending on the environment variable NEGATIVE.
+See \fIsetup\fP(5) for more details.
+.TP 5
+--
+.I Backspace 
+is achieved using 
+.I <CONTROL>H, 
+the backarrow or
+.I backspace, 
+or the
+.I rubout/delete
+key. All of these
+erase the most recently entered character.
+.TP 5
+--
+Special keystroke functions allow specific signals to be given.
+These keystrokes are
+.I ABORT, END, ERASE, HELP
+and
+.I  WORD-ERASE.
+.sp 1
+The 
+.I ABORT
+keystroke is 
+.B <CONTROL>-X
+(^X) or
+.B <CONTROL>-C
+(^C).
+This will effectively exit what you are doing without making any changes
+to the file, record or field being edited.
+Note that these two keystrokes are synonymous, and that
+<FUNCTION>-ABORT will work as well.
+.sp 1
+The
+.I END
+keystroke is the minus sign 
+.B (-)
+entered while cursor is in the 
+.I first 
+column of its
+input entry field. If allowed in the context of the input entry, this 
+single keystroke sends a signal to the program to back out one level 
+from whatever it is doing. 
+Backing out from the top level takes the user
+back to the shell \(em i.e., it effectively exits the program.
+<FUNCTION>-END will work, also.
+.sp 1
+.I Note:
+for numeric, dollar, and float type fields, 
+the first endkey ('-')
+entered could be a minus sign. In these cases, a second endkey keystroke
+produces the END signal. Again, this must occur in columns one and two
+of the input field.
+.sp 1
+The 
+.I ERASE
+keystroke is 
+.B <CONTROL>-U
+(^U), and behaves exactly like the UNIX
+erase keystroke (^X or ^U). 
+This keystroke will delete all input in the current
+entry field and allow the user to restart that field afresh.
+.sp 1
+In many places, the
+.I HELP
+keystroke 
+.B <CONTROL>-H 
+(^H), will provide the user with a summary
+of commands or information that might be helpful
+at that point in program.
+<FUNCTION>-HELP works for help, too.
+.sp 1
+The
+.I WORD-ERASE
+keystroke is 
+.B <CONTROL>-W
+(^W), and is the same as the UNIX Cshell (csh)
+word erase.
+This keystroke will erase the most recent word typed.
+The
+.I REFRESH-SCREEN
+keystroke is
+.B <CONTROL>-L
+(^L), or
+.B <CONTROL>-R
+(^R).
+This keystroke is allowed at any time and will clear and redraw the entire
+screen display.
+.sp 1
+Additionally, the signals \fIPAGEUP\fP, \fIPAGEDOWN\fP, \fINEXT\fP, \fIPREV\fP,
+\fIPRINT\fP, \fIDEFAULT\fP, \fIWRITEREC\fP, and \fIDELETEREC\fP
+can be mapped to function keys via \fIsetup\fP(5).
+Currently, these signals are only used by \fIdbvedit\fP(1).
+.SH EDITABLE INPUT
+The second type of input mechanism supported by \fIFirstBase\fP is
+the \fIEditable Input\fP mode. This mode uses an extensible set of keyboard
+commands to allow character, word, and line editing within existing data
+fields. In other words, \fIintraline editing\fP.
+.PP
+In general, \fIEditable Input\fP mode is a superset of \fIBasic Input\fP mode,
+with the added dimension of user defined keystrokes to represent various
+signals and intraline editing commands.
+.PP
+Standard terminal function keys, arrow keys, and generalized control and
+escape sequences can be bound to any of the \fIFirstBase\fP signals.
+This feature allows the use of emacs style editing keystrokes.
+.PP
+There are a few minor differences between \fIBasic\fP and \fIEditable\fP
+modes. First, errors in length and type are reported only as a bell
+(or a flash for visible bell users), and never require user acknowledgement.
+Second, keyboard input is never allowed to extend past the edge of a field.
+.PP
+Third, overflow input is truncated.
+In other words, if you type into the middle of a field, and there are
+characters to the right of the cursor, they will shift right as more characters
+are inserted. If too many characters are inserted, the last character is
+silently truncated.
+.PP
+Finally, some standard \fIFirstBase\fP signals will work from the middle of
+fields.
+These include NEXT and PREV, as well as the END signal (but not the \fIdash\fP
+when used as the END keystroke).
+.PP
+To enable the \fIEditable Input\fP mode, the EDITINPUT setup variable must
+be set via \fIsetup\fP(5). Once enabled, all \fIFirstBase\fP tools will
+attempt to load a keyboard map at run time. This keyboard map,
+named \fI.firstbase-kbmap\fP,
+is described in \fIkeyboard\fP(5). If the map cannot be located, or there
+is a major error in loading, then an error message is displayed and processing
+continues using the \fIBasic Input\fP mechanism.
+.PP
+The major win in using \fIEditable Input\fP is the ability to easily correct
+a piece of data located deep inside a field without having to retype the
+entire field. In other places where user input is required, corrections to
+input as it is being typed can be done using the same keystrokes.
+.PP
+Note that each user can control whether EDITINPUT is enabled, and each can
+have their own keyboard map for customization.
+.SH SEE ALSO
+firstbase(1), firstbase(5), setup(5), terminals(5), keyboard(5), libscr(3)
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br

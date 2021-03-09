@@ -1,0 +1,41 @@
+.TH DBARGS 3 "12 September 1995"
+.FB
+.SH NAME
+dbargs \- load names of database and index objects
+.SH SYNOPSIS
+#include <firstbase/fb.h>
+.sp 1
+fb_dbargs(dname, iname, db)
+.br
+char *dname;
+.br
+char *iname;
+.br
+fb_database *db;
+.PP
+.SH DESCRIPTION
+As explained in the \fIdatabase\fP(4)
+manual page, a database structure contains
+all of the elements needed for an entire database, including the names
+of the database dictionaries, maps and support files.
+.PP
+\fIFb_dbargs\fP is used to load names of data objects into an existing
+database structure. It is typically used just before a call to
+\fIfb_opendb\fP(3).
+.PP
+NOTE: Either \fIdname\fP or \fIiname\fP can be set to the \fIFirstBase\fP
+constant \fBNIL\fP to make \fIfb_dbargs\fP create names only for the indicated
+objects. For example,
+.nf
+.sp 1
+.ft CW
+   fb_dbargs("Phone", NIL, db);
+.ft
+.sp 1
+.fi
+would set up the proper dictionary and map names for a databases named
+\fIPhone\fP, but the index names are left at whatever they were before the
+call to \fIdbargs\fP.
+.SH SEE ALSO
+database(4), dballoc(3), opendb(3), openidx(3).
+.br

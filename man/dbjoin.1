@@ -1,0 +1,149 @@
+.TH DBJOIN 1 "12 September 1995"
+.FB
+.SH NAME
+dbjoin \- join two \fIFirstBase\fP databases
+.SH SYNOPSIS
+.B dbjoin
+[\fB-a\fP] [\fB-b\fP] [\fB-y\fP] \fB-d\fP
+\fIdbase1\fP \fB-i\fP \fIindex1\fP
+[\fB-d2\fP \fIdbase2\fP] [\fB-i2\fP \fIindex2\fP] 
+[\fB-o\fP \fIjoin_dbase\fP]
+.SH DESCRIPTION
+.I Dbjoin
+takes two \fIFirstBase\fP databases and joins the databases together
+by laminating the records of each database into a single record.
+These new records are written to a different output file, creating a
+newly structured database.
+.PP
+Note: the use of dynamic links in the database dictionary can also be
+used to get join type of information at runtime for each tool, instead of
+using \fIdbjoin\fP to generate new databases. See \fIdbdbas\fP(1).
+In addition, the \fIdbsql\fP tool can be used to do joins also.
+.PP
+The order in which records are laminated is determined by the
+indexes associated with each database. Both indexes are required, and both
+must be sorted.
+Note that only the first indexed field of a multiple index is relevant
+to any joining of database.
+.PP
+The \fB-b\fP
+flag will run the \fIFirstBase\fP tool in batch mode, suitable for shell
+scripts.
+This mode produces no output on the terminal, thus can also be used
+when running the process in the background.
+The \fB-y\fP flag will run the tool at the terminal without pausing to ask
+the user if existing files can be destroyed and without displaying
+a 'picture' of the requested task.
+.PP
+The second database and its associated index are prompted for by 
+\fIdbjoin\fP(1)
+once the first database (\fIdbase1\fP) has been defined and loaded.
+This second database (\fIdbase2\fP) and its index
+must be distinct (different) from the first set.
+.PP
+After loading the second database, 
+\fIdbjoin\fP(1)
+asks for the name of an output file. This name must not be
+either of the first two, but it can exist. Dbjoin(1) will deposit
+the laminated (joined) records into a 
+standard \fIFirstBase\fP database using this name as its base. Of course, a 
+dictionary for the new database is also created.
+.PP
+Using the \fB-d2\fP and \fB-i2\fP
+argument line flags, \fIdbjoin\fP(1) can be fed the
+names of the second database and index from the command line.
+The \fB-o\fP option allows specification of an output file from the command
+line also.
+.PP
+As mentioned above, the  method used to join databases depends on
+two separate, sorted \fIFirstBase\fP indexes that refer to two
+separate \fIFirstBase\fP databases. Normally, \fIdbjoin\fP(1)
+will output records only for those entries from both
+indexes that match. These records take the form of the common indexed
+field, followed by the fields from \fIdbase1\fP
+then the fields from \fIdbase2\fP.
+.PP
+Index entries that do not match only create a record
+if the
+.B -a
+option is specified. In this case, fields from the 'other' database
+are left empty.
+.PP
+Again, note that only the first indexed field is tested for matching
+during the joining phase. Multiple field indexes will work, but those
+fields beyond the first are unused by \fIdbjoin\fP(1).
+.PP
+\fIDbjoin\fP(1)
+allows an interesting tool oriented approach to data entry and database
+management systems.
+Combinations of databases can be created using this tool.
+For example, personal and financial information for a group of people
+could be joined together, edited all at once with
+\fIdbedit\fP(1),
+and then split back
+into separate databases using 
+\fIdbcgen\fP(1).
+.PP
+Note: \fIdbclean\fP(1)
+is automatically run at the completion of this program to
+create a map file for the new database.
+.SH EXAMPLES
+To run a simple interactive dbjoin, use
+.sp 1
+.ti +5
+dbjoin -d j1 -i j1
+.sp 1
+To run this in yes mode providing the arguments it will need, use
+.sp 1
+.ti +5
+dbjoin -y -d j1 -i j1 -d2 j2 -i2 j2 -o new_dbase
+.SH FILES
+.PD 0
+.TP 10
+*.cdb
+\fIFirstBase\fP database.
+.TP 10
+*.map
+record map of \fIFirstBase\fP database.
+.TP 10
+*.idx
+\fIFirstBase\fP index. 
+.TP 10
+*.ddict
+\fIFirstBase\fP database dictionary file.
+.TP 10
+*.idict
+index header information.
+.TP 10
+dbase
+default database for dbjoin(1) and for prompted database name.
+.TP 10
+index
+default index for dbjoin(1) and for prompted index name.
+.TP 10
+join
+default name for join output file.
+.PD
+.SH SEE ALSO
+dbcat(1), dbcgen(1), dbdbas(1), dbedit(1), dbsql(1), firstbase(5)
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br
+.SH DIAGNOSTICS
+\fIDbjoin\fP(1)
+will ask permission before 
+overwriting an existing output file.
+.sp 1
+Field names between the two databases must be unique, except for the
+indexed field from each database. This is because the original
+field names are used
+in the resulting database, and any \fIFirstBase\fP database enforces unique
+naming among its field names.
+.sp 1
+This tool uses \fIFirstBase\fP indexes to generate the output from the
+databases in a particular order.
+If either index is detected to be out of date or non-existent, it is
+regenerated \fIautomatically\fP. An index is out of date if 
+either the database or the index dictionary have been changed more
+recently than the index was generated.
+.br

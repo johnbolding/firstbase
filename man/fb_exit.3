@@ -1,0 +1,24 @@
+.TH FB_EXIT 3 "12 September 1995"
+.FB
+.SH NAME
+fb_exit \- exit from a \fIFirstBase\fP process
+.SH SYNOPSIS
+#include <firstbase/fb.h>
+.sp 1
+fb_exit(status)
+.br
+int status;
+.PP
+.SH DESCRIPTION
+The \fIfb_exit\fP mechanism is the generalized exit point for
+\fIFirstBase\fP processes. After a series of \fIFirstBase\fP cleanup calls,
+the \fIstatus\fP value is used to call the standard \fIexit\fP(3),
+which does not return.
+.PP
+The cleanup done by \fIfb_exit\fP includes reconditioning the terminal using
+\fIfb_settty\fP, notifying the \fIFirstBase\fP lock daemon to clear any locks
+held by this process, and destroying any \fIFirstBase\fP server
+via \fIfb_clnt_destroy\fP.
+.SH SEE ALSO
+setup(3), libscr(3), fb_clnt_create(3), fblockd(8), fbserver(8).
+.br

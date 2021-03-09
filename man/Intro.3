@@ -1,0 +1,173 @@
+.TH INTRO 3 "12 September 1995"
+.SH NAME
+Intro \- introduction to user-level \fIFirstBase\fP library functions
+.SH DESCRIPTION
+.LP
+Section 3 describes user-level \fIFirstBase\fP library routines.
+In this release, the
+user-library routines are listed in alphabetical order without using the
+\fBfb_\fP prefix.
+.SH SEE ALSO
+Intro(4).
+.br
+.ne 10
+.SH LIST OF FIRSTBASE LIBRARY FUNCTIONS
+.sp 1
+.if t .ta 25n +20n
+.if n .ta 20n +20n
+.nf
+.ta 20n +20n
+Name 	Appears on Page	Description
+.sp 1
+access	fb_clnt_create(3)	Unix \fIaccess\fP(2) command
+access_clnt	fb_clnt_create(3)	Unix \fIaccess\fP(2) command
+addidx	useidx(3)	add a Btree index to database autoindex array
+addrec	addrec(3)	add new \fIFirstBase\fP record
+addrec_clnt	fb_clnt_create(3)	client/server addrec
+b_addrec	addrec(3)	bulk version of \fIfb_addrec\fP
+b_addrec_clnt	fb_clnt_create(3)	client/server bulk addrec
+b_delrec_clnt	fb_clnt_create(3)	client/server bulk delete record
+bell	libscr(3)	screen bell
+bulkrec_begin	bulkrec(3)	bulk record begin
+bulkrec_begin_clnt	fb_clnt_create(3)	client/server bulk begin
+bulkrec_end	bulkrec(3)	bulk record end
+bulkrec_end_clnt	fb_clnt_create(3)	client/server bulk end
+chdir	fb_clnt_create(3)	Unix \fIchdir\fP(2) command
+chdir_clnt	fb_clnt_create(3)	Unix \fIchdir\fP(2) command
+checkfields	checkfields(3)	check record integrity
+clear	libscr(3)	screen clear
+clnt_create	fb_clnt_create(3)	client/server create
+clnt_destroy	fb_clnt_create(3)	client/server destroy
+clnt_timeout	fb_clnt_create(3)	controls RPC timeout length
+close	fb_clnt_create(3)	Unix close
+close_clnt	fb_clnt_create(3)	client/server Unix close
+closedb_clnt	fb_clnt_create(3)	client/server close database
+closeidx	openidx(3)	close a \fIFirstBase\fP index
+clrtobot	libscr(3)	screen clear to bottom
+clrtoeol	libscr(3)	screen clear to end of line
+creat	fb_clnt_create(3)	Unix creat
+creat_clnt	fb_clnt_create(3)	client/server Unix creat
+currentxrec	firstxrec(3)	load current indexed record
+dballoc	dballoc(3)	allocate a database
+dbargs	dbargs(3)	load data object names
+dedate	endate(3)	decode a date string
+delrec	delrec(3)	delete a \fIFirstBase\fP record
+delrec_clnt	fb_clnt_create(3)	client/server delete record
+endate	endate(3)	encode a date string
+errno	fb_clnt_create(3)	Return Unix \fIerrno\fP variable
+errno_clnt	fb_clnt_create(3)	Return Unix \fIerrno\fP variable
+exit	fb_exit(3)	exit from a \fIFirstBase\fP process
+fetch	fetch(3)	fetch a database field
+fetch_clnt	fb_clnt_create(3)	client/server fetch field
+fetchrec	fb_clnt_create(3)	either getrec or fetchrec_clnt
+fetchrec_clnt	fb_clnt_create(3)	client/server fetch record
+fetchxrec	fb_clnt_create(3)	either getxrec or fetchxrec_clnt
+fetchxrec_clnt	fb_clnt_create(3)	client/server fetch indexed record
+firstovxrec	firstxrec(3)	load first overflow record
+firstxrec	firstxrec(3)	load first indexed record
+firstxrec_clnt	fb_clnt_create(3)	client/server first indexed record
+foreach	foreach(3)	process multiple records
+forxeach	foreach(3)	process multiple indexed records
+free_globals	free_globals(3)	free global variables
+getctime	fb_clnt_create(3)	return create time of a file
+getctime_clnt	fb_clnt_create(3)	return create time of a file
+gethead	gethead(3)	read database header
+gethead_clnt	fb_clnt_create(3)	client/server read database header
+getirec	getirec(3)	read database record, synchronize with index
+getmap	getmap(3)	read database map
+getrec	getrec(3)	read database record
+getrec_clnt	fb_clnt_create(3)	client/server read database record
+getwd	fb_clnt_create(3)	return current working directory
+getwd_clnt	fb_clnt_create(3)	return current working directory
+getxhead	getxhead(3)	read normal/flat index header
+getxrec	getxrec(3)	locate/read an indexed database record
+getxrec_clnt	fb_clnt_create(3)	client/server read indexed record
+infoline	libscr(3)	screen information line
+initscreen	libscr(3)	screen initialization
+input	libscr(3)	screen input
+isdeleted	isdeleted(3)	test for deleted record marker
+lastovxrec	firstxrec(3)	load last overflow record
+lastxrec	firstxrec(3)	load last indexed record
+lastxrec_clnt	fb_clnt_create(3)	client/server last indexed record
+lock	fb_lock(3)	lock \fIFirstBase\fP record
+lock_clnt	fb_clnt_create(3)	client/server lock record
+lockf	fb_clnt_create(3)	Unix \fIlockf\fP(2) command
+lockf_clnt	fb_clnt_create(3)	Unix \fIlockf\fP(2) command
+lseek	fb_clnt_create(3)	Unix \fIlseek\fP(2) command
+lseek_clnt	fb_clnt_create(3)	Unix \fIlseek\fP(2) command
+makess	makess(3)	make a search string
+mkdir	fb_clnt_create(3)	Unix \fImkdir\fP(2) command
+mkdir_clnt	fb_clnt_create(3)	Unix \fImkdir\fP(2) command
+mkstr	mkstr(3)	allocate and store string
+move	libscr(3)	screen movement of cursor
+nextwrite	buffers(3)	write string to output buffers
+nextxrec	nextxrec(3)	read next indexed record
+nextxrec_clnt	fb_clnt_create(3)	client/server next indexed record
+open	fb_clnt_create(3)	Unix open
+open_clnt	fb_clnt_create(3)	client/server Unix open
+opendb	opendb(3)	open a \fIFirstBase\fP database
+opendb_clnt	fb_clnt_create(3)	client/server open database
+openidx	openidx(3)	open a \fIFirstBase\fP index
+pad	pad(3)	blank pad a string to size (left justify)
+prevxrec	nextxrec(3)	read previous indexed record
+prints	libscr(3)	screen print string
+printw	libscr(3)	screen \fIprintf\fP mechanism
+put_autoindex	put_autoindex(3)	write autoindex values
+put_autoindex_clnt	fb_clnt_create(3)	client/server put autoindex
+puthead	puthead(3)	write database header
+putmap	getmap(3)	write database map
+putrec	putrec(3)	write record to database
+putrec_clnt	fb_clnt_create(3)	client/server put record
+putxhead	getxhead(3)	write normal/flat index header
+read	fb_clnt_create(3)	Unix read
+read_clnt	fb_clnt_create(3)	client/server Unix read
+redraw	libscr(3)	screen redraw entire screen
+refresh	libscr(3)	screen refresh (update) screen
+reverse	libscr(3)	screen reverse video display
+rjustify	rjustify(3)	right justify a string to size using blanks
+rmdir	fb_clnt_create(3)	Unix \fIrmdir\fP(2) command
+rmdir_clnt	fb_clnt_create(3)	Unix \fIrmdir\fP(2) command
+rmlead	rmlead(3)	remove leading blanks from a string
+s_lock	fb_lock(3)	lock an open Unix file
+s_lock_clnt	fb_clnt_create(3)	client/server simple file lock
+s_unlock	fb_lock(3)	unlock an open Unix file
+s_unlock_clnt	fb_clnt_create(3)	client/server simple file unlock
+scrhdr	libscr(3)	screen header
+scrlbl	libscr(3)	screen label
+scrstat2	libscr(3)	screen secondary status
+scrstat	libscr(3)	screen status
+set_autoindex	put_autoindex(3)	store current autoindex values
+set_autoindex_clnt	fb_clnt_create(3)	client/server set autoindex
+set_loadfail	setup(3)	controls record load at search failure
+settty	libscr(3)	terminal conditioning
+setup	setup(3)	\fIFirstBase\fP setup mechanism
+setup_argv	setup(3)	\fIFirstBase\fP setup with arg vector
+simpledate	simpledate(3)	returns a simple date or time string
+stand	libscr(3)	screen standout mode
+status_clnt	fb_clnt_create(3)	client/server database status
+store	store(3)	\fIFirstBase\fP store field mechanism
+store_clnt	fb_clnt_create(3)	client/server store field
+subidx	subidx(3)	subtract a Btree index from autoindex array
+symlink	fb_clnt_create(3)	Unix \fIsymlink\fP(2) command
+symlink_clnt	fb_clnt_create(3)	Unix \fIsymlink\fP(2) command
+sync	fb_sync(3)	synchronize database
+sync_clnt	fb_clnt_create(3)	client/server synchronize database
+system	fb_system(3)	implementation of Unix \fIsystem\fP call
+system_clnt	fb_clnt_create(3)	\fIFirstBase\fP \fIfb_system\fP(3) call
+system_clnt	fb_clnt_create(3)	client/server Unix system call
+trim	trim(3)	trim trailing blanks from a string
+umask	fb_clnt_create(3)	Unix \fIumask\fP(2) command
+umask_clnt	fb_clnt_create(3)	Unix \fIumask\fP(2) command
+unlink	fb_clnt_create(3)	Unix \fIunlink\fP(2) command
+unlink_clnt	fb_clnt_create(3)	Unix \fIunlink\fP(2) command
+unlock	fb_lock(3)	unlock \fIFirstBase\fP record
+unlock_clnt	fb_clnt_create(3)	client/server unlock record
+useidx	useidx(3)	use one of the autoindexes as current
+w_flush	buffers(3)	flush output buffers
+w_init	buffers(3)	initialize output buffers
+w_write	buffers(3)	write char to output buffers
+w_writen	buffers(3)	write chars to output buffers
+write	fb_clnt_create(3)	Unix write
+write_clnt	fb_clnt_create(3)	client/server Unix write
+.fi
+.br

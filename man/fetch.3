@@ -1,0 +1,58 @@
+.TH FETCH 3 "12 September 1995"
+.FB
+.SH NAME
+fetch \- fetch a field from the current record
+.SH SYNOPSIS
+#include <firstbase/fb.h>
+.sp 1
+fb_fetch(f, s, db)
+.br
+fb_field *f;
+.br
+char *s;
+.br
+fb_database *db;
+.SH DESCRIPTION
+As explained in the \fIdatabase\fP(4)
+manual page, a database structure contains
+all of the elements needed for an entire database, including an array of
+field structures, all file names and descriptors, and index information.
+Altogether, the array of field structures can hold one complete record.
+.PP
+These records are retrieved from the database file and stored into the
+field structures using \fIgetrec\fP(3) or \fIgetxrec\fP(3).
+Once a record has been
+loaded into the field structures of database \fIdb\fP,
+\fIfb_fetch\fP can be used to copy a field from field descriptor \fIf\fP to
+a buffer \fIs\fP.
+This allows \fIs\fP to be walked on without fear of disturbing any data.
+.PP
+If the application program is not designed to run as a client for
+the \fIFirstBase\fP database server \fIfbserver\fP(8), then it is
+not always necessary to use \fIfb_fetch\fP
+since the field is readily available by accessing the
+char pointer \fIfld\fP in field descriptor \fIf\fP (f->fld).
+.PP
+A macro in the \fIFirstBase\fP header file
+called \fBFB_FLD(n, db)\fP will
+produce field \fIn\fP from database \fIdb\fP as a char pointer
+(as long as the application is \fBnot\fP based on client/server processing).
+.PP
+However, \fIfb_fetch\fP will also calculate and produce a formula (virtual)
+field in \fIs\fP.
+The \fIFB_FLD\fP macro will not accomplish this formula retrieval.
+.PP
+Also note that in the case of FB_BINARY fields, the entire field is ALWAYS fixed
+length. So, it is up to the programmer using
+\fIfb_fetch\fP(3) to make sure that \fIs\fP, the object being written into,
+is the same byte size as the field length in the database dictionary.
+.SH CLIENT/SERVER
+The \fIfb_fetch\fP routine will transparently
+call \fIfb_fetch_clnt\fP
+when the global \fIFirstBase\fP variable \fIcdb_use_rpc\fP is set to one.
+See \fIfb_clnt_create\fP(3) for more details.
+.SH SEE ALSO
+getrec(3), opendb(3), database(4).
+.SH DIAGNOSTICS
+\fIFb_fetch\fP will return either FB_AOK or FB_ERROR as a return status.
+.br

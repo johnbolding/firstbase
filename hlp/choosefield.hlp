@@ -1,0 +1,31 @@
+
+                                FirstBase
+
+       At this point, you are in the middle of selecting an exisiting
+       field for addition to a data dictionary of some sort.
+
+       Locate the field you want, using the commands listed below.
+       Once found, enter the number listed with the field to actually
+       select that field.
+
+
+       In the Command List:
+       <CTL>   represents the CONTROL key. <CTL> should be depressed
+	       while the following command keystroke is performed.
+       <RET>   represents the RETURN key. <RET> should be depressed 
+	       after the preceding keystroke is performed.
+
+	           Now, let's begin our Command List
+
+       <CTL>H  brings you to the Help File. This is where you are now.
+
+       <CTL>X  Skips this entry without overwriting what was here
+	       before starting.
+
+       <CTL>F  Page forward, if applicable.
+
+       <CTL>B  Page backward, if applicable.
+
+       <RET>   Default selection
+
+       -       (END keystroke) Same as <CTL>X

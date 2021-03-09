@@ -1,0 +1,47 @@
+.TH DBDUMP 8 "12 September 1995"
+.FB
+.SH NAME
+DBDUMP \- backup a \fIFirstBase\fP database to disk.
+.SH SYNOPSIS
+.B DBDUMP
+\fIdatabase\fP
+.SH DESCRIPTION
+.I DBDUMP
+is a shell script that copies a database to the disk
+in case it later needs to be used for a \fIdbrestor\fP(8) operation.
+Ideally, a restore is never needed \(em but, if the computer fails
+during an update from \fIdbedit\fP(1), the database can be left in an
+unknown state. This is referred to as a "dirty" database.
+.PP
+DBDUMP is used to copy a database and its map file to another area of the
+hard disk. The database and its map are renamed to \fIdbase.BKfirstbase\fP
+and \fIdbase.BKmap\fP, where \fIdbase\fP is the base name of the database.
+.PP
+It is a good idea to use \fIdbcheck\fP(8)
+on the database before using \fIdbdump\fP(8)
+to insure that a good database is being saved. Note that the backed up
+database map must be kept intact for \fIdbrestor\fP(8) to work properly.
+It is not acceptable to merely copy the database, and \fIdbclean\fP(1)
+it before using \fIdbrestor\fP(8).
+.PP
+This script could easily be changed to use tape backups if desired.
+.SH FILES
+.PD 0
+.TP 10
+*.cdb
+\fIFirstBase\fP database.
+.TP 10
+*.map
+record map of \fIFirstBase\fP database.
+.TP 10
+*.BKcdb
+dumped \fIFirstBase\fP database.
+.TP 10
+*.BKmap
+dumped map of \fIFirstBase\fP database.
+.PD
+.SH SEE ALSO
+cp(1), firstbase(5), dictionaries(5), dbrestor(8)
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br

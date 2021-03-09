@@ -1,0 +1,13 @@
+e mac_g.h
+/#.*define.*FIRSTTOKEN/,/#.*define.*LASTTOKEN/ w temp
+e temp
+1,$s/# *define[ 	]*//
+1,$s/^/"/
+1,$s/[ 	]/", /
+1,$s/$/,/
+w
+e token.c
+/= *{$/+1,/^};$/-1d
+-r temp
+w token.c
+q

@@ -1,0 +1,17 @@
+$Id: README,v 9.1 2001/02/16 20:14:43 john Exp $
+
+Yes yes yes. There needs to be an info file on firstbase
+along with an HTML manual.
+
+For now, the best I can do is to provide the old postscript manual,
+fb-manual.ps, along with the large set of man pages, which are current,
+but certainly not a substitute for methodical documentation.
+
+To generate a postcript image of the man pages:
+
+   cd ../man
+   make man.ps
+
+New documentation will be done. Real Soon Now.
+
+-cc

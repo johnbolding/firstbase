@@ -1,0 +1,1755 @@
+.TH MACRO 5 "15 January 2001"
+.FB
+.de SF
+.nf
+.nj
+.sp 1
+.ft CW
+.in +3
+..
+.de UF
+.XF
+.sp 1
+..
+.de XF
+.ft R
+.ju
+.fi
+.in -3
+..
+.SH NAME
+macro \- overview of \fIFirstBase\fP macro language
+.SH SYNOPSIS
+Description of the \fIFirstBase\fP macro language
+.SH DESCRIPTION
+The \fImacro\fP language, one component of
+\fIFirstBase\fP, is a powerful, easy to use
+text and record processing language for Unix/Linux.
+Similar to C, \fImacro\fP
+includes many familiar programming constructs,
+including conditionals, loop constructs, user defined functions,
+and printf mechanisms.
+.PP
+This high level language also supports
+associative arrays, run time loadable code, strings, and
+all of the \fIFirstBase\fP data types. Plus, there are
+many built in functions covering math, string, date, screen input/output,
+stream input/output, and CGI/HTML processing. The \fImacro\fP
+language provides a powerful general purpose processing tool that
+can be used with or without a FirstBase database.
+.PP
+Macro files are simple text files containing \fImacro\fP code.
+Macro code can be used in three places within \fIFirstBase\fP.
+The first use is general database, text, CGI and HTML processing
+with the \fIFirstBase\fP generator tool \fIdbmacro\fP(1).
+.PP
+The second \fImacro\fP code use is to provide extensibility
+within \fIdbvedit\fP(1).
+This feature allows flexible control over the record editing process, including
+complex defaults and conditional field editing.
+.PP
+The third \fIFirstBase\fP
+tool that will process \fImacro\fP code is \fIfbtstmac\fP(8).
+This tool checks for syntax errors in \fImacro\fP code.
+.SH MACRO CODE GENERAL PROCESSING
+\fIDbmacro\fP is a general purpose information processor for
+\fIFirstBase\fP databases, text files, CGI requests and HTML forms.
+With or without a default database,
+\fIdbmacro\fP executes \fImacro\fP(5) code supplied via standard input,
+or from the command line use of \fImacro_file\fP or the \fB-m\fP \fIscript\fP
+option. Output is written to standard output.
+See \fIdbmacro\fP(1) for more details.
+.SH MACRO LANGUAGE DEFINITION
+.PP
+\fIFirstBase\fP \fImacro\fP code consists
+of sections of statements, with each section identified as one of
+\fIbegin\fP, \fIbody\fP, \fIend\fP, or \fIfunction\fP.
+After parsing the provided \fImacro\fP code, execution begins with the
+first \fIbody\fP section, or the function named \fImain\fP, for
+\fIdbvedit\fP(1) or for \fIdbmacro\fP(1) without a default database.
+.PP
+When \fIdbmacro\fP is invoked with a default database, execution starts
+with the \fIbegin\fP section, the \fIbody\fP section is done once for each
+record, and then the \fIend\fP section is done once.
+.PP
+Each of these sections is declared using its respective keyword,
+and each section can contain any number of \fImacro\fP statements.
+Only \fIfunction\fP sections require more than the keyword to define.
+Any number of functions can be defined using the following syntax
+(again, the square brackets denote optional parts and are not part
+of the \fIfunction\fP section syntax):
+.SF
+function \fIfname\fP( [ \fIarg1\fP [, \fIarg2\fP ] ... ] )
+   {
+      /* macro statements */
+   }
+.UF
+The function name \fIfname\fP must be a valid variable name different than
+any built in function names.
+Function parameters (or arguments) are optional, but the parentheses must still
+be used.
+.PP
+Functions can accept any number of parameters and can
+return multiple return values, of any type, including arrays.
+All function parameters are local.
+When a function is executed, the number of arguments can vary, if needed.
+For example, if three parameters are
+defined in a particular function, but only two are passed as arguments,
+the third argument will be empty at run time.
+.PP
+Functions pass all arguments, even arrays,
+by value, after expression evaluation, and
+can return any number of expressions, objects, scalars, strings, or arrays.
+.PP
+Within each section, statements are sequentially executed until the end of
+the section, a \fIreturn\fP statement or an \fIexit\fP statement.
+The \fIexit\fP statement can return a status value to the outside caller.
+The \fIreturn\fP statement returns control to the caller, or exits if
+control is inside the \fIbody\fP section or \fImain\fP function.
+An expression value can be passed back to \fIdbvedit\fP(1) for screen or
+record control.
+.PP
+The following is a list of all \fIFirstBase\fP \fImacro\fP code statements:
+.PP
+.SF
+local var1 [ , var2 ] ...
+if ( conditional ) statement [ else statement ]
+while ( conditional ) statement
+for ( [ expr-list ] ; [ conditional ] ; [ expr-list ] ) statement
+switch ( expr ) {
+   case expr: [ statement ] [ break ] ...
+   [ default: statement ... ] }
+break
+continue
+{ [ statement ] ...}
+variable = expression
+return [ ( [ expr1 [ , expr2 ] ... ] ) ]
+exit [ ( [ expr ] ) ]
+\fIfunction\fP ( [ arg1 [ , arg2 ] ... ] )
+.UF
+\fIStatements\fP
+are terminated by semicolons, NEWLINE characters or right braces.
+Compound statements are grouped into a simple statement with curly braces.
+Note that the square brackets are not part of the statements \(em they
+merely denote optional components.
+.PP
+The switch statement is similar to C in that each set of statements
+after a matching case is executed until a \fIbreak\fP (thereby allowing
+overloading of many cases that execute a single set of statements).
+However, \fIdbmacro\fP supports case expressions, not just scalars.
+In addition, syntactically, the beginning and ending curly braces
+are required and the optional \fIdefault\fP section must be the
+last clause.
+.PP
+\fIExpressions\fP are strings or numbers, depending on how they are used,
+and are built using the operators +, -, *, /, %. Additionally, the `+'
+is overloaded to indicate concatenation for strings.
+The C operators ++, --, +=, -=, *=, /=, %=,
+<<=, >>=, ^=, &=, |= are also available in expressions.
+An expression list is a comma separated list of expressions.
+.PP
+Furthermore, these additional binary operators can be used to build up
+expressions and conditionals: <<, >>, <, >, <=, >=, ==, !=, &, ^, |, &&, ||.
+.PP
+Variables are dynamically created without being declared and
+are global in all situations unless specified as local
+using the \fIlocal\fP directive. These variables can take on any of
+these data types: float, date, string, associative array, or database array.
+\fIVariables\fP are initialized to zero (0).
+String constants are quoted. Octal constants require a leading \fI0\fP.
+.PP
+Arrays are subscripted using square brackets. The subscript can be
+any value, numeric or string, but is always converted to a string.
+This means that \fIarray[3]\fP will reference the exact same value as
+\fIarray["3"]\fP. Array functions, \fIkey\fP, \fIcountkey\fP
+\fIfindkey\fP, and \fIrmkey\fP can be used to maintain arrays.
+.PP
+Variables and numbers will have a default precision of six digits past the
+decimal,
+though this is easily tuned using the functions \fIround()\fP and
+\fItrunc()\fP. Database variables will either adhere to this precision, or
+be locked into a certain precision as specified in the database dictionary.
+See \fIddict\fP(5).
+.PP
+Comments inside macro code are either the C method of \fI/*\fP to open
+a comment and \fI*/\fP to close it, spanning as many lines as needed,
+or the use of the \fI#\fP character, which comments out remaining characters
+until the next NEWLINE.
+.PP
+To denote a database field,
+a `$' is prepended to either the field name, a variable
+scalar, or to a number representing that field location in the database record.
+.PP
+If a scalar is used to access a field, it is evaluated before the field is
+referenced. Furthermore, the `$' can be used on entire expressions, as in
+the fragment `$(i + 10)'.
+.PP
+However, if the variable or scalar used has not been assigned a value
+using an assignment operator, the scalar is
+assumed to be an actual field name. For example,
+the string `$Field1' will work as long as Field1 is not a previously used
+variable.
+.PP
+Assignments to fields change the contents of the field.
+Very little type checking is done. The size of the field is
+checked, and the entry will be truncated if it is too long.
+.PP
+Arrays are used to access fields of databases opened using the \fImacro\fP
+function \fIopendb\fP. Once a database is open,
+an array is associated with that particular
+database using the \fIinitrec\fP function. This association
+only needs to be done one time, but can also be used to clear all field values.
+In addition, the first call to \fIopendb\fP sets the default database
+(see the \fIdefault_dbase\fP function).
+.PP
+After the array/database association, elements of the array represent
+\fIFirstBase\fP fields within the current record. Note that values will not
+be accessible via these arrays until after a \fIgetrec\fP or \fIgetxrec\fP
+of some kind, and
+that a \fIputrec\fP or an \fIaddrec\fP is needed to actually write these
+array represented fields as a record to a database.
+.PP
+The subscript used to access a field via an array
+is either a field number, like
+\fIdbase[3]\fP, or a string, like \fIdbase["Name"]\fP.
+If the variable \fIName\fP does not exist, \fIdbase[Name]\fP
+is equivalent to \fIdbase["Name"]\fP. If an existing variable is used,
+its value will be the subscript.
+An array associated with a database cannot be used
+to hold other subscripted values.
+.PP
+A large number of builtin in \fIfunctions\fP are provided.
+Some of these functions take a variable number of
+arguments, but most are fixed at either zero, one, or two arguments.
+Arguments are evaluated before being passed to the builtin functions.
+.PP
+The following lists are arranged by function type.
+All builtin macro functions and their expected arguments are listed.
+Argument types are given as \fIe\fP for general expressions, \fIn\fP
+for integer expressions, and \fIse\fP for string expressions.
+.SH DATABASE FUNCTIONS
+In the following \fIFirstBase\fP database functions, \fIdb\fP
+is used to represent an open database, like a \fIchannel\fP or
+\fIpointer\fP. The value of \fIdb\fP is a returned from \fIopendb\fP.
+.sp 1
+.PD 1
+.TP 21
+addrec(db)
+physically adds a new record to the database \fIdb\fP,
+complete with record locking and autoindex entries. See \fIaddrec\fP(3).
+Returns AOK (1) on success, ERROR (-1) on failure.
+.TP 21
+checkfields(db)
+checks the fields of the current record in database \fIdb\fP
+for adherence to the range specifications as defined in the database
+dictionary. Additionally, checks all auto indexes
+from both the database dictionary and the dbase.auto file (\fIautoindex\fP(5))
+that are supposed to remain \fIunique\fP. \fICheckfields\fP will return
+AOK if there are no data discrepancies, otherwise ERROR will be returned.
+.TP 21
+closedb(db)
+close the database \fIdb\fP. See \fIclosedb\fP(3).
+.TP 21
+default_dbase(db)
+sets the "default" database to \fIdb\fP
+so that $var evaluates to a field from \fIdb\fP.
+.TP 21
+delrec(db)
+delete the current record from database \fIdb\fP and remove all autoindex
+references to this record.
+Returns AOK (1) on success, ERROR (-1) on failure.
+.TP 21
+eval(expr)
+evaluates the expression as if it were a variable.
+Using this mechanism, an array can be rebuilt from a series of
+similarly named variables (perhaps from a CGI form):
+.SF
+var1 = "abc"
+var2 = "def"
+for (i = 1; i <= 3; i++)
+   array[i] = eval("var" + i)
+.UF
+As another example, \fIeval\fP can be used with database fields:
+.SF
+for (i = 1; i <= 2; i++){
+   val = "$field" + i
+   print(eval(val))
+   }
+.UF
+Note that the following is equivalent (without using \fIeval\fP):
+.SF
+for (i = 1; i <= 2; i++){
+   val = "field" + i
+   print($val)
+   }
+.UF
+But, here is another example of the \fIeval\fP function:
+.SF
+array["hello"] = 16
+ww101="hello"
+a = "ww10"
+b = a + 1
+print(b)                # ww101
+print(eval(b))          # hello
+print(ww101)            # hello
+print(array[ww101])     # 16
+print(array[b])         # 0
+print(array[eval(b)])   # 16
+.UF
+.TP 21
+fgetrec(n, db)
+used for non-btree indexes only, \fIfgetrec\fP returns the
+actual database record number (to be used with \fIgetrec\fP)
+of the n\fIth\fP entry in the current open database index.
+.TP 21
+field_default(e, db)
+return the default of the field in database \fIdb\fP represented by
+the general expression \fIe\fP. If \fIe\fP is numeric, the \fIe\fPth
+field is used. If \fIe\fP is a string, the field with the same name is used.
+The default of a field is the string as defined in the database dictionary.
+See \fIddict\fP(5).
+.TP 21
+field_name(i, db)
+return the name of the \fIi\fPth field in database \fIdb\fP.
+.TP 21
+field_size(e, db)
+return the size of the field in database \fIdb\fP represented by
+the general expression \fIe\fP. If \fIe\fP is numeric, the \fIe\fPth
+field is used. If \fIe\fP is a string, the field with the same name is used.
+.TP 21
+field_type(e, db)
+return the type of the field in database \fIdb\fP represented by
+the general expression \fIe\fP. If \fIe\fP is numeric, the \fIe\fPth
+field is used. If \fIe\fP is a string, the field with the same name is used.
+.TP 21
+firstxrec(db)
+loads the first indexed record into database \fIdb\fP. See \fIfirstxrec\fP(3).
+Returns AOK (1) on success, ERROR (-1) on failure.
+.TP 21
+free_globals()
+mechanism to free and reset global database memory allocations and
+resources. For more details, see \fIfree_globals\fP(3).
+.TP 21
+get_failrec()
+Provides access to the FirstBase global variable extern long cdb_failrec.
+If the value of this function is zero (0), then a failed search for a
+record via \fIgetxrec\fP has gone beyond the right edge of the btree index.
+See also \fIset_loadfail\fP and \fIgetirec\fP.
+.TP 21
+getirec(n, db)
+reads logical record \fIn\fP from database \fIdb\fP, and, under a certain
+set of conditions, synchronizes the current record with the current index
+so that subsequent calls to \fInextxrec\fP and \fIprevxrec\fP locate the
+indexed records after and before the database record \fIn\fP.
+See \fIgetirec\fP(3), and functions \fIget_failrec\fP and \fIset_loadfail\fP.
+.TP 21
+getrec(n, db)
+reads record \fIn\fP from database \fIdb\fP, returns actual number of
+characters read, or ERROR (-1) on failure. See \fIgetrec\fP(3).
+.TP 21
+getxrec(se, db)
+get an indexed record.
+Use search key \fIse\fP on the current index to load a record
+from database \fIdb\fP.
+Returns AOK (1) on success, ERROR (-1) on failure.
+.TP 21
+initrec(var, db)
+associates an array of name \fIvar\fP with database \fIdb\fP.
+By referencing an array element or assigning a value to it,
+implicit database field \fIfetch\fP and \fIstore\fP commands are done.
+\fIInitrec\fP also initializes all database fields.
+.TP 21
+ireccnt(db)
+returns the number of indexed records in the current open index for database
+\fIdb\fP.
+.TP 21
+lastxrec(db)
+loads the last indexed record into database \fIdb\fP. See \fIfirstxrec\fP(3).
+Returns AOK (1) on success, ERROR (-1) on failure.
+.TP 21
+lock(n, db, wait)
+lock record \fIn\fP of database \fIdb\fP.
+The \fIwait\fP argument controls lock request failures:
+if \fIwait\fP is zero, \fIlock\fP returns control to the caller
+with an ERROR (-1) return code; if \fIwait\fP is one,
+\fIlock\fP will block until the lock request can be granted.
+An AOK (1) is returned when a lock request is granted.
+.TP 21
+makess(se, type, n)
+returns a search string that is based on \fIse\fP, a \fIFirstBase\fP
+field type specified by the string \fItype\fP, placed in a field \fIn\fP
+characters wide. The returned string is used for \fIgetxrec\fP calls.
+Common types are "d" (date) and "n" (numeric).
+In addition, see functions \fIfield_type\fP and \fIfield_size\fP.
+.TP 21
+nextxrec(channel)
+loads the next indexed record into database \fIdb\fP. See \fInextxrec\fP(3).
+Returns AOK (1) on success, ERROR (-1) on failure.
+.TP 21
+nfields(db)
+returns the number of fields in database \fIdb\fP.
+.TP 21
+opendb(dbase, mode, iname)
+opens database with name \fIdbase\fP using \fImode\fP, either "r" for
+READ, or "w" for READWRITE.
+Optionally, index \fIiname\fP can be opened as well. However, use of
+autoindexes and the \fIuseidx\fP function is the best method of index
+manipulation. \fIOpendb\fP returns an integer used as the database
+\fIchannel\fP or \fIpointer\fP, referred to as \fIdb\fP in many other
+\fImacro\fP code database functions. See \fIopendb\fP(3).
+.TP 21
+prevxrec(db)
+loads the previous indexed record into database \fIdb\fP.
+Returns AOK (1) on success, ERROR (-1) on failure.
+See \fInextxrec\fP(3).
+.TP 21
+putrec(n, db)
+write the current record as logical record \fIn\fP to database \fIdb\fP.
+Returns AOK (1) on success, ERROR (-1) on failure.
+See \fIputrec\fP(3).
+.TP 21
+reccnt(db)
+returns the current number of records in the database \fIdb\fP.
+.TP 21
+recno(db)
+returns the currently loaded record number from database \fIdb\fP.
+.TP 21
+set_loadfail(n)
+Sets the global cdb_loadfail variable to \fIn\fP, either 0 or 1.
+When set to 1, a failed \fIgetxrec\fP call will load the record
+just past where the searched for record would have been, unless
+the failure point is past the right edge of the btree index.
+See also \fIget_failrec\fP and \fIgetirec\fP.
+.TP 21
+unlock(n, db)
+unlock record \fIn\fP of database \fIdb\fP.
+.TP 21
+useidx(n, db)
+makes the automatic index \fIn\fP from database \fIdb\fP the "current"
+index. The value of \fIn\fP is from 0 ... N-1, where N is the number
+of indexes listed in the dbase.auto file.
+Returns AOK (1) on success, ERROR (-1) on failure.
+.PD
+.SH FIELD VERIFICATION FUNCTIONS
+These functions are used to verify and return proper \fIFirstBase\fP
+field strings.
+In general, these functions accept a possibly formatted string \fIse\fP along
+with any other data restrictions, like field size.
+If \fIse\fP is verified, a \fIFirstBase\fP writable string is stored
+in the variable named \fIret\fP, and an AOK (1) is returned.
+Otherwise a zero (0) is returned.
+.sp 1
+.PD 1
+.TP 21
+verify_ascii(ret, se, n)
+verifies that each character of \fIse\fP is an ascii character in the range
+decimal 32 (blank) to decimal 126 (tilde), or a decimal 10 (LF).
+The CR character (decimal 13) is allowed, but it is stripped out.
+The length of \fIse\fP is checked against the value \fIn\fP.
+.TP 21
+verify_date(ret, se)
+verifies that \fIse\fP represents a proper \fIFirstBase\fP date string.
+Most any kind of formatted or unformatted date representation is allowed.
+.TP 21
+verify_dollar(ret, se, n)
+verifies that \fIse\fP represents a proper \fIFirstBase\fP dollar string.
+The optional argument \fIn\fP can be used to validate field length as well.
+Most any kind of formatted or unformatted dollar representation is allowed.
+.TP 21
+verify_float(ret, se, n)
+verifies that \fIse\fP represents a proper \fIFirstBase\fP float string.
+The optional argument \fIn\fP can be used to validate field length as well.
+.TP 21
+verify_numeric(ret, se, n)
+verifies that \fIse\fP represents a proper \fIFirstBase\fP numeric string.
+The optional argument \fIn\fP can be used to validate field length as well.
+.TP 21
+verify_pos_numeric(ret, se, n)
+verifies that \fIse\fP represents a proper \fIFirstBase\fP positive
+numeric string.
+The optional argument \fIn\fP can be used to validate field length as well.
+.PD
+.SH HTML FUNCTIONS
+These functions generate and return
+strings that are used to create HTML documents.
+Many are used as open/close pairs of functions, while others
+take arguments, surround them with HTML structure, and return
+the entire string. So, these functions are typically used with
+\fIprint\fP or \fIprintf\fP from the \fIFirstBase\fP tool \fIdbmacro\fP(1).
+.PD 1
+.sp 1
+.TP 21
+\fBHTML Structure\fP
+.sp 1
+.TP 21
+html_open(title, base_href, body_tag, excess_tag)
+returns the string to begin an HTML document, using the string \fItitle\fP
+as the title of the document, \fIbase_href\fP
+as the BASE HREF of the document, and the optional \fIbody_tag\fP argument
+as additional components inside the HTML \fI<BODY>\fP tag.
+The \fIbase_href\fP argument is optional, but must be specified
+(even as "") in order to pass in a \fIbody_tag\fP argument.
+.sp 1
+The last optional argument, \fIexcess_tag\fP, can be used to
+pass in HTML tag elements that need to appear inside
+the HTML <HEAD> tag, for example META or SCRIPT elements.
+See html_meta() and html_script_open().
+.TP 21
+html_close()
+returns the string to close an HTML document.
+.TP 21
+html_href(ref, se, target)
+returns string to reference URL \fIref\fP with the visual display
+being shown as \fIse\fP. The optional argument \fItarget\fP is the name
+of a target frame, or the string \fI"new"\fP for a new window.
+.TP 21
+html_imgsrc(img, [align, hspace, border, alt])
+returns string to reference image
+with URL \fIimg\fP. The other arguments are optional:
+align can be one of \fItop\fP, \fImiddle\fP, or \fIbottom\fP as string values;
+\fIhspace\fP is a number that represents horizontal space;  \fIborder\fP
+is a number representing outside border width; and \fIalt\fP is a string
+set as the alternate text for the image (displayed when the pointer
+is over the image or for text only browsers).
+.TP 21
+html_comment(se)
+return a string that is \fIse\fP constructed as an HTML comment.
+.TP 21
+html_filter_lt(se)
+return a string that is \fIse\fP, but all \fIless than\fP characters (<)
+are replaced with the HTML equivalent of "\&lt;". This is sometimes needed
+since the \fIless than\fP character is a special character in HTML.
+.sp 1
+.TP 21
+\fBHTML Format\fP
+.sp 1
+.TP 21
+html_blockquote_close()
+string to close blockquote section.
+.TP 21
+html_blockquote_open()
+string to open blockquote section.
+.TP 21
+html_br()
+string to break and start a new line.
+.TP 21
+html_center(se)
+string to center \fIse\fP/.
+.TP 21
+html_center_close()
+string to close a centered section.
+.TP 21
+html_center_open()
+string to open a centered section.
+.TP 21
+html_dd(se)
+string to create a data definition of \fIse\fP.
+Used with \fIhtml_dl_open\fP, \fIhtml_dl_close\fP and \fIhtml_dt\fP.
+.TP 21
+html_dl_close()
+string to close a data definition list.
+.TP 21
+html_dl_open()
+string to open a data definition list.
+.TP 21
+html_dt(se)
+string to create a data term of \fIse\fP.
+Used with \fIhtml_dl_open\fP, \fIhtml_dl_close\fP and \fIhtml_dd\fP.
+.TP 21
+html_h1(se)
+string to create an H1 header of \fIse\fP.
+.TP 21
+html_h2(se)
+string to create an H2 header of \fIse\fP.
+.TP 21
+html_h3(se)
+string to create an H3 header of \fIse\fP.
+.TP 21
+html_h4(se)
+string to create an H4 header of \fIse\fP.
+.TP 21
+html_h5(se)
+string to create an H5 header of \fIse\fP.
+.TP 21
+html_h6(se)
+string to create an H6 header of \fIse\fP.
+.TP 21
+html_h_close(n)
+string to close a header of size \fIn\fP.
+.TP 21
+html_h_open(n)
+string to open a header of size \fIn\fP, i.e. \fIhtml_h_open(3)\fP opens
+an H3 header section.
+.TP 21
+html_hr(n)
+string to produce a horizontal rule. The optional \fIn\fP can be used
+to control the width. The default width is 4.
+.TP 21
+html_li(se)
+string to create a list item \fIse\fP. Use after an \fIhtml_ul_open\fP
+or \fIhtml_ol_open\fP.
+.TP 21
+html_link(se, ...)
+string to create an HTML <LINK> tag used with stylesheets.
+Each \fIse\fP argument is placed inside the tag, separated by a blank.
+.TP 21
+html_meta(se, ...)
+string to create an HTML <META> tag.
+Each \fIse\fP argument is placed inside the tag, separated by a blank.
+.TP 21
+html_ol_close()
+string to close a numbered list.
+.TP 21
+html_ol_open(n)
+string to open a numbered list using the optional argument \fIn\fP as
+the starting value.
+.TP 21
+html_p_close()
+string to close a paragraph. Actually, this is not needed right now, but
+at some point in the future, paragraphs will be true HTML containers.
+.TP 21
+html_p_open()
+string to open a paragraph.
+.TP 21
+html_pre_close()
+string to close a pre-formatted section.
+.TP 21
+html_pre_open()
+string to open a pre-formatted section.
+.TP 21
+html_script_close()
+string to close a SCRIPT tag.
+.TP 21
+html_script_open(type)
+string to create an HTML <SCRIPT> tag.
+The \fItype\fP argument is quoted and placed inside the tag.
+.TP 21
+html_ul_close()
+string to close an unnumbered list.
+.TP 21
+html_ul_open()
+string to open an unnumbered list.
+.sp 1
+.TP 21
+\fBHTML Fonts\fP
+.sp 1
+.TP 21
+html_bold(se)
+string that renders \fIse\fP as bold text.
+.TP 21
+html_bold_close()
+string to close bold section.
+.TP 21
+html_bold_open()
+string to open bold section.
+.TP 21
+html_em_close()
+string to close emphasis section.
+.TP 21
+html_em_open()
+string to open emphasis section.
+.TP 21
+html_font_close()
+string to close the most recent font request.
+.TP 21
+html_font_color(color, typesize)
+string to change the current font to the hex string \fIcolor\fP,
+optionally adjusting the \fItypesize\fP.
+Use html_font_close() to close.
+.TP 21
+html_font_open(typeface, typesize)
+string to open font \fItypeface\fP using optional typesize \fIn\fP.
+The optional argument \fItypesize\fP can be used to control the size,
+and can be a relative number as well, for example -2.
+.TP 21
+html_fontsize_close()
+string to close a font size.
+.TP 21
+html_fontsize_open(n)
+string to open a font size bumped by \fIn\fP points, positive or negative.
+.TP 21
+html_italics(se)
+string to render \fIse\fP in italics.
+.TP 21
+html_italics_close()
+string to close italics section.
+.TP 21
+html_italics_open()
+string to open italics section.
+.TP 21
+html_strong_close()
+string to close strong section.
+.TP 21
+html_strong_open()
+string to open strong section.
+.sp 1
+.TP 21
+\fBHTML Tables\fP
+.sp 1
+.TP 21
+html_table_open([border [, cellpadding [, directive ...]]])
+string to open a table, using border value of \fIborder\fP and
+a cell padding of \fIcellpadding\fP.
+Optionally, as many HTML directives
+as desired can be listed. These complete directives, for example,
+\fIWIDTH=500\fP or \fICELLSPACING=0\fP, will be listed inside the
+TABLE tag.
+.TP 21
+html_table_close()
+string to close a table.
+.TP 21
+html_table_headers(se, ...)
+string representing a row of table headers with each \fIse\fP occupying one
+column or cell.
+.TP 21
+html_row(se, ...)
+string representing a row of table information with each \fIse\fP occupying
+one column or cell. Special table formatting strings can be passed
+as individual arguments to effect the next \fIse\fP. These special argument
+strings are \fIALIGN=\fP with LEFT, RIGHT or CENTER,
+\fIROWSPAN=\fP with a numeric value, \fIWIDTH=\fP with a numeric value,
+and \fINOWRAP\fP. For example, \fIhtml_row("hotdogs", "align=right", 422)\fP
+will return a string representing this HTML table row with the number \fI422\fP
+right justified.
+.TP 21
+html_row_open(se, ...)
+string representing the opening of a table row. Any of the optional \fIse\fP
+arguments are assumed to be intact HTML row formatting commands
+and are placed accordingly in the return string.
+.TP 21
+html_row_close()
+string to close a table row.
+.TP 21
+html_cell_open(se, ...)
+string representing the opening of a table cell. Any of the optional \fIse\fP
+arguments are assumed to be intact HTML cell formatting commands
+and are placed accordingly in the return string.
+.TP 21
+html_cell_close()
+string to close a table cell.
+.sp 1
+.TP 21
+\fBHTML Forms\fP
+.sp 1
+.TP 21
+html_form_open(se, enctype)
+emits string to open an HTML form using POST method and an action of
+\fIse\fP.
+.sp 1
+If the \fIenctype\fP argument is the string \fImulti\fP
+or \fImultipart\fP, then the generated HTML string will include
+\fIENCTYPE=multipart/form-data\fP inside the HTML <FORM> tag
+to indicate a multipart CGI data transmission.
+.sp 1
+Multipart CGI transmissions are transparently processed by dbmacro.
+Input variables that are not type FILE are directly available via
+the name of the variable, in the standard \fImacro\fP manner.
+However, FILE input variables will contain the name of a local temporary
+file and the local temporary file will itself contain the contents of
+the one multipart component referenced.
+.sp 1
+The location of the temporary file is controlled by the
+FirstBase \fIsetup\fP(5) variable TEMPDIR. In addition, each
+multipart transmission that dbmacro processes can control the
+temporary file location itself by using an input variable named TEMPDIR
+(usually a HIDDEN input variable). If such an input variable
+exisits \fIbefore\fP the FILE input variable, then its contents
+are used as the temporary directory used for multipart transmissions.
+.sp 1
+Another input variable that can be used to control multipart transmission
+behavior is MAXSIZE. If the HTML input variable MAXSIZE exists \fIbefore\fP
+the FILE input variable, then its value is used as
+the maximum number of
+of bytes that can be stored in the temporary file.
+.sp 1
+The temporary files generated by a multipart CGI transmission are
+not deleted by \fIdbmacro\fP. Use \fIrename\fP to move them
+(as long as they are on the same file system), or \fIunlink\fP
+to delete them. Again, the macro script itself must clean up any
+temporary files after a multipart CGI transmission.
+.TP 21
+html_form_close()
+string to close an HTML form.
+.TP 21
+html_input(type, name, size, maxsize, value, cval)
+string to create an HTML input field of \fItype\fP,
+called \fIname\fP, that is \fIsize\fP characters wide,
+allowing a maximum of \fImaxsize\fP characters,
+and an initial value of \fIvalue\fP.
+Valid type strings are one of
+.I text, number, password, checkbox, radio, submit, reset, file, 
+or \fIhidden\fP.
+Only the first two arguments are required.
+.sp 1
+If type is \fIfile\fP, make sure the html_form_open() uses
+the \fImultipart\fP designator.
+.sp 1
+If type is a \fIcheckbox\fP or a \fIradio\fP, then \fIcval\fP
+can be set to the string \fICHECKED\fP and that item will be
+marked or selected.
+.sp 1
+When processed,
+the special \fIcheckbox\fP HTML forms input type is provided to
+\fIdbmacro\fP as an array named the same name as the field name.
+(The same applies to the use the keyword MULTIPLE in
+an HTML SELECT statement, i.e. html_select_open()).
+The subscripts or keys of this checkbox array are from
+\fIone\fP to \fIcountkey(array)\fP.
+In other words, \fIdbmacro\fP handles multiple occurrences of the same
+variable passed in from an HTML form.
+.sp 1
+However, there is one caveat with these methods where the same
+variable has multiple values as passed in from an HTML form:
+If only one of many in the HTML \fIcheckbox\fP or selection list is
+selected, then
+\fIdbmacro\fP will only see one occurrence of this HTML field name,
+and the variable available at run time will not be an array, but will
+be a simple variable like any other HTML input fields. In this case, the
+\fIcountkey\fP function will return a zero (0).
+.sp 1
+For example, this code prints all CGI variables coming
+in (via an HTML form) as \fIcategory\fP:
+.SF
+max_i = countkey(category)
+if (max_i == 0)
+   printf("%s\\n", category)
+else
+   for (i = 1; i <= max_i; i++)
+      printf("category[%d] = %s\\n", i, category[i])
+.UF
+.TP 21
+html_select(name, size, option, ...)
+string to create an HTML selection list called \fIname\fP
+and a window of \fIsize\fP selections. The selection list
+is made up of any number of passed in \fIoption\fP arguments.
+To force a particular option to be the default, pass a string argument
+of \fISELECTED\fP just before the selected \fIoption\fP.
+.TP 21
+html_select_open(name, size [, directive ...])
+string to open an HTML selection list called \fIname\fP
+and a window of \fIsize\fP selections. Optionally, as many HTML directives
+as desired can be listed. These complete directives, for example,
+\fIWIDTH=500\fP or \fIMULTIPLE\fP, will be listed inside the
+SELECT tag.
+.TP 21
+html_select_close()
+string to close a selection list.
+.TP 21
+html_select_option(option, ...)
+string representing options in a selection list. As many calls to
+html_select_option can be done as needed, and each call can
+list as many \fIoptions\fP as desired.
+To force a particular option to be the default, pass a string argument
+of \fISELECTED\fP just before the selected \fIoption\fP.
+.sp 1
+In addition, to generate HTML that displays one string, for example
+\fIArizona\fP, but returns a different string, for example, \fIAZ\fP,
+a \fIvalue=\fP directive needs to be triggered by
+prepending the string \fIvalue=\fP to the required value and
+passing this as an argument. For example,
+.SF
+html_select_option("value=" + "AZ", "Arizona")
+.UF
+.TP 21
+html_textarea(name, row, col, value)
+string representing an HTML form text area of input.
+The field \fIname\fP will be a text area \fIrow\fP by \fIcol\fP big,
+with an optional \fIvalue\fP embedded.
+.PD
+.SH MATH FUNCTIONS
+.sp 1
+.PD 1
+.TP 21
+abs(e)
+absolute value of e.
+.TP 21
+acos(e)
+arc cosine of e.
+.TP 21
+asin(e)
+arc sin of e.
+.TP 21
+atan(e)
+arc tangent of e.
+.TP 21
+atan2(e1,e2)
+arc tangent of e1/e2.
+.TP 21
+atof(se)
+convert string to number. same as ston(se).
+.TP 21
+ceil(e)
+smallest integer not less than e.
+.TP 21
+cos(e)
+cosine of e.
+.TP 21
+exp(e)
+exponential function of e
+.TP 21
+floor(e)
+largest integer not greater than e
+.TP 21
+hypot(e1,e2)
+sqrt(e1*e1+e2*e2)
+.TP 21
+log(e)
+natural logarithm of e.
+.TP 21
+max(e1,...)
+maximum value of the e's.
+.TP 21
+min(e1,...)
+minimum value of the e's.
+.TP 21
+pow(e1, e2)
+e1 raised to the e2 power.
+.TP 21
+random()
+return a random(3) number. Use srandom() to seed.
+.TP 21
+round(e, n)
+round e to n places after the decimal.
+.TP 21
+sin(e)
+sin of e.
+.TP 21
+srandom(e)
+seed the random number generator using value e.
+.TP 21
+sqrt(e)
+square root of e.
+.TP 21
+ston(e)
+convert string to number. same as atof(se).
+.TP 21
+tan(e)
+tangent of e.
+.TP 21
+trunc(e, n)
+truncate e at n places after the decimal.
+.PD
+.SH STRING FUNCTIONS
+.PD 1
+.TP 21
+countlines(se, sep)
+counts the number of lines (or fields separated by a \fIsep\fP marker)
+within the string \fIse\fP.
+The \fIsep\fP argument is optional and defaults to the NEWLINE separator.
+(Nested choice types within \fIFirstBase\fP use a field separator of "|").
+.TP 21
+fmt(se,e)
+convert a number to a string using \fIsprintf\fP(3). For example,
+\fIfmt("%5.3f", 16.1)\fP returns the string \fI16.100\fP.
+.TP 21
+formfield(e, type, size)
+format a string using one of the firstbase data types, returns the formatted
+string in a field \fIsize\fP characters wide. Types to use
+are "d" for \fIdate\fP, "$" for \fIdollar\fP, or "a" for \fIalpha\fP.
+For example, \fIformfield(1234.56, "$", 10)\fP yields the
+string \fI1,234.56\fP in a field 10 characters wide.
+Also, \fIformfield("072691", "d", 8)\fP produces \fI07/26/91\fP.
+Fixed width text fields can be produced using type \fIalpha\fP.
+Note that \fIprint()\fP formats these \fIdate\fP and \fIdollar\fP
+fields automatically.
+.TP 21
+gettoken(str, pos, buf, skip)
+similar to getword() except that strings returned
+are exact substrings known as tokens.
+A token is either a run of characters and/or digits,
+or a single other character, like a space, a parenthesis, etc.
+The single character string skip is used to allow embedded
+underscores, for example \fI"_"\fP.
+This function returns a new position value to be used in the next call
+to gettoken() so as to get the \fInext\fP token, or a 0 (zero)
+if there are no more tokens in \fIstr\fP.
+.TP 21
+getword(str, pos, buf)
+get a white space separated string from \fIstr\fP beginning at
+position \fIpos\fP and store this string in \fIbuf\fP.
+Returns a new position value to be used in the next call
+to getword() so as to get the \fInext\fP word, or a 0 (zero)
+if there are no more words in \fIstr\fP.
+.TP 21
+index(se, sep)
+returns the character position (one based) of the separator located in the
+string \fIse\fP.
+Same as strchr().
+.TP 21
+length(se)
+length of string expression.
+.TP 21
+lower(se)
+string \fIse\fP in all lower case letters.
+.TP 21
+rindex(se, sep)
+returns the character position (one based) of the separator located in the
+string \fIse\fP as determined from the right side of the string.
+Same as strrchr().
+.TP 21
+rmlead(se)
+remove the leading blanks of se.
+.TP 21
+rmlinefeed(se)
+truncates \fIse\fP at the first LINEFEED or NEWLINE character.
+.TP 21
+rmnewline(se)
+truncates \fIse\fP at the first NEWLINE or LINEFEED character.
+.TP 21
+rmunderscore(se)
+changes all underscore characters (_) in \fIse\fP to blanks.
+.TP 21
+sprintf(fmt,arg1,...)
+implements the standard UNIX and C \fIprintf\fP mechanism without printing
+the results. Instead, the results are passed back, and can be captured using
+the assignment mechanism. In other words, the result of the \fIsprintf\fP
+function is a \fIstring\fP.
+.sp 1
+For example, \fInewstring = sprintf("Hi %d", number)\fP would do as expected.
+The result string must be less than 5120 characters. Also see \fIprintf\fP.
+.TP 21
+strchr(se, sep)
+returns the character position (one based) of the separator located in the
+string \fIse\fP.
+Same as index().
+.TP 21
+strrchr(se, sep)
+returns the character position (one based) of the separator located in the
+string \fIse\fP as determined from the right side of the string.
+Same as rindex().
+.TP 21
+subline(line, se, n, sep)
+places a subline into \fIline\fP from \fIse\fP,
+a large field or string containing newlines
+or fields of data separated by a \fIsep\fP.
+This function can be used to tear apart comma separated values, or a
+long string line by line.
+Note that \fIsep\fP is an optional argument, and defaults to "\n"
+(NEWLINE) if not specified.
+.sp 1
+The return value from subline is a status indicator. A one (1)
+indicates success, a zero (0) means failure. Empty fields or lines are
+considered to be proper elements.
+.sp 1
+The \fIn\fPth subline component from \fIse\fP is placed into \fIline\fP.
+For example, \fIsubline(oneline, $longfield, 4)\fP places the fourth
+line from field \fIlongfield\fP into the variable \fIoneline\fP.
+.sp 1
+As another example, the second component of the nested choice field
+is placed into the variable \fIchoice\fP by
+\fIsubline(choice, $nested_choice, 2, "|")\fP.
+.sp 1
+A negative value for \fIn\fP counts fields or lines backwards from the end of
+se. Also see the \fImacro\fP function \fIcountlines\fP.
+.TP 21
+substr(se, pos, length)
+returns the sub string within \fIse\fP starting at \fIpos\fP for \fIlength\fP
+characters. A negative \fIpos\fP marks a position at the end of the string.
+As examples, \fIsubstr(s, 1, 5)\fP and \fIsubstr(s, -5, 5)\fP each
+return strings
+five characters long (assuming \fIs\fP is at least five characters).
+One returns the first 5 characters of the string,
+the other returns the last 5 characters of the string.
+.TP 21
+trim(se)
+remove the trailing blanks of se.
+.TP 21
+upper(se)
+string se in all upper case letters.
+.PD
+.SH DATE FUNCTIONS
+In the following functions, the argument \fIs\fP stands for \fIseconds\fP,
+and represents an encoding of a time/date in seconds since January 1, 1970.
+The functions that use an \fIs\fP below need to be passed an argument
+that is already encoded. Some of the other functions \fIreturn\fP
+a date encoded as a \fIseconds\fP argument.
+.PP
+Another type used in these functions is \fId\fP, which represents the
+\fIFirstBase\fP internal date type.
+These are simple strings of the form MMDDYY.
+.sp 1
+.PD 1
+.TP 21
+cdbdate(s)
+returns a \fIFirstBase\fP date representation (MMDDYY) of the seconds \fIs\fP.
+.TP 21
+cdbdts(d)
+returns the \fIseconds\fP encoding of \fIFirstBase\fP date \fId\fP.
+.TP 21
+date(s)
+covert the time in seconds to a standard, 24 character, UNIX date of the
+form \fIFri\ Jul\ 26\ 13:23:45\ 1991\fP. Use substr() to tear this apart.
+.TP 21
+day(s)
+returns the day of the month: 1 to 31.
+.TP 21
+dts(m,d,y)
+returns m/d/y encoded in seconds.
+.TP 21
+hour(s)
+returns number of hours since midnight: 0 to 23.
+.TP 21
+minute(s)
+returns number of minutes since last full hour: 0 to 59.
+.TP 21
+month(s)
+return the month: 1 (January) to 12 (December).
+.TP 21
+ndays(d1, d2)
+return number of days between two \fIFirstBase\fP dates.
+.TP 21
+newdate(d, n)
+return the \fIFirstBase\fP date \fId\fP bumped by \fIn\fP days.
+Negative days are allowed.
+.TP 21
+now()
+return the current time encoded in seconds.
+.TP 21
+second(s)
+returns number of minutes since last full minute: 0 to 59.
+.TP 21
+tts(h,m,s)
+return h:m:s encoded in seconds since midnight
+.TP 21
+year(s)
+return the year. Valid years start with 1970.
+.PD
+.SH SCREEN FUNCTIONS
+The following screen functions are allowed only when a \fImacro\fP is used from
+the database editor \fIdbvedit\fP(1). In other words, these functions
+have no effect on the tool \fIdbmacro\fP(1).
+.sp 1
+.PD 1
+.TP 21
+bell()
+produce bell or visible bell according to the termcap entry
+.TP 21
+clear()
+clear the entire screen.
+.TP 21
+clrtobot()
+clear from the cursor to the bottom of the screen.
+.TP 21
+clrtoeol()
+clear from the cursor to the end of the line.
+.TP 21
+editfield(f1,...)
+edit one or more fields from the current page, as defined by
+the visual editor, \fIdbvedit\fP(1), and its visual dictionary file.
+Note that the arguments \fBdo not\fP use a $ \(em field names or numbers
+are used.
+Returns a status value constant of PREV, NEXT, AOK, DEFAULT, or ABORT.
+See the section below on \fIediting\fP topics.
+.TP 21
+error(se)
+prints the string \fIse\fP as a standard FirstBase simple error message, and
+requires a single key to be entered before execution is continued.
+.TP 21
+footer()
+redraw the standard \fIFirstBase\fP footer line.
+.TP 21
+header()
+redraw the standard \fIFirstBase\fP header line.
+.TP 21
+input(row, col, max, min, fmt, addr)
+provides access to the standard \fIFirstBase\fP input mechanism, complete
+with the "input dots" and intraline editing.
+Returns a status value constant of PREV, NEXT, AOK, or ABORT.
+See the section on \fIediting\fP topics below for more details.
+.TP 21
+move(row, col)
+move the cursor to \fIrow\fP and \fIcol\fP. <1,1> is the upper left corner,
+and <24,80> the lower right corner.
+.TP 21
+pause()
+pauses \fImacro\fP execution with a \fIFirstBase\fP simple error message
+requiring a single keystroke to continue. Sometimes helpful for debugging a
+macro. See also \fIerror()\fP.
+.TP 21
+redraw()
+redraw the current page of fields and text, as known and displayed by the
+database editor \fIdbvedit\fP(1).
+.TP 21
+refresh()
+causes the screen manager to display all text in the screen buffer. In other
+words, cursor motion and screen activity are not displayed until a refresh()
+is done. However, input, error, and redraw type functions do implicit
+refreshes.
+.TP 21
+rinput(max, min, fmt, addr)
+same as input(), except row and col are defined as the current ROW and COL
+being used by the invoking field. An additional runtime macro variable, LEN,
+will contain the length of the current field.
+.TP 21
+status(se)
+redraw the status area (upper right hand corner) with the string \fIse\fP.
+.PD
+.SH STREAM INPUT/OUTPUT FUNCTIONS
+The stream functions allow standard UNIX handling of files.
+The arguments with these functions closely matches the arguments
+of the corresponding functions in standard UNIX manual sections (2) and (3).
+.sp 1
+Note: to intersperse combinations of \fIfgets\fP and \fIfread\fP,
+\fIfseek\fP must be used in between. The same rule applys for \fIfputs\fP and
+\fIfwrite\fP.
+.sp 1
+.PD 1
+.TP 21
+access(path, mode)
+returns a -1 if the \fIpath\fP
+cannot be found or if any of the access modes would
+not be granted, otherwise a 0 value is returned. The \fImode\fP is
+an INCLUSIVE OR of the bits (test for read, write and execute/search
+permissions). A \fImode\fP of 0 tests directories leading to the file, and if the
+file exists.
+.TP 21
+creat(filename, mode)
+create \fIfilename\fP using numeric value \fImode\fP as permissions.
+In the special case where \fIfilename\fP already exists, \fIcreat\fP
+changes the mode of the filename to \fImode\fP.
+.TP 21
+chmod(filename, mode)
+change permissions of \fIfilename\fP to numeric value \fImode\fP.
+.TP 21
+fclose(stream)
+close the associated \fIstream\fP.
+.TP 21
+fflush(stream)
+flush any output in the \fIstream\fP.
+.TP 21
+fgets(s, n, stream)
+reads a maximum of \fIn\fP characters, or until a NEWLINE, from \fIstream\fP
+placing the results in \fIs\fP. Returns 0 on EOF, 1 on successful reads. 
+.TP 21
+fopen(filename, type)
+opens a file named by \fIfilename\fP and associates a stream with it.
+If the open succeeds, \fIfopen\fP() returns an integer that is used as
+the file stream. \fItype\fP is a character string from the following:
+.sp 1
+.po +1.55i
+.TP 5
+r
+open for reading
+.TP 5
+w
+truncate or create for writing
+.TP 5
+a+
+append; open or create for update at EOF
+.TP 5
+r+
+open for updating (reading and writing)
+.sp 1
+.po -1.55i
+.TP 21
+fprintf(stream, fmt, arg1, ...)
+uses the standard \fIprintf\fP mechanism,
+but writes output to \fIstream\fP.
+.TP 21
+fputs(s, stream)
+writes \fIs\fP to \fIstream\fP
+.TP 21
+fread(s, size, stream)
+attempts to read \fIsize\fP characters from \fIstream\fP and store in \fIs\fP.
+The actual number of characters read is returned, or a 0 upon EOF.
+.TP 21
+fseek(stream, offset, ptrname)
+set the position of the stream pointer for the next input or output operation.
+.TP 21
+fwrite(s, size, stream)
+attempts to write \fIsize\fP characters to \fIstream\fP from \fIs\fP.
+The actual number of characters written is returned.
+.TP 21
+link(oldpath, newpath)
+creates a hard link from \fIoldpath\fP to \fInewpath\fP.
+Both files must be on the same file system.
+Returns 0 for success, -1 for failure.
+.TP 21
+mktemp(template)
+creates a unique file name, typically in a temporary file system.
+The string in \fItemplate\fP should contain a file name with six trailing Xs
+\fImktemp\fP will replace the Xs with a letter and the current process ID.
+.sp 1
+\fImktemp\fP actually uses the mkstemp(2) system call, which creates
+the temporary file, mode 0600, and opens the temporary file,
+returning a file descriptor. The macro version of \fImktemp\fP
+closes the file descriptor, leaving the file intact.
+. sp 1
+\fIcreat\fP or \fIchmod\fP can be used to change the mode on these files.
+.TP 21
+pclose(stream)
+close the associated \fIstream\fP opened with \fIpopen\fP.
+.TP 21
+popen(pname, type)
+opens a process named by \fIpname\fP and associates a standard file
+stream with it.
+If the \fIpopen\fP succeeds, it returns an integer that is used as
+the file stream, otherwise an ERROR (-1) is returned.
+\fItype\fP is either an \fIr\fP
+to read from process \fIpname\fP, or a
+\fIw\fP to write to process \fIpname\fP.
+.TP 21
+rename(oldpath, newpath)
+renames a file from \fIoldpath\fP to \fInewpath\fP.
+Both files must be on the same file system.
+Returns 0 for success, -1 for failure.
+.TP 21
+symlink(frompath, topath)
+creates a symbolic link from \fIfrompath\fP to \fItopath\fP.
+Returns 0 for success, -1 for failure.
+.TP 21
+unlink(path)
+removes the directory entry named by \fIpath\fP. Returns 0 for success,
+-1 for failure.
+.PD
+.SH MISCELLANEOUS FUNCTIONS
+.PD 1
+.TP 21
+cgi_read()
+provides a hook to the  CGI initialization routines when
+macro code is executed using direct methods.
+.sp 1
+As \fIdbmacro\fP(1) points out, if invoked as \fIdbmacro.cgi\fP,
+CGI data is automatically converted to variables available
+in the macro code at runtime and \fIdbmacro\fP(1) also
+emits the standard CGI script lines "Content-type: text/html\n\n".
+.sp 1
+However, if \fIdbmacro\fP(1) is called from a shell script,
+or is used as the command interpreter itself via
+something like
+.SF
+#!/usr/local/firstbase/bin/dbmacro
+.UF
+as the first line of the CGI file, then the \fIcgi_read\fP mechanism
+can be used to parse standard CGI parameters and values.
+Note that the script will have to print the HTML Content-type directive
+itself if needed.
+.TP 21
+chdir(se)
+change directory to \fIse\fP and return the status of the \fIchdir\fP(2)
+call, which is ERROR (-1) on failure and zero (0) on success.
+.TP 21
+countkey(array)
+return the count of the keys or subscripts of \fIarray\fP.
+See also \fIkey\fP.
+.TP 21
+findkey(key, s, array)
+locate the element of \fIarray\fP that has the value of \fIs\fP and place
+its lookup or subscript value into key. Returns either AOK or ERROR.
+.TP 21
+fork()
+standard \fIfork\fP(2) UNIX function. Returns 0 to the child and the childs
+process ID to the parent.
+.TP 21
+getenv(se)
+standard \fIgetenv\fP(2) call, returns value of UNIX environment variable
+\fIse\fP.
+.TP 21
+gets(s)
+reads a single line from standard input and
+places the results in \fIs\fP. Returns 0 on EOF, 1 on successful reads.
+Used for \fIdbmacro\fP(1) only.
+.TP 21
+in(e,e1,e2...)
+returns a 1 if e is in the set of expressions e1 ... eN, else a 0.
+.TP 21
+key(val, array)
+iterates through each of the keys or subscripts of \fIarray\fP
+on successive calls and returns one key each time. \fIkey\fP places the
+subscript value into \fIval\fP. A value of one (1) is returned on success and 
+zero (0) on errors or when \fIkey\fP has iterated through all
+subscripts. Iteration can then start again.
+See also \fIcountkey\fP.
+.TP 21
+load(se)
+Load and parse the \fImacro_file\fP \fIse\fP.
+This runtime load mechanism can be used to load sets of library style
+\fImacro\fP functions, or load different \fImacro\fP code on demand.
+Again, all variables in all files and functions, loaded or inline, are
+global unless specifically declared using the \fIlocal\fP directive.
+.TP 21
+pattern(e, pat)
+returns a 1 if e matches the pattern \fIpat\fP, else a 0.
+Full regular expression pattern matching is done.
+.TP 21
+pattern_comp(pat)
+compile the pattern \fIpat\fP. Use with pattern_exec().
+.TP 21
+pattern_eo(n)
+returns the end character offset of the \fIn\fPth
+remembered substring matched in pattern() or pattern_exec().
+Note: return value is adjusted for one based string array.
+.TP 21
+pattern_exec(s)
+match the string \fIs\fP against the pattern previously compiled
+via pattern_comp().
+.TP 21
+pattern_icase(n)
+Default pattern matching is case sensitive via pattern() and pattern_exec().
+Using an \fIn\fP of 1 causes case to be ignored for these pattern matches,
+and a 0 resets pattern matching to being case sensitive.
+.TP 21
+pattern_so(n, r)
+returns the starting character offset of the \fIn\fPth
+remembered substring matched in pattern() or pattern_exec().
+Note: return value is adjusted for one based string array.
+.TP 21
+pattern_substr(str, n)
+returns the \fIn\fPth matched remembered substring of \fIstr\fP
+after a call to pattern() or pattern_exec().
+.TP 21
+print(e1,...)
+prints each of the expressions, formatting those that are of
+type \fIFirstBase\fP dollar and \fIFirstBase\fP date. For screen macros,
+use \fImove()\fP to position the cursor first.
+.TP 21
+printf(fmt,arg1,...)
+implements the standard UNIX and C \fIprintf\fP mechanism. The result string
+must be less than 5120 characters. The result is printed. For screen macros,
+use \fImove()\fP to position the cursor first. Also see \fIsprintf\fP.
+.TP 21
+putenv(se)
+standard \fIputenv\fP(2) call, sets value for UNIX environment variable
+\fIse\fP.
+.TP 21
+puts(s)
+print a single line to standard output.
+places the results in \fIs\fP. Returns AOK or ERROR.
+Used for \fIdbmacro\fP(1) only.
+.TP 21
+reverse(e1,...)
+exactly like \fIprint\fP() except characters are printed in reverse video
+if possible.
+.TP 21
+rmkey(key, array)
+removes element \fIkey\fP from \fIarray\fP.
+.TP 21
+sleep(n)
+sleep n seconds.
+.TP 21
+standout(e1,...)
+exactly like \fIprint\fP() except characters are printed in standout video
+if possible.
+.TP 21
+system(se)
+use the UNIX system call to execute the command \fIse\fP. Returns the exit
+status of the sub shell.
+.TP 21
+terminate(e)
+terminates the process. Used only for exiting
+from a process created via \fIfork\fP(). Terminates (exits) with status
+\fIe\fP. Again, use \fIexit\fP or \fIreturn\fP for normal macro code, and
+\fIterminate\fP only when you want the process to die completely.
+.TP 21
+usrlog(s)
+writes error message \fIs\fP to the USRLOG file in the FIRSTBASEHOME
+directory. Also see \fIsetup\fP(5).
+.PD
+.SH SECURE FUNCTIONS
+.PD 1
+.TP 21
+r_chgrp(e)
+change the group for a record to the numeric group \fIe\fP.
+.TP 21
+r_chmod(e)
+change the mode for a record to the numeric mode \fIe\fP.
+.TP 21
+r_chown(se)
+change the owner for a record to the symbolic name use name specified by
+\fIse\fP.
+.TP 21
+r_group()
+return the group number for a record.
+.TP 21
+r_mode()
+return the (numeric) mode for a record.
+.TP 21
+r_owner()
+return the symbolic owner name for a record.
+.PD
+.SH COMPLEX DEFAULTS
+Complex defaults, conditional defaults, and assignments to
+fields within the record based on large sets of criteria can all
+be readily done using a macro file.
+.PP
+A simple assignment to a field will store the value into the field.
+Later, when the record is written, this value will be written
+to the disk copy of the record. For example, the following stores todays date
+into a field named \fIEntryDate\fP:
+.PP
+.SF
+$EntryDate = cdbdate(now())
+redraw()
+.UF
+Other kinds of defaults can be done using conditional statements.
+For example, the following only stores the date field named \fILastCont\fP
+only if a date
+has already been entered into the date field \fINextCont\fP.
+.SF
+if ($LastCont != "")
+   $NextCont = newdate($LastCont, 14)
+else
+   $NextCont = ""
+.UF
+This example will set the field \fINextCont\fP to two weeks past the
+current value of \fILastCont\fP at macro execution time (field edit time).
+.PP
+.SH EDITING TOPICS
+One of the features of \fIFirstBase\fP macro fields is the ability to
+interactively edit fields from the current database within the flow of a
+macro file. This interaction occurs when using the database editor,
+\fIdbvedit\fP(1), or the visual database emitter, \fIdbvemit\fP(1).
+These are trigger fields, or conditional fields.
+.PP
+When a field is edited within a \fIFirstBase\fP macro, it is referred to as a
+\fItrigger field\fP. But, the place the macro file is attached is called
+the \fItrigger point\fP. Both trigger points and trigger fields can be edited
+within a macro, but there is a distinction.
+.PP
+Trigger fields are edited using a very simple function, \fIeditfield()\fP.
+\fIEditfield\fP accepts a list of comma separated fields, but the arguments
+\fBdo not\fP use the "$" to evaluate the fields. For example,
+\fIeditfield(Address)\fP would edit a field named \fIAddress\fP
+in the current \fIFirstBase\fP database.
+.PP
+Here are a few notes on trigger fields and trigger points.
+First, fields that are listed in the outside visual
+dictionary as "display only" can still be edited, and this is probably
+preferred since the idea is to make the trigger fields editable from
+the macro file only.
+.PP
+Second, editing the trigger point using
+\fIeditfield()\fP is disallowed (as is any cycle where this occurs).
+In this case, \fIinput()\fP must be used. See below.
+.PP
+And, third, when using \fIeditfield()\fP or \fIinput()\fP,
+the return of a proper
+status (signal) to the \fIFirstBase\fP database editor will produce better
+field-to-field cursor motion during the editor's Field Level movements.
+.PP
+Note: in the following sections, the macro function \fIrinput()\fP can be
+used whenever the related function \fIinput()\fP is referenced.
+.PP
+When editing a field, sometimes the user elects to go by the field
+using \fIFirstBase\fP keystrokes that move the cursor to the
+\fINEXT\fP or \fIPREV\fP fields. The macro functions
+\fIeditfield()\fP and \fIinput()\fP both return a status value that can be used
+to detect these situations. The macro constants PREV, NEXT, AOK, ABORT, DEFAULT
+and END represent the possible signals returned.
+Equivalent macro constants are
+FB_PREV, FB_NEXT, FB_AOK, FB_ABORT, FB_DEFAULT
+and FB_END.
+.PP
+A special note on the END \fItoken\fP: Since END can be used
+to define a sections of code that will only be executed one
+time at the end of all database processing, some uses of END
+will cause a syntax error. For example,
+.SF
+st = END
+.UF
+will not parse, however each of the next two will parse just fine:
+.SF
+st = END;
+st = FB_END
+.UF
+.PP
+In general, passing back the signal returned by \fIeditfield()\fP or
+\fIinput()\fP will produce the proper effect. For example, this macro file
+code fragment will produce normal editor behavior:
+.SF
+st = editfield(Address1, Address2, City)
+return(st)
+.UF
+Note that when given more than one argument, \fIeditfield()\fP will properly
+handle the NEXT/PREV signals between these fields. If you need to use
+multiple calls to \fIeditfield()\fP within one macro-file, you will either
+have to accept the editor behavior, or provide for the PREV/NEXT signals
+in the code for the macro file. (See the examples below).
+.PP
+Another variable that helps in determining editor behavior is the macro
+variable \fBST_UP\fP. This variable is set to one when a macro file is invoked
+by moving into the field UPWARD via a PREV signal.
+Otherwise, \fBST_UP\fP will be zero.
+.PP
+To allow generalized input, or input into a \fItrigger point\fP, the macro
+function \fIinput()\fP is provided. The \fIinput()\fP function has many
+arguments: \fIrow\fP, \fIcol\fP, \fImax\fP, \fImin\fP,
+\fIformat\fP, and \fIaddress\fP.
+Additionally, an optional argument, \fIextra_status\fP, can appear last.
+.PP
+Input is taken
+from the screen at coordinates \fIrow, col\fP.
+A maximum of \fImax\fP characters
+will be allowed, with a required input of \fImin\fP characters.
+(To make a forced entry, set \fImin\fP greater than zero).
+The \fIformat\fP is one of "aAd$fnNU", the core set of standard
+internal \fIFirstBase\fP data types.
+.PP
+The next argument, \fIaddress\fP is
+the macro variable where the \fIinput()\fP information will be stored.
+Note: address cannot be a FirstBase field \(em use a temporary storage area
+then assign back to a field if needed. Additionally, if \fIaddress\fP
+is assigned a value \fIBEFORE\fP entering the \fIinput()\fP function,
+its contents are used with the \fIFirstBase\fP
+intraline editing functions, if EDITINPUT is set via \fIsetup\fP(5).
+.PP
+As mentioned above, \fIinput()\fP also returns a status. However,
+its status is more generalized than \fIeditfield()\fP. For example,
+since \fIinput()\fP detects signals and gathers keyboard input, the characters
+gathered are stored in \fIaddress\fP \fBonly\fP when an \fIAOK\fP status is
+returned by \fIinput()\fP.
+.PP
+A specialized version of \fIinput()\fP named \fIrinput()\fP will use the
+\fIrow\fP and \fIcolumn\fP
+of the current \fItrigger point\fP in calling \fIinput()\fP.
+All other arguments remain the same.
+.PP
+For example, to simulate \fIdbvedit\fP(1) behavior,
+using the \fIrinput()\fP mechanism, on a
+\fItrigger point\fP field, (or a field that has a defined macro that edits
+the same field itself, recursively), the following
+macro file code could be used:
+.SF
+val = $Field3
+st = rinput(LEN, 0, "$", val, e_st)
+if (st == AOK){
+   $Field3 = val
+   st = e_st
+   }
+return(st)
+.UF
+The internal macro variable LEN will be set at run time to the length
+of the current field, the field size.
+.PP
+This code also provides an example of the optional status argument
+to \fIinput()\fP and \fIrinput()\fP, here called \fBe_st\fP.
+If passed this argument, these macro functions will store any excess status
+signals in this variable.
+.PP
+An excess status signal is generated only when
+changes are made to the editable area and a NEXT or PREV keystroke is
+used to move the cursor. In this case, a final variable passed into
+\fIinput()\fP and \fIrinput()\fP (\fBe_st\fP) will be set to this
+excess status, NEXT or PREV. The actual return code from the
+function is AOK. The above code catches these excess signals properly.
+.PP
+Although it is much easier to use a \fItrigger point\fP and \fIeditfield()\fP
+with multiple arguments, it is possible to write macro code that will
+edit the \fItrigger point\fP using \fIrinput()\fP, edit additional fields
+using \fIeditfield()\fP, and still provide normal \fIdbvedit\fP(1) behavior.
+.PP
+The following code, again, unnecessary if you use a \fItrigger point\fP and
+distinct \fItrigger fields\fP, does demonstrate all of the above nuances
+to \fItrigger point\fP editing and signal behavior.
+.SF
+#
+# loop to provide NEXT/PREV behavior between **these** fields
+#
+for (st = NEXT; ; ){
+   if (ST_UP == 0 || $Field3 == ""){       # if not here via PREV
+      val = $Field3
+      st = rinput(LEN, 0, "a", val, e_st)  # edit the trigger point
+      if (st == AOK){
+         $Field3 = val                     # make assignment if AOK
+         st = e_st
+         }
+      redraw()                             # redraw rinput() always
+      }
+   ST_UP = 0
+   if (st != NEXT)
+      break
+   if ($Field3 != ""){                     # maybe edit Field4
+      st = editfield(Field4)
+      if (st == PREV)
+         continue
+      st = NEXT
+      }
+   break
+   }
+return(st)
+.UF
+Note that an equivalent piece of code using a \fItrigger point\fP field
+different than the \fItrigger fields\fP is simply:
+.SF
+return(editfield(Field3, Field4))
+.UF
+With this smaller piece of code, the macro cannot be tied to either
+Field3 nor Field4.
+.SH MACRO CODE AND DATABASE EDITING
+This section describes how to use \fImacro\fP(5) code
+to extend the standard behavior of the FirstBase database editor.
+Non licensed versions of \fIdbmacro\fP are not capable of
+database interaction.
+.PP
+To be used within \fIdbvedit\fP(1), the macro file is either
+(a) tied to the database via the database dictionary or defaults file
+(see \fIdbdbas\fP(1) and \fIdefaults\fP(5)) or (b) named one of the special
+\fImacro\fP file names that indicate \fImacro\fP execution at record entry,
+record exit, of other \fIdbvedit\fP record editing points.
+.PP
+When the \fImacro\fP file is tied to an actual field, it will be executed
+instead of the normal Field Level editing when the cursor is moved "onto"
+that field. This \fImacro\fP-enabled field must be "editable"
+according to the view dictionary (the \fIvdict\fP file).
+.PP
+The \fImacro\fP
+file itself can modify other fields as long as they are listed on the same page
+in the view dictionary. Furthermore, \fImacro\fP files \fIcan\fP edit fields
+that the view dictionary defines as "display only".
+.PP
+To provide for \fImacro\fP execution at record entry and record exit points,
+special file names are used to store the \fImacro\fP code. The base file name
+for these files is the name of the database. The additional extensions
+are \fIm_begin\fP, \fIm_end\fP and \fIm_endwrite\fP.
+.PP
+For example, if the database is named \fIdbase\fP, then the begin
+\fImacro\fP file name is \fIdbase.m_begin\fP, and the end \fImacro\fP
+file name is \fIdbase.m_end\fP.
+.PP
+The \fIbegin\fP record \fImacro\fP
+file will be processed whenever a record is opened
+for editing, and it will always allow record entry.
+.PP
+The \fIend\fP record \fImacro\fP file will be processed whenever a record
+is exited, whether it will be written or not.
+This end record \fImacro\fP file \fIcan\fP deny exit
+by controlling the value or status it returns. If this end record \fImacro\fP
+returns a status other than \fIEND\fP, for example \fIERROR\fP, then
+the record will not be written, and the user is returned to record level
+on the same record (to correct the situation causing the failure).
+.PP
+The \fIendwrite\fP record \fImacro\fP
+file will be processed \fIafter\fP a record
+is written to the database, meaning all automatic increments and defaults
+will have been resolved. Note: changes made to the record here will not be
+written to the database \(em this \fImacro\fP
+file is only for post-write processing.
+Global variables inside each of these \fImacro\fP files are shared
+so that state information or flags can be used during an editing session.
+.PP
+During the execution of each of these record macros,
+an internally defined \fImacro\fP variable \fICREATE_RECORD\fP will be set to
+one (1) or zero (0) according to whether the record is a new (add) record
+or not. Additionally, during both end record macros, an additional
+internally defined \fImacro\fP variable \fIWRITE_RECORD\fP will be set to
+one (1) or zero (0) depending on whether the record has been modified
+and is about to be (or was) written to the database file. Still another
+variable \fIEND_KEYSTROKE\fP will be (1) or (0) during the \fIend\fP
+or \fIendwrite\fP macros depending on whether the END keystroke was used
+or whether the action was due to a \fIw\fP, \fIWSIGNAL\fP, or custom command.
+.PP
+There are two additional execution points within \fIdbvedit\fP where a
+\fImacro\fP can be used to provide extensible editor behavior.
+These two points are the command level \fImacro\fP
+and the field level \fImacro,\fP each denoted by special
+file name extension. Again, the base name is the name of the database, with
+the extension being \fIm_com\fP and \fIm_fld\fP, respectively.
+.PP
+Each of these macro execution points can be used to
+repaint the screen. Additionally, the field macro can make changes to
+the database record and potentially provide trigger fields or sections.
+.SH SEE ALSO
+dbedit(1), dbdbas(1), dbmacro(1), fbtstmac(8)
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br

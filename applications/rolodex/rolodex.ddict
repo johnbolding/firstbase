@@ -1,0 +1,19 @@
+LastName a 30
+FirstName a 15 -d _
+Company a 35 -d _
+HomePhone a 17 -d _
+WorkPhone a 17 -d _
+Addr1 a 40 -d _
+Addr2 a 40 -d _
+City a 15 -d _
+State a 2 -d _
+Zip a 10 -d _
+FAXPhone a 17 -d _
+Extra2 a 50 -d _
+Extra3 a 50 -d _
+Extra4 a 50 -d _
+Extra5 a 50 -d _
+Extra6 a 50 -d _
+Extra7 a 50 -d _
+Extra8 a 50 -d _
+Extra9 a 50 -d _

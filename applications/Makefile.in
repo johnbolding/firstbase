@@ -1,0 +1,137 @@
+# Copyright (C) 2001 FirstBase Software, Inc. All rights reserved.
+#
+# $Id: Makefile.in,v 9.1 2001/01/22 18:33:45 john Exp $
+#
+# See the file LICENSE for conditions of use and distribution
+#
+#
+# Makefile for firstbase applications/
+#
+
+PRODUCT = @PRODUCT@
+VERSION = @VERSION@
+
+SHELL = /bin/sh
+srcdir = @srcdir@
+VPATH = @srcdir@
+@SET_MAKE@
+
+CC = @CC@
+CFLAGS = @CFLAGS@
+INSTALL = @INSTALL@
+INSTALL_DATA = @INSTALL_DATA@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+
+firstbasehome = @FIRSTBASEHOME@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = $(exec_prefix)/$(firstbasehome)/bin
+infodir = $(prefix)/$(firstbasehome)/info
+libdir = $(prefix)/$(firstbasehome)/lib
+mandir = $(prefix)/$(firstbasehome)/man
+docdir = $(prefix)/$(firstbasehome)/doc
+includedir = $(prefix)/$(firstbasehome)/include
+appdir = $(prefix)/$(firstbasehome)/applications
+
+APPDIRS = phone rolodex sample_src
+
+.SUFFIXES:
+.SUFFIXES: .c .o
+
+all: APPLICATIONS all-recursive
+
+demo: demo-local demo-recursive
+
+FILES = Makefile.in APPLICATIONS
+COMMANDS = mkapplications
+
+demo-local:
+
+APPLICATIONS::
+	$(srcdir)/mkapplications
+
+install: install-local install-recursive demo-remote
+
+install-local:
+	PWD=`pwd` && \
+        if [ "$(appdir)" != "$(PWD)" ] ; then \
+	   echo Installing to $(appdir)/; \
+	   $(INSTALL) -d -m 0777 $(appdir); \
+	   for file in $(FILES) Makefile ; do \
+	      $(INSTALL_DATA) $$file $(appdir) ; \
+           done ; \
+	   for file in $(COMMANDS) ; do \
+	      $(INSTALL) $$file $(appdir) ; \
+           done ; \
+	fi
+
+install-recursive all-recursive:
+	PWD=`pwd` && \
+        if [ "$(appdir)" != "$(PWD)" ] ; then \
+           for subdir in $(APPDIRS) ; do \
+	      target=`echo $@ | sed 's/-recursive//'`; \
+	      echo making $$target in $$subdir; \
+	      ((cd $$subdir && $(MAKE) $$target) || exit 1) ; \
+	   done ;  \
+	fi
+
+demo-remote::
+	(cd $(appdir); make demo)
+
+demo-recursive:
+	@for subdir in $(APPDIRS) ; do \
+	   target=`echo $@ | sed 's/-recursive//'`; \
+	   echo making $$target in $$subdir; \
+	   (cd $$subdir && $(MAKE) $$target) || exit 1; \
+	done
+
+mostlyclean: mostlyclean-recursive mostlyclean-local
+
+clean: clean-recursive clean-local
+
+distclean: distclean-recursive distclean-local
+
+realclean: realclean-recursive realclean-local
+
+extraclean: extraclean-recursive extraclean-local
+
+mostlyclean-recursive clean-recursive distclean-recursive \
+realclean-recursive extraclean-recursive:
+	@for subdir in $(APPDIRS) ; do \
+ 	  target=`echo $@ | sed 's/-recursive//'`; \
+	  echo making $$target in $$subdir; \
+	  (cd $$subdir && $(MAKE) $$target) || exit 1; \
+	done
+
+mostlyclean-local:
+
+clean-local: mostlyclean-local
+
+distclean-local: clean-local
+	rm -f Makefile
+
+realclean-local: distclean-local
+
+extraclean-local: realclean-local
+	rm -f patch* *~* *\#* *.orig *.rej *.bak core a.out include/*~*
+
+Makefile::
+	cd ../ && CONFIG_FILES=applications/$@ CONFIG_HEADERS= ./config.status
+
+DISTFILES = $(FILES) $(COMMANDS)
+
+dist:
+	@for file in $(DISTFILES); do \
+	  ln $(srcdir)/$$file ../$(PRODUCT)-$(VERSION)/applications 2> /dev/null \
+	    || cp -p $(srcdir)/$$file ../$(PRODUCT)-$(VERSION)/applications; \
+	done
+	@for subdir in $(APPDIRS) ; do \
+	  echo making $@ in $$subdir; \
+	  mkdir ../$(PRODUCT)-$(VERSION)/applications/$$subdir; \
+	  chmod 777 ../$(PRODUCT)-$(VERSION)/applications/$$subdir; \
+	  (cd $$subdir && $(MAKE) $@) || exit 1; \
+	done
+
+# Tell versions [3.59,3.63) of GNU make not to export all variables.
+# Otherwise a system limit (for SysV at least) may be exceeded.
+.NOEXPORT:

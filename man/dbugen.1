@@ -1,0 +1,79 @@
+.TH DBUGEN 1 "12 September 1995"
+.FB
+.SH NAME
+dbugen \- generate updates within a \fIFirstBase\fP database
+.SH SYNOPSIS
+.B dbugen
+[\fB-b\fP] [\fB-y\fP]
+[\fB-d\fP \fIdatabase\fP] [\fB-i\fP \fIindex\fP]
+.SH DESCRIPTION
+.I Dbugen
+generates updates within a \fIFirstBase\fP database using an update
+dictionary defined via 
+\fIdbdupd\fP(1).
+This update dictionary is used to determine 
+the new value of each of the fields processed.
+Fields not mentioned in the update dictionary are not modified.
+.PP
+The \fB-b\fP
+flag will run the \fIFirstBase\fP tool in batch mode, suitable for shell scripts.
+This mode produces no output on the terminal, thus can also be used
+when running the process in the background.
+The \fI-y\fP flag will run the tool at the terminal without pausing to ask
+the user if existing files can be destroyed and without displaying
+a 'picture' of the requested task.
+.PP
+\fIDbugen\fP(1)
+first displays an image of the updates that will occur.
+The user has a chance to abort here. All updates are done in place, 
+directly into the current database.
+.PP
+\fIDbugen\fP(1)
+can change selected fields of selected records on a global basis.
+Any field can be cleared out, 
+alphanumeric fields can be replaced, and numeric oriented
+fields (numeric, float, 
+dollar) can actually be formulated during updates.
+See 
+\fIdbdupd\fP(1)
+for more update details.
+.SH FILES
+.PD 0
+.TP 10
+dbase
+default name for the \fIFirstBase\fP database.
+.TP 10
+index
+default name for the \fIFirstBase\fP index.
+.TP 10
+*.?dict
+dictionary for \fIFirstBase\fP dbase or index.
+.TP 10
+*.idictu
+dictionary for update generator.
+.TP 10
+*.cdb
+\fIFirstBase\fP database.
+.TP 10
+*.idx
+\fIFirstBase\fP index.
+.PD
+.SH SEE ALSO
+dbdupd(1), dbdbas(1), dbedit(1), generators(5).
+.PP
+.I FirstBase User's Guide and Reference Manual.
+.SH DIAGNOSTICS
+For those of you who are
+more tool oriented, \fIdbdupd\fP(1) and \fIdbugen\fP(1) effectively
+implement a macro processor, complete with argument macros, for the
+\fIFirstBase\fP.
+.sp 1
+This tool uses a \fIFirstBase\fP index to process the database in a particular order.
+If this index is detected to be out of date or non-existent, it is
+regenerated \fIautomatically\fP.
+.sp 1
+Note: this \fIFirstBase\fP database tool will attempt to gain write access to a record
+before operating on that record. If access is currently locked, then the
+internal locking routine will respond according to the value of the \fIFirstBase\fP
+environment variable LOCKMESSAGE. See \fIsetup\fP(5).
+.br

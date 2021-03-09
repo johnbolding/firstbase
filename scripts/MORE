@@ -1,0 +1,6 @@
+:
+/usr/ucb/more -c $*
+echo
+echo
+echo -n Hit RETURN to Continue:
+read garbage

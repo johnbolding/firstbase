@@ -1,0 +1,72 @@
+.TH GETMAP 3 "12 September 1995"
+.FB
+.SH NAME
+getmap, putmap \- read and write database map entry
+.SH SYNOPSIS
+#include <firstbase/fb.h>
+.sp 1
+fb_getmap(mfd, n, avail, freep, rpos, rlen)
+.br
+int mfd;
+.br
+long n, *avail, *freep, *rpos, *rlen;
+.br
+.sp 1
+fb_putmap(mfd, n, avail, rpos, rlen)
+.br
+int mfd;
+.br
+long n, avail, rpos, rlen;
+.PP
+.SH DESCRIPTION
+As explained in the
+\fIdatabase\fP(4) manual page, a database structure contains
+all of the elements needed for an entire database, including
+file names, descriptors and other variables. One of the files associated
+with a FirstBase database is a map file used to provide locations and
+lengths of logical FirstBase records.
+.PP
+This database map file, actually a miniature, fixed-width database in its
+own right, is modified using the low level FirstBase routines \fIfb_getmap\fP
+and \fIfb_putmap\fP. However, these routines are only used when building a
+\fIFirstBase\fP map file without using \fIputrec\fP(3).
+.PP
+Formally, \fIfb_getmap\fP reads a map "record" plus header information
+from the map file, and \fIfb_putmap\fP writes a map "record" to the map file.
+.PP
+The \fIfb_getmap\fP and \fIfb_putmap\fP routines, being very low level,
+do not know of database structures and such.
+Instead, each is passed all the arguments
+it needs to retrieve a map entry. For \fIfb_getmap\fP the arguments are:
+\fImfd\fP, the map file descriptor,
+as in db->mfd; \fIn\fP is the logical record number for the map, and in
+turn, the information returned is about the database record known as record
+\fIn\fP; \fIavail\fP, \fIfreep\fP, \fIrpos\fP, and \fIrlen\fP are all
+long pointers (long *) and are used as storage for the \fIfb_getmap\fP request.
+Actually, \fIrpos\fP and \fIrlen\fP are stored only if \fIn\fP is non-zero.
+.PP
+The information returned from \fIfb_getmap\fP is as follows:
+\fIavail\fP is the byte location of the next free byte in the database file;
+\fIfreep\fP is the byte location of the head of the free list, inside
+the database file; \fIrpos\fP is the record position (byte location)
+and \fIrlen\fP is the record length (in bytes).
+.PP
+Map records and/or the map header
+can be updated or written to the database map file using the
+\fIfb_putmap\fP mechanism. \fIPutmap\fP takes most of the same arguments
+as \fIfb_getmap\fP: \fImfd\fP and \fIn\fP are exactly the same.
+However, there is not a \fIfreep\fP value (the free list is maintained
+by separate FirstBase low level routines). The other three arguments
+represent the same variables: \fIavail\fP, \fIrpos\fP,
+and \fIrlen\fP. Note that \fIrpos\fP and \fIrlen\fP are written only
+when referencing a non-zero record. Record number zero (0) is the map header.
+.PP
+NOTE: \fIfb_putmap\fP and \fIfb_getmap\fP are usually not needed unless you
+are generating FirstBase databases using buffered writes (see
+$FIRSTBASEHOME/applications/sample_src/bload.c) or something similar. 
+.SH SEE ALSO
+database(4), opendb(3).
+.SH DIAGNOSTICS
+If \fIfb_putmap\fP or \fIfb_getmap\fP fail due to a read or seek error,
+they will return FB_ERROR. If all goes correctly, an FB_AOK status is returned.
+.br

@@ -1,0 +1,197 @@
+# Copyright (C) 2001 FirstBase Software, Inc. All rights reserved.
+#
+# $Id: Makefile.in,v 9.2 2001/01/22 17:37:00 john Exp $
+#
+# See the file LICENSE for conditions of use and distribution
+#
+#
+# Makefile for Firstbase src/librec
+#
+
+PRODUCT = @PRODUCT@
+VERSION = @VERSION@
+
+SHELL = /bin/sh
+srcdir = @srcdir@
+VPATH = @srcdir@
+
+CC = @CC@
+CFLAGS = @CFLAGS@
+CPPFLAGS = @CPPFLAGS@
+DEFS = @DEFS@
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@ $(LIBEXTRA)
+
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = $(exec_prefix)/bin
+
+COMPILE = $(CC) -c $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
+LINK = $(CC) $(LDFLAGS) -o $@
+
+.SUFFIXES:
+.SUFFIXES: .c .o
+.c.o:
+	$(COMPILE) $< -o $@
+
+INCLUDES = @INCLUDES@
+
+OBJECTS=\
+   addrec.o \
+   autoindx.o \
+   blckeach.o \
+   bulkrec.o \
+   bootmap.o \
+   btrec.o \
+   btree_in.o \
+   checklog.o \
+   checkaut.o \
+   delrec.o \
+   delidx.o \
+   fetch.o \
+   ffetch.o \
+   fgetrec.o \
+   foreach.o \
+   forxeach.o \
+   getform.o \
+   getfree.o \
+   gethead.o \
+   getmap.o \
+   getrec.o \
+   getirec.o \
+   getseq.o \
+   getxhead.o \
+   getbxhd.o \
+   getxrec.o \
+   putlog.o \
+   isdel.o \
+   initlog.o \
+   lock.o \
+   lockhead.o \
+   nobuf.o \
+   nextxrec.o \
+   putfree.o \
+   puthead.o \
+   putmode.o \
+   putmap.o \
+   putrec.o \
+   putseq.o \
+   putxhead.o \
+   putbxhd.o \
+   recmode.o \
+   search.o \
+   searchtr.o \
+   setdirty.o \
+   store.o \
+   xrec.o
+
+all: librec
+librec: $(OBJECTS)
+
+mostlyclean:
+	rm -f *.o *._c *._o core core.*
+
+clean: mostlyclean
+
+distclean: clean
+	rm -f Makefile
+
+realclean: distclean
+	rm -f TAGS
+
+extraclean:: distclean
+	rm -f patch* *~* *\#* *.orig *.rej *.bak core a.out
+
+Makefile: Makefile.in ../../config.status
+	cd ../.. && CONFIG_FILES=src/librec/$@ CONFIG_HEADERS= ./config.status
+
+names:
+	@for name in $(OBJECTS) ; do \
+	   echo librec/$$name >> ../OBJECTS ; \
+	done
+
+MHEADERS= \
+../include/fb.h  \
+../include/config.h \
+../include/input.h \
+../include/error.h \
+../include/message.h \
+../include/libcc.h \
+../include/libcdb.h \
+../include/libdbd.h \
+../include/libinit.h \
+../include/liblic.h \
+../include/librec.h \
+../include/libscr.h \
+../include/libwin.h \
+../include/libsec.h \
+../include/libedit.h \
+../include/libclnt.h \
+../include/interface.h \
+../include/cx.h \
+../include/fb_vars.h \
+../include/fb_ext.h
+
+addrec.o:	$(MHEADERS)
+autoindx.o:	$(MHEADERS)
+blckeach.o:	$(MHEADERS)
+bulkrec.o:	$(MHEADERS)
+bootmap.o:	$(MHEADERS)
+btrec.o:	$(MHEADERS)
+btree_in.o:	$(MHEADERS)
+checklog.o:	$(MHEADERS)
+checkaut.o:	$(MHEADERS)
+delrec.o:	$(MHEADERS)
+delidx.o:	$(MHEADERS)
+fetch.o:	$(MHEADERS)
+ffetch.o:	$(MHEADERS)
+fgetrec.o:	$(MHEADERS)
+foreach.o:	$(MHEADERS)
+forxeach.o:	$(MHEADERS)
+getform.o:	$(MHEADERS)
+getfree.o:	$(MHEADERS)
+gethead.o:	$(MHEADERS)
+getmap.o:	$(MHEADERS)
+getrec.o:	$(MHEADERS)
+getirec.o:	$(MHEADERS)
+getseq.o:	$(MHEADERS)
+getxhead.o:	$(MHEADERS)
+getbxhd.o:	$(MHEADERS)
+getxrec.o:	$(MHEADERS)
+putlog.o:	$(MHEADERS)
+isdel.o:	$(MHEADERS)
+initlog.o:	$(MHEADERS)
+lock.o:		$(MHEADERS)
+lockhead.o:	$(MHEADERS)
+nobuf.o:	$(MHEADERS)
+nextxrec.o:	$(MHEADERS)
+putfree.o:	$(MHEADERS)
+puthead.o:	$(MHEADERS)
+putmode.o:	$(MHEADERS)
+putmap.o:	$(MHEADERS)
+putrec.o:	$(MHEADERS)
+putseq.o:	$(MHEADERS)
+putxhead.o:	$(MHEADERS)
+putbxhd.o:	$(MHEADERS)
+recmode.o:	$(MHEADERS) ../include/secure.h
+search.o:	$(MHEADERS)
+searchtr.o:	$(MHEADERS)
+setdirty.o:	$(MHEADERS)
+store.o:	$(MHEADERS)
+xrec.o:		$(MHEADERS)
+
+DISTDIR = ../../$(PRODUCT)-$(VERSION)/src/librec
+DISTFILES = *.c Makefile.in
+
+dist::
+	@echo "Copying distribution files from librec"
+	@for file in $(DISTFILES); do \
+	   ln $(srcdir)/$$file $(DISTDIR) 2> /dev/null \
+	      || cp -p $(srcdir)/$$file $(DISTDIR); \
+	done
+
+# Tell versions [3.59,3.63) of GNU make not to export all variables.
+# Otherwise a system limit (for SysV at least) may be exceeded.
+.NOEXPORT:

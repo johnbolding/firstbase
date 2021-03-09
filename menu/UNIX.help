@@ -1,0 +1,19 @@
+
+                           Help on the Unix System
+
+                                UNIX menu
+
+        This menu provides you with a short selection of Unix tools.
+
+        These are by no means all of the tools that Unix provides,
+        and it is well beyond the scope of any FirstBase documentation to
+        attempt to explain their uses.
+
+        However, this menu will help the Unix novice a bit.
+
+        To run a Unix tool, enter the chosen selection (the part in reverse
+        video) and hit a <RETURN>. 
+
+        Use a '-' (the standard END key) to exit from the FirstBase menu tool.
+
+        For more details, see a Unix literate person or guru.

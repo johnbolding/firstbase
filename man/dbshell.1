@@ -1,0 +1,254 @@
+.TH DBSHELL 1 "21 September 1995"
+.FB
+.SH NAME
+Dbshell \- the \fIFirstBase\fP menu tool.
+.SH SYNOPSIS
+.B dbshell
+[\fB-d\fP \fIdatabase\fP] [\fB-i\fP \fIindex\fP]
+[\fB-s\fP \fIscreen\fP]
+[\fB-v\fP \fIview\fP]
+[\fImenu\fP]
+.SH DESCRIPTION
+.I Dbshell
+is the database menu shell tool which provides all of the flexibility
+of the Bourne shell along with the power and ease of use that menus create.
+Like other \fIFirstBase\fP tools, \fIdbshell\fP(1) works from a
+menu dictionary \(em sort of.
+.PP
+The dbshell dictionary is more of a free form
+text file created with your favorite editor (like \fIvi\fP(1)).
+This file will be 'executed' by \fIdbshell\fP(1), allowing a smooth
+interface between menu selections and the Bourne shell.
+.PP
+Using this dictionary,
+\fIdbshell\fP(1) paints the screen and then provides a prompt for user input.
+At this prompt, the user
+issues commands. The command must be known by \fIdbshell\fP(1) or have been
+built into the dictionary being executed.
+\fIDbshell\fP(1) has a few built in commands. These are summarized in the
+COMMANDS section below.
+.PP
+The default menu for \fIdbshell\fP(1) is \fImenu/MAIN\fP located in the
+\fIfirstbase\fP home directory.
+.PP
+To execute a command, the entire selection does not need to typed \(em
+just enough to distinguish it from other commands.
+This feature can be disabled using the environment variable
+MENUMATCH. See \fIsetup\fP(5) for more.
+.PP
+There are two major divisions to the dictionary/text file:
+the \fIscreen\fP section and the \fIactions\fP section.
+The \fIscreen\fP section of the dictionary file is all of the beginning
+lines of the file, up to a line with a single percent sign.
+A maximum of 21 lines are allowed.
+.PP
+This screen section will appear on the terminal \fIexactly\fP as depicted
+in the file with one exception. To display
+words or tokens in reverse video prepend a dollar sign (\fB$\fP) to the token.
+A \fIdbshell\fP screen will have the
+standard \fIFirstBase\fP header and footer lines, and
+an "Enter Selection" prompt on the 24th line.
+.PP
+A token is defined as a series of
+alphanumeric characters plus the underscore, or as punctuation. This means
+characters like ampersand and comma must be marked individually.
+Use an underscore to force reverse video of a blank.
+For instance, in the example presented at the end of this section, the
+areas 'Major Functions' and 'Minor Functions' will be displayed in reverse
+video, as well as the '1' and the '2' (but not the periods).
+.PP
+The actions part of the dictionary/text file used with dbshell(1) consists
+of simple shell commands or scripts
+that are executed when their labels are selected. These commands
+are located after the '%' marker in the file.
+.PP
+A label consists of a series of alphanumeric characters, with a dollar 
+sign ('$') prepended to the label. In the example file presented, there are
+five labels: $1, $2, $mail, $ls and $print. Each of the associated actions
+connected to these labels will be executed as a shell script by the Bourne
+shell.
+.PP
+So, an entry of '1' (and a <RETURN>) at the "Enter Selection: "
+prompt would echo 'choice one' to the terminal. A '2' would change to
+another directory and run the database editor. Etc.
+.PP
+There are three special flags that can be placed after a label. A 
+negative one (-1),
+as used in the '$ls' label, will cause dbshell(1) to NOT pause after returning
+to the menu before the screen is redrawn.
+.PP
+The '*' flag is used to denote a sub menu dictionary/text file.
+In this case, the sub menu is
+selected by issuing the command 'print' (since it is tied to the $print
+label). In the example, the actual menu file is \fIPRINT\fP.
+Note that a full path name to \fIPRINT\fP is not needed as long as it
+exists in the same directory as the calling menu. Thus,
+systems of menus can be written using relative pathnames. Also, the menus can
+be kept in one directory and invoked from another.
+.PP
+In this case, the initial command would be something like
+.ft CW
+dbshell menu_directory/MAIN.
+.ft
+This MAIN menu can then invoke the PRINT submenu as in the example below.
+Again, \fIdbshell\fP will remember the \fImenu_directory\fP
+of the first invoked menu. This directory name will be prepended to all
+submenu names that are NOT full pathnames, i.e. that do not begin with a slash.
+.PP
+Optionally, after the '*', a directory name can be supplied. Using this
+feature, \fIdbshell\fP(1) will change directories to the supplied place,
+and then invoke the submenu. See the \fIwork\fP submenu choice below.
+.PP
+The optional working directory can also be a true UNIX environment
+variable, prepended with a \fB$\fP like standard shell variable.
+For example, if \fB$CTSHOME\fP was used, \fIdbshell\fP(1) will
+substitute in the contents of the UNIX environment variable \fICTSHOME\fP.
+.PP
+The third special flag that can be placed after the label is the
+meta command \fB$EXIT\fP. Furthermore, this line can contain a number
+that will be used to exit, i.e. \fB$EXIT 31\fP would use the exit 
+value \fI31\fP upon termination.
+.PP
+This special meta command will cause a forced exit from \fIdbshell\fP(1).
+Any attached normal menu commands are executed before the exit takes place.
+.SH COMMANDS
+\fIDbshell\fP(1) has a few built in commands that are used from the command
+line \(em the 'Enter Selection' prompt. These commands are summarized below.
+.sp 1
+.TP 10
+.B cd
+change directory. The user is asked for the name of the directory to
+change to. If successful, the new directory name is displayed on the 
+footer line. Otherwise an error message occurs.
+.TP 10
+.B <CTL>-E
+This command displays the list of environment commands that can be used
+to change various parts of the working environment. For example, you can
+enter the names of the database and index, change working
+directories, or even start a UNIX shell. See \fIChapter 3\fP of the
+.I FirstBase User's Guide and Reference Manual
+for a display of this screen. (Note that a <CTL>-D will
+also work in place of <CTL>-E).
+.TP 10
+.B <CTL>-H
+produce help screen. The help screens here are completely user defined.
+\fIDbshell\fP(1) looks for a file with the same name as the menu, with an
+extension of '.help', and pages this file to the screen. Help files can
+be as long as needed.
+.TP 10
+.B -
+Standard END keystroke. Ends from the current dictionary/menu. If this was
+a sub menu, its parent is re-invoked. If this was the main menu (root
+menu), the user will be asked 'Really Exit?'.
+.TP 10
+.B <CTL>-X
+Abort from current menu.
+The user will be asked 'Really Exit?'.
+.SH EXAMPLE
+Here is a very small sample dictionary/text file that could be used with
+dbshell(1):
+.nf
+.nj
+.na
+
+      $Major_Functions       $Minor_Functions
+      
+       $1. Choice One           $mail - Send system mail
+       $2. Edit Database        $ls   - list directory
+       
+                      $Sub_Menus
+              $print - Printout Sub Menu
+              $work  - Work Menu
+              $quit  - Quit
+%
+$1
+echo choice one
+
+$2
+cd /usr/databases/work
+dbedit -d master -i coname -s invoice
+
+$mail
+echo -n "Send mail to who? "
+read MAILTO
+echo "Enter mail message now. End with a '.'."
+mail $MAILTO
+
+$ls -1
+ls -F
+
+$print *
+PRINT
+
+$work * /usr/work
+WORK
+
+$q $EXIT 0
+echo Good Bye
+.fi
+.ju
+.ad
+.PP
+Security Note: The standard locking method used to disable \fIdbedit\fP(1)
+visual, filter and shell commands is implemented in \fIdbshell\fP(1) as
+well. This disabling lock, \fI.cshell_lck\fP, must appear in either the
+current directory or the system directory, \fI/usr/lib/firstbase\fP.
+.PP
+\fIDbshell\fP(1)
+supports special meta-tokens that can be embedded within shell
+actions. These tokens are listed below.
+.sp 1
+.TP 10
+.B $FIRSTBASEHOME
+appearing anywhere in the action
+will be substituted at run time for the home directory of the firstbase system,
+as defined by the UNIX environment variable of the same name.
+.sp 1
+This feature enables referencing of the \fIFirstBase\fP menu system from
+within other application menu systems using 
+.ft CW
+$FIRSTBASEHOME/menu/MAIN
+.ft
+as the menu file referenced.
+.TP 10
+.B $DBASE
+appearing anywhere in the action
+will be substituted at run time for the argument line database.
+.TP 10
+.B $INDEX
+appearing anywhere in the action
+will be substituted at run time for the argument line index.
+.TP 10
+.B $SCREEN
+appearing anywhere in the action
+will be substituted at run time for the argument line screen.
+.TP 10
+.B $VIEW
+appearing anywhere in the action
+will be substituted at run time for the argument line view dictionary.
+.TP 10
+.B $RUNFLAGS
+appearing anywhere in the action
+will be substituted at run time for the environment variable string
+defined for RUNFLAGS.
+.PD
+.SH FILES
+.PD 0
+.TP 10
+main
+name of default dbshell menu file.
+.TP 10
+/tmp/FBEXE??????
+Temporary location of shell scripts. Controlled by TEMPDIR, via \fIsetup\fP(5)
+.TP 10
+*.help
+extension for menu help files.
+.TP 10
+ .cshell_lck
+sub process lock.
+.PD
+.SH SEE ALSO
+dbshelltool(1), firstbase(1), setup(5).
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br

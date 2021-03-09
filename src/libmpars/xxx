@@ -1,0 +1,20 @@
+bison -y -d -o mac_g.c mac_g.y
+if [ -f y.tab.h ] ; then cp y.tab.h mac_g.h ; fi ;
+cmp -s mac_g.h macro_df.h || cp mac_g.h macro_df.h
+gcc -c -DHAVE_CONFIG_H -I./ -I./../include   -g mac_g.c -o mac_g.o
+flex  -t mac_lx.l > mac_lx.c
+gcc -c -DHAVE_CONFIG_H -I./ -I./../include   -g mac_lx.c -o mac_lx.o
+gcc -c -DHAVE_CONFIG_H -I./ -I./../include   -g libsym.c -o libsym.o
+gcc -c -DHAVE_CONFIG_H -I./ -I./../include   -g node.c -o node.o
+gcc -c -DHAVE_CONFIG_H -I./ -I./../include   -g yyerror.c -o yyerror.o
+if [ "." != "." ] ; then cp ./token.c . ; fi
+chmod ugo+w ./token.c
+ed - < ./tokenscript
+rm temp
+gcc -c -DHAVE_CONFIG_H -I./ -I./../include   -g token.c -o token.o
+gcc -c -DHAVE_CONFIG_H -I./ -I./../include   -g mac_trac.c -o mac_trac.o
+gcc -c -DHAVE_CONFIG_H -I./ -I./../include   -g mac_tree.c -o mac_tree.o
+echo making library libmpars.a
+/bin/rm -f ../lib/libmpars.a
+ar r ../lib/libmpars.a mac_g.o mac_lx.o libsym.o node.o yyerror.o token.o mac_trac.o mac_tree.o
+ranlib ../lib/libmpars.a

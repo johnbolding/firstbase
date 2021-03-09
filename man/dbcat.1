@@ -1,0 +1,77 @@
+.TH DBCAT 1 "12 September 1995"
+.FB
+.SH NAME
+dbcat \- concatenate \fIFirstBase\fP databases
+.SH SYNOPSIS
+.B dbcat
+[\fB-b\fP] [\fB-y\fP]
+[\fB-o\fP \fIoutput\fP] \fIdatabase\fP [\fIdatabase\fP ...]
+.SH DESCRIPTION
+.I Dbcat
+takes an arbitrary number of \fIFirstBase\fP databases and concatenates
+them end to
+end to create a single \fIFirstBase\fP database. All record totals are modified
+accordingly.
+.PP
+If only one database is specified, \fIdbcat\fP(1)
+will ask for another database name.
+If an output file specifying the output database is not provided using
+the \fB-o\fP flag, \fIdbcat\fP(1) will ask for an output file name.
+The default name (achieved by hitting <RETURN> at the output file name prompt)
+is \fIconcat\fP.
+.PP
+The \fB-b\fP flag will run the \fIFirstBase\fP tool in batch mode,
+suitable for shell scripts.
+This mode produces no output on the terminal, thus can also be used
+when running the process in the background.
+The \fB-y\fP flag will run the tool at the terminal without pausing to ask
+the user if existing files can be destroyed and without displaying
+a 'picture' of the requested task.
+.PP
+The first database dictionary \fIdbcat\fP(1)
+encounters
+is assumed to be the shape of all subsequent databases.
+Beyond checking that a file is actually a \fIFirstBase\fP database, 
+no other error checking is done to determine whether the current
+database matches the size and shape of the first one.
+If a file is not a \fIFirstBase\fP database, an error message is given, and 
+processing continues.
+.PP
+Note that \fIdbcat\fP(1) does not follow indexes, but concatenates
+all undeleted records of each database to the output database.
+.PP
+\fIDbcat\fP(1)
+allows an interesting tool oriented approach to data entry and data base
+management systems.
+Users can create personal databases that all have the same shape or
+structure by using the same database dictionary. Then
+each can work on their own database independent of others.
+When all are done, the databases can be concatenated together to form
+the union of all the databases.
+.PP
+Note: \fIdbclean\fP(1)
+is automatically run at the completion of this program to
+create a map file for the new database.
+.SH FILES
+.PD 0
+.TP 10
+*.cdb
+\fIFirstBase\fP database. 
+.TP 10
+*.map
+record map of \fIFirstBase\fP database.
+.TP 10
+*.ddict
+\fIFirstBase\fP database dictionary.
+.TP 10
+concat
+default output file name for \fIdbcat\\fIfP\fP(1).
+.PD
+.SH SEE ALSO
+dbcgen(1), dbedit(1), dbjoin(1), firstbase(5)
+.PP
+\fIFirstBase User's Guide and Reference Manual\fP
+.br
+.SH DIAGNOSTICS
+If fed conflicting databases, \fIdbcat\fP(1) will die a terrible death.
+.br

@@ -1,0 +1,112 @@
+# Copyright (C) 2001 FirstBase Software, Inc. All rights reserved.
+#
+# $Id: Makefile.in,v 9.0 2001/01/22 18:28:07 john Exp $
+#
+# See the file LICENSE for conditions of use and distribution
+#
+#
+# Makefile for Firstbase applications/sample_src
+#
+
+PRODUCT = @PRODUCT@
+VERSION = @VERSION@
+
+FIRSTBASEHOME = @FIRSTBASEHOME@
+
+DEMODIR = sample_src
+
+SHELL = /bin/sh
+srcdir = @srcdir@
+VPATH = @srcdir@
+
+CC = @CC@
+CFLAGS = @CFLAGS@
+CPPFLAGS = @CPPFLAGS@
+DEFS = @DEFS@
+INSTALL = @INSTALL@
+INSTALL_DATA = @INSTALL_DATA@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@ $(LIBEXTRA)
+
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = $(exec_prefix)/$(FIRSTBASEHOME)/bin
+libdir = $(prefix)/$(FIRSTBASEHOME)/lib
+mandir = $(prefix)/$(FIRSTBASEHOME)/man
+docdir = $(prefix)/$(FIRSTBASEHOME)/doc
+includedir = $(prefix)/$(FIRSTBASEHOME)/include
+appdir = $(prefix)/$(FIRSTBASEHOME)/applications
+
+LIBFB = -lfb
+INCLUDES = -I$(includedir)
+
+COMPILE = $(CC) -c $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
+LINK = $(CC) $(LDFLAGS) -L$(libdir) -o $@
+
+.SUFFIXES:
+.SUFFIXES: .c .o
+.c.o:
+	$(COMPILE) $< -o $@
+
+
+all:
+
+demo: termtest rectest
+
+TERMTEST=termtest.o
+RECTEST=rectest.o dbread.o dbwrite.o
+FILES = *.c README dbase.ddict Makefile.in MAIN
+
+termtest: $(TERMTEST)
+	@echo linking $@
+	$(LINK) $(TERMTEST) $(LIBFB) $(LIBS)
+
+rectest: $(RECTEST)
+	@echo linking $@
+	$(LINK) $(RECTEST) $(LIBFB) $(LIBS)
+
+PROGS=termtest rectest
+
+install:
+	@PWD=`pwd` && \
+        if [ "$(appdir)/$(DEMODIR)" != "$(PWD)" ] ; then \
+	   echo Installing to $(appdir)/$(DEMODIR); \
+	   $(INSTALL) -d -m 0777 $(appdir)/$(DEMODIR); \
+	   for file in $(FILES) Makefile ; do \
+	      $(INSTALL_DATA) -m 0777 $$file $(appdir)/$(DEMODIR) ; \
+	   done ; \
+	fi
+
+mostlyclean:
+	rm -f *.o *._c *._o core core.* *.core *~*
+	rm -f $(PROGS)
+
+clean: mostlyclean
+
+distclean: clean
+	rm -f Makefile
+
+realclean: distclean
+	rm -f TAGS
+
+extraclean:: distclean
+	rm -f patch* *~* *\#* *.orig *.rej *.bak core a.out
+	rm -f dbase.cdb dbase.map
+
+Makefile::
+	cd ../../ && \
+	CONFIG_FILES=applications/$(DEMODIR)/$@ CONFIG_HEADERS= ./config.status
+
+DISTDIR = ../../$(PRODUCT)-$(VERSION)/applications/$(DEMODIR)
+DISTFILES = $(FILES)
+
+dist::
+	@echo Copying ... applications/$(DEMODIR)
+	@for file in $(DISTFILES); do \
+	   ln $(srcdir)/$$file $(DISTDIR) 2> /dev/null \
+	      || cp -p $(srcdir)/$$file $(DISTDIR); \
+	done
+
+# Prevent GNU make 3 from overflowing arg limit on system V.
+.NOEXPORT:

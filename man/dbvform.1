@@ -1,0 +1,67 @@
+.TH DBVFORM 1 "12 September 1995"
+.FB
+.SH NAME
+dbvform \- format a \fIFirstBase\fP database using standard view dictionary
+.SH SYNOPSIS
+.B dbvform
+[\fB-d\fP \fIdatabase\fP] [\fB-i\fP \fIindex\fP] [\fB-v\fP \fIview\fP]
+[\fB-f\fP] [\fB-B\fP]
+[\fB-l\fP \fIpage-length\fP] [\fB-w\fP \fIpage-width\fP]
+.SH DESCRIPTION
+.I Dbvform
+formats undeleted records of a \fIFirstBase\fP database using a standard
+view dictionary as described in \fIview\fP(5). All output is written to 
+standard output, usually the terminal.
+.PP
+A logical page is generated for each record of the database or index,
+as well as for each page within the view dictionary, as denoted by the
+$PAGE lines (\fIview\fP(5)).
+.PP
+Without an index, \fIdbvform\fP(1) will process the entire database.
+Using an index, a very select portion of a database can be formatted.
+.PP
+The \fB-B\fP flag will enable the fastest throughput of
+records from the database. If this flag can be used, the \fIdbvform\fP
+generation is speeded up a great deal by internal record buffering.
+Note that no index can be used with record buffering, and
+that record locking is disabled.
+.PP
+The length and width of the output can be specified using the \fB-l\fP
+and \fB-w\fP flags \(em with the default being 24 lines by 80 columns, and
+the maximum being 66 lines by 132 columns.
+.PP
+Adjusting the page lengths and widths can create some very desirable
+effects. For example, a page length of \fB1\fP (one) with a proper view
+dictionary that maps a few fields to line one will create a tabular listing
+of the specified data. Or, using a length and width of \fB9\fP
+and \fB40\fP, badges or labels could be generated.
+.PP
+\fIDbvform\fP will normally generate \fIpage-length\fP lines for each
+record processed, even if the lines
+are empty. Using the \fB-f\fP flag will cause formfeeds to be used instead.
+.SH FILES
+.PD 0
+.TP 10
+dbase
+default name of database.
+.TP 10
+dbase
+default name of view dictionary.
+.TP 10
+index
+default name of index.
+.TP 10
+*.cdb
+\fIFirstBase\fP database.
+.TP 10
+*.map
+record map of \fIFirstBase\fP database.
+.TP 10
+*.ddict
+\fIFirstBase\fP database dictionary file.
+.PD
+.SH SEE ALSO
+dbvedit(1), view(5)
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br

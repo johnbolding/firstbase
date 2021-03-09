@@ -1,0 +1,101 @@
+.TH SCRPRINT 1 "12 September 1995"
+.FB
+.SH NAME
+scrprint, frmprint \- provide a menu interface for viewing and printing
+report files
+.SH SYNOPSIS
+.B scrprint
+\fIreport_file\fP
+.br
+.B frmprint
+\fIraw_report_file\fP
+.PD
+.SH DESCRIPTION
+.I Scrprint
+and \fIfrmprint\fP
+provides a FirstBase look-and-feel menu interface for displaying or formatting
+report files
+as well as submitting print requests to various printers.
+Note that all environment variables discussed here are UNIX environment
+variables, not internal \fIFirstBase\fP settings.
+.PP
+The menu provided by \fIscrprint\fP is easy to use and follow.
+The environment variable \fIPAGER\fP is used to page the file
+to the screen, with the default being \fIfb_pager\fP, a simple paging
+script located in the \fIFirstBase\fP home \fIscripts\fP directory.
+.PP
+Note that the standard UNIX paging tool, \fI/usr/ucb/more\fP, does not
+pause at the end of display when there is less than a page of output.
+However, the filter \fIfb_pager\fP will do this pausing when \fIPAGER\fP
+is not set.
+.PP
+The \fIPRINTER\fP environment variable controls the default printer used.
+Another environment variable, \fIEDITOR\fP, controls which
+editor will be used when requested.
+.PP
+Still yet another environment variable, \fIHOME\fP, is used to alter
+file names of the form \fI~/filename\fP by inserting the users home directory
+before the copy request is executed. Furthermore, file names of the
+form \fI~user/filename\fP are expanded properly using the home directory
+of \fIuser\fP as listed in the \fIpasswd\fP(5) file.
+.PP
+Some computer systems support a Post Script filter. If the environment
+variable \fIPSPRINT\fP is set to a filter, and a printer named \fIps\fP
+is chosen, then \fIscrprint\fP will ask for a margin to use as well.
+This margin is passed on the the \fIPSPRINT\fP filter as a
+\fI-m margin\fP flag.
+.PP
+Unlike \fIscrprint\fP, the \fIraw_report_file\fP given to
+\fIfrmprint\fP is \fInot\fP pre-formatted. Instead, \fIfrmprint\fP
+will format the \fIraw_report_file\fP and print directly to a printer
+capable of the print request, like a high resolution laser printer.
+.PP
+A few additional UNIX environment variables are used to
+control how \fIfrmprint\fP formats its \fIraw_report_file\fP.
+\fIFB_TBL\fP, \fIFB_TROFF\fP, \fIFB_TROFF_OPTIONS\fP, and
+\fIFB_TROFF_PRINTFLAG\fP are used to piece together the raw report.
+The following is a sample set of values used for these system
+dependent variables:
+.sp 1
+.nf
+.nj
+.ft CW
+   PRINTER                      lpr
+   FIRSTBASE_TBL                tbl
+   FIRSTBASE_TROFF              ditroff
+   FIRSTBASE_TROFF_OPTIONS      -me
+   FIRSTBASE_TROFF_PRINTFLAG    -P
+.ft
+.fi
+.ju
+.sp 1
+.PP
+In the above example, \fIfrmprint\fP will use following command to
+format the raw report file:
+.sp 1
+.nf
+.nj
+.ft CW
+   tbl raw_report_file | ditroff -me -Plpr
+.ft
+.fi
+.ju
+.sp 1
+.PP
+As with all FirstBase tools, the standard END keystroke will exit.
+A \fBq\fP will do the same thing as well.
+.PD
+.SH FILES
+.PD 0
+.TP 16
+fb_pager
+the default paging tool used by \fIFirstBase\fP when PAGER is not set.
+.SH SEE ALSO
+input(5).
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br
+.SH DIAGNOSTICS
+\fIScrnprint\fP(8)
+will ask permission before overwriting an existing file.
+.br

@@ -1,0 +1,36 @@
+:
+DIR1=`dirname $1`
+BASE1=`basename $1 .idx`
+DIR2=`dirname $2`
+BASE2=`basename $2`
+trap "" 1 2 3 4 5 6 7 8 9
+if [ $# -ne 2 ]
+then echo usage cpidx source_index destination_index
+else
+   if [ ! -d $2 ]
+   then
+      cp $DIR1/$BASE1.idict $2.idict
+      cp $DIR1/$BASE1.idicti $2.idicti
+      if [ -f $DIR1/$BASE1.idx ] ; then
+         cp $DIR1/$BASE1.idx $2.idx
+      fi
+      if [ -f $DIR1/$BASE1.bseq ] ; then
+         cp $DIR1/$BASE1.bseq $2.bseq
+      fi
+      if [ -f $DIR1/$BASE1.bidx ] ; then
+         cp $DIR1/$BASE1.bidx $2.bidx
+      fi
+   else
+      cp $DIR1/$BASE1.idict $2/$BASE1.idict
+      cp $DIR1/$BASE1.idicti $2/$BASE1.idicti
+      if [ -f $DIR1/$BASE1.idx ] ; then
+         cp $DIR1/$BASE1.idx $2/$BASE1.idx
+      fi
+      if [ -f $DIR1/$BASE1.bseq ] ; then
+         cp $DIR1/$BASE1.bseq $2/$BASE1.bseq
+      fi
+      if [ -f $DIR1/$BASE1.bidx ] ; then
+         cp $DIR1/$BASE1.bidx $2/$BASE1.bidx
+      fi
+   fi
+fi

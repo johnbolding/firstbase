@@ -1,0 +1,45 @@
+.TH GETIREC 3 "12 September 1995"
+.FB
+.SH NAME
+getirec \- read a database record, synchronize with btree index
+.SH SYNOPSIS
+#include <firstbase/fb.h>
+.sp 1
+fb_getirec(rec, db)
+.br
+long rec;
+.br
+fb_database *db;
+.SH DESCRIPTION
+As explained in the
+\fIdatabase\fP(4) manual page, a database structure contains
+all of the elements needed for an entire database, including an array of
+field structures, all file names and descriptors, and index information.
+Altogether, the array of field structures can hold one complete record.
+.PP
+\fIFb_getirec\fP
+retrieves logical record \fIrec\fP from the database pointed to by \fIdb\fP
+using \fIgetrec\fP(3).
+.PP
+Then, under a certain set of conditions, \fIfb_getirec\fP will synchronize
+the current record with the current index so that subsequent calls to
+\fInextxrec\fP(3) and \fIprevxrec\fP(3) locate the indexed records after and
+before the database record \fIrec\fP.
+.PP
+The set of conditions where the synchronizing occurs is:
+(a) the current index is a \fIbtree\fP index that is represented in the
+\fIb_autoindex\fP array; (b) the \fIuseidx\fP(3) mechanism was used to
+activate the current index.
+.SH CLIENT/SERVER
+The \fIfb_getirec\fP routine will transparently
+call the \fIfb_getirec_clnt\fP mechanism
+when the global \fIFirstBase\fP variable \fIcdb_use_rpc\fP is set to one.
+See \fIfb_clnt_create\fP(3) for more details.
+.SH SEE ALSO
+fetch(3), putrec(3), getrec(3), getxrec(3), opendb(3), useidx(3),
+database(4), autoindex(5).
+.SH DIAGNOSTICS
+\fIFb_getirec\fP will return the error code FB_ERROR if any of its reads,
+writes, or seeks fail. On correct reading of the record and synchronization
+of the index, the status FB_AOK will be returned.
+.br

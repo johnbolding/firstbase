@@ -1,0 +1,31 @@
+.TH CONAME 5 "12 September 1995"
+.FB
+.SH NAME
+coname \- the company name file
+.SH SYNOPSIS
+.TP
+ .coname
+.SH DESCRIPTION
+All \fIFirstBase\fP
+screens have an area in the middle of the header on the top row that
+is used to display a company name or application title.
+The contents of this area is controlled by the company name 
+file, \fI.coname\fP.
+.PP
+All \fIFirstBase\fP tools will search for a company name file, and print the contents
+of this file if it is found. The first place searched is the current
+directory. Next, the users PATH is searched, and finally the
+\fIFirstBase\fP home area ($FIRSTBASEHOME).
+.PP
+If you want to have a single company name title for the entire system
+of applications,
+create the \fI.coname\fP file in the \fIFirstBase\fP home directory
+and store the desired title
+there. Selective control is also available by storing a title in some
+other \fI.coname\fP file that is found before the \fIFirstBase\fP home
+directory is searched.
+.SH SEE ALSO
+firstbase(5), setup(5)
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br

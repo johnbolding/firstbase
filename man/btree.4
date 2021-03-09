@@ -1,0 +1,317 @@
+.TH BTREE 4 "12 September 1995"
+.FB
+.SH NAME
+btree \- \fIFirstBase\fP Btree index files
+.SH SYNOPSIS
+Layout of \fIFirstBase\fP Btree index structures and files
+.SH DESCRIPTION
+The first sections of this manual page cover the btree structures used
+to manipulate \fIFirstBase\fP Btree indexes. The remaining sections cover
+the actual layout of the Btree index files.
+.SH BTREE STRUCTURES
+Btree indexes within \fIFirstBase\fP consist of two major parts,
+the \fIsequence\fP
+\fIset\fP and the \fIindex\fP \fIset\fP. The \fIsequence\fP \fIset\fP is a
+single level index consisting of data pointers (via record number)
+and index keys. Physically,
+the \fIsequence\fP \fIset\fP is a series of nodes. However,
+pointers within each node are used to maintain a double-linked list that
+retains the order of the keys during key insertion.
+.PP
+The \fIFirstBase\fP Btree \fIindex\fP \fIset\fP is a multiple level tree
+structured index to the \fIsequence\fP \fIset\fP that provides direct
+access to database records.
+The node at the top of the tree is called the root.
+.PP
+The database structure, as explained in \fIdatabase\fP(4), also contains
+pointers to Btree sequence and index sets, as well as to an arry of
+automatically maintained btree indexes.
+.nf
+.na
+.sp 1
+.ft CW
+
+typedef struct fb_s_link fb_link;       /* defined link */
+typedef struct fb_s_field fb_field;     /* defined field */
+typedef struct fb_s_database fb_database;/* defined database */
+typedef struct fb_s_bidx fb_bidx;       /* btree+ index set */
+typedef struct fb_s_bseq fb_bseq;       /* btree+ sequence set */
+typedef struct fb_s_ixauto fb_autoindex;/* autoindex structure */
+
+struct fb_s_bidx {                      /* btree+ index set node */
+   long bi_left;                        /* left side info */
+   char bi_ltype;
+   long bi_middle;                      /* middle side info */
+   char bi_mtype;
+   long bi_right;                       /* right side info */
+   char bi_rtype;
+   char *bi_key1;                       /* separation keys */
+   char *bi_key2;
+   int bi_lock;
+   char *bi_name;                       /* index name */
+   int bi_fd;                           /* index set file descriptor */
+   char *bi_rec;                        /* storage for index record */
+   int bi_ksize;                        /* size of an index key */
+   long bi_root;                        /* index root */
+   long bi_height;                      /* index height */
+   long bi_recsiz;                      /* index record size */
+   long bi_recno;                       /* current record number */
+   long bi_reccnt;                      /* index record count */
+   long bi_free;                        /* free pointer */
+   };
+
+struct fb_s_bseq {                      /* btree+ sequence set node */
+   long bs_prev;                        /* prev and next pointers */
+   long bs_next;
+   char *bs_key1;                       /* index keys */
+   char *bs_key2;
+   char *bs_key3;
+   int bs_curkey;                       /* current key pointer */
+   int bs_lock;
+   char *bs_name;                       /* sequence file name */
+   int bs_fd;                           /* sequence file descriptor */
+   char *bs_rec;                        /* storage for sequnce record */
+   int bs_ksize;                        /* size of a sequence key */
+   long bs_head;                        /* head of sequence list */
+   long bs_tail;                        /* tail of sequence list */
+   long bs_recsiz;                      /* size of sequence record */
+   long bs_recno;                       /* current sequence record number */
+   long bs_reccnt;                      /* sequence record count */
+   long bs_free;                        /* free pointer */
+   };
+
+struct fb_s_link {
+   fb_database *f_dp;                   /* pointer to linked database */
+   fb_field *f_fix;                     /* indexed value in 'from' database */
+   fb_field *f_tix;                     /* ix val in 'to' db providing link */
+   fb_field *f_ffp;                     /* field within 'from' database */
+   fb_field *f_tfp;                     /* field within 'to' database */
+   char *f_fld;                         /* storage area for field val */
+   char *f_xfld;                        /* index value creating field link */
+   fb_link *f_next;                     /* to link all flinks for searching */
+   long f_absrec;                       /* absolute record number to use */
+   fb_database *f_basedp;               /* database which referred link */
+   };
+
+struct fb_s_ixauto {                    /* auto indexed field struct */
+   char *autoname;                      /* for storing autoindex name */
+   char *dup_fld;                       /* for 'old' field value */
+   int afd, hfd;                        /* auto index and header fds */
+   short uniq;                          /* uniqness flag */
+
+   int ix_tree;                         /* btree flag */
+   fb_bseq *ix_seq, *ix_seqtmp;         /* btree sequence set */
+   fb_bidx *ix_idx, *ix_idxtmp;         /* btree index set */
+   fb_field **ix_ip;                    /* field pointers array for auto ix */
+   long ix_bsmax, ix_bsend;             /* for btrees - for auto ix array */
+   int ix_ifields;                      /* number of fields in the ix array */
+   char *ix_key_fld;                    /* key space for index entry */
+   };
+
+struct fb_s_field {                     /* a database field */
+   char *id;                            /* unique title labeling field */
+   char type;                           /* type of the field */
+   int size;                            /* maximum size of field */
+   int loc;                             /* location when arec is used */
+   char *fld;                           /* actual pointer to field */
+   int incr;                            /* to store incremental defaults */
+   char *comment, *idefault, *help, *prev, *range, *a_template, *f_macro;
+   char comloc, lock, choiceflag;       /* various flags */
+   fb_autoindex *aid;                   /* pointer to auto index data */
+   fb_link *dflink;                     /* link to other database */
+   fb_link *xflink;                     /* extended choice/link database */
+   char *mode;                          /* permissions settings per field */
+   short int f_prec;                    /* precision for field */
+   };
+
+struct fb_s_database {                  /* FB database header record */
+   char *dbase;                         /* full database path names */
+   char *dindex;
+   char *dmap;
+   char *ddict;
+   char *idict;
+   char *sdict;                         /* simple screen name */
+   char *dlog;                          /* log name of database */
+   long reccnt;                         /* full record count */
+   char dirty;                          /* dirty bit == 0 or 1 */
+   long delcnt;                         /* deleted record count */
+   long rec;                            /* current record number */
+   int recsiz;                          /* approximate record size */
+   int nfields;                         /* number of fields */
+   int fd;                              /* database file descriptor */
+   int ifields;                         /* number of index fields */
+   int ifd;                             /* index file descriptor */
+   int ihfd;                            /* index header file descriptor */
+   int logfd;                           /* log file descriptor */
+   int irecsiz;                         /* index record size */
+   long bsmax, bsend, bsrec;            /* search max/end points */
+   int mfd;                             /* record map file descriptor */
+   fb_field **kp;                       /* array of fields */
+   fb_field **ip;                       /* array of index fields */
+   char *orec;                          /* original copy of rec */
+   char *arec;                          /* alternate copy of rec */
+   char *irec;                          /* buffer for an index record */
+   char *afld;                          /* field buffers for this db */
+   char *bfld;                          /* field buffers for this db */
+   int refcnt;                          /* reference count for linktop list */
+
+                                        /* B+tree index fields */
+   int b_tree;                          /* flag set if dbase is using btrees */
+   fb_bseq *b_seq, *b_seqtmp;           /* sequence set (and temp space) */
+   fb_bidx *b_idx, *b_idxtmp;           /* index set (and temp space) */
+   fb_autoindex **b_autoindex;          /* autoindex ptr array */
+   int b_maxauto;                       /* max number of auto index */
+   int b_curauto;                       /* cur number of auto index array */
+   short int fixedwidth;                /* fixed width flag */
+
+   int b_sid;                           /* server id - open via server */
+   };
+.ft
+.sp 1
+.fi
+.ad
+.PP
+When a database is opened, the entire database structure is initialized.
+Optionally, the btree index structures may be initialized also.
+Note that a formal index dictionary (index.idicti)
+file is required for all Btree indexes that
+are not a simple autoindexes (as defined in the database dictionary).
+.PP
+The array of database field structures is allocated on the
+fly to contain as many fields as are defined in the database dictionary.
+Each field descriptor is a structure itself. These structures
+contain the name of the field, its type and size, as well as various
+pointers to comments, help files, and defaults. The important parts
+for indexes are the size and type of the field.
+.PP
+If a database is opened with an index, either a Btree index, or a standard
+flat index, an arry of field pointers representing
+indexed fields is stored in the database structure variable \fIip\fP.
+Automatic Btree indexes, from the \fIb_autoindex\fP array,
+store their array of field pointers in b_autoindex[N]->ix_ip,
+where N means the Nth index. (See \fIautoindex\fP(5) for more).
+.PP
+FirstBase routines are provided to handle many indexing tasks. The following
+is a list of provided functions. Each has a related manual page.
+.sp 1
+.na
+.nf
+.ft CW
+   - addidx
+   - subidx
+   - openidx
+   - closeidx
+   - createidx
+   - getxrec
+   - nextxrec
+   - prevxrec
+   - firstxrec
+   - lastxrec
+   - useidx
+.ft
+.ad
+.fi
+.sp 1
+.SH CLIENT/SERVER
+Each of the \fIFirstBase\fP Btree functions will transparently
+call their corresponding client/server mechanism
+when the global \fIFirstBase\fP variable \fIcdb_use_rpc\fP is set to one.
+See \fIfb_clnt_create\fP(3) for more details.
+.SH INDEX FILES
+A \fIFirstBase\fP btree
+index consists of four components with each one stored in a
+separate file: the index dictionary, the index header,
+the btree index set, and the btree sequence set.
+Each will be discussed in detail here.
+.SH BTREE INDEX DICTIONARY
+An index dictionary is a file created by the \fIFirstBase\fP
+define index tool, \fIdbdind\fP(1). This file defines
+exactly how to build the index. The \fIFirstBase\fP tool \fIdbigen\fP(1) can
+be used to build a complete Btree index.
+.SH BTREE INDEX HEADER
+A Btree index header consists of three pieces of information
+and a newline character, followed by the names of the fields in the index
+listed one per line, followed by a line with a single percent sign on it.
+The first piece of header information is the database
+sequence number discussed in detail in \fIdatabase\fP(4). This sequence number
+makes sure that only compatible database/index pairs are opened together.
+.PP
+The next two pieces of header information in the index dictionary are used
+to keep track of the number of key entries in the Btree sequence set.
+For Btree indexes, this number is written twice, each one as
+raw data exactly \fIsizeof(long)\fP bytes.
+.PP
+As mentioned, this header information is delimited by a newline character.
+The remaining lines list the actual field names that the index data itself
+refers to. The trailing '%' sign indicates this index is a Btree index.
+.SH BTREE SEQUENCE SET
+Another component of a \fIFirstBase\fP Btree index is the sequence set.
+The sequence set is stored as a series of nodes, with each node containing
+three keys. Additionally each node has pointers to the next and previous
+sequence set nodes.
+.PP
+All keys within the \fIFirstBase\fP Btree mechanisms contain the record
+number that the keys exist in. Thus, each entry into a Btree is unique,
+even if the keys are the same.
+.PP
+In standard \fIFirstBase\fP manner, each of the \fIFirstBase\fP
+Btree sequence set records is
+stored to disk as a fixed length ASCII record.
+A header at the top of the sequence
+set file stores four values, all raw data exactly sizeof(long):
+head, tail, record count, and a free list pointer.
+.SH BTREE INDEX SET
+The last  component of Btree indexes is the index set, the tree structure
+that allows direct record access. Again stored as nodes,
+each index set node can have two keys and three pointers, used for
+pointing to other Btree index nodes and/or sequence set nodes.
+Each key acts as a separator for the sub tree below it. These keys are used
+to locate the proper sequence set node where a requested key resides or
+where a key should be inserted.
+.PP
+In standard \fIFirstBase\fP manner, each of the \fIFirstBase\fP
+Btree index set records is
+stored to disk as a fixed length ASCII record.
+A header at the top of the sequence
+set file stores four values, all raw data exactly sizeof(long):
+root, height, record count, and a free list pointer.
+.SH BTREE INDEX INTERACTION
+\fIFirstBase\fP Btree indexes are designed to allow automatic uses
+of databases and indexes across all record additions and deletions.
+As such, \fIFirstBase\fP end users and programmers will be able to take full
+advantage of the automation without having to deal with low level Btree+
+routines.
+.PP
+Note that two methods of autoindexes are available. The original
+method via the database dictionary, and a more robust method via the
+autoindex list (see \fIautoindex\fP(5)). If you desire to use
+the original method, and want \fIFirstBase\fP to use the original
+flat index mechanism, then a special \fIFirstBase\fP environment
+variable, AUTOBTREE, must be set to OFF in the setup file.
+.PP
+To enable applications to switch between different auto indexes using the
+autoindex list, see \fIuseidx\fP(3).
+.PP
+.SH FILES
+.PD 0
+.TP 10
+index
+default \fIFirstBase\fP index name.
+.TP 10
+*.idicti
+\fIFirstBase\fP index dictionary.
+.TP 10
+*.idict
+\fIFirstBase\fP index header.
+.TP 10
+*.bseq
+\fIFirstBase\fP Btree sequence set.
+.TP 10
+*.bidx
+\fIFirstBase\fP Btree index set.
+.PD
+.SH SEE ALSO
+dbigen(1), dbdind(1),
+openidx(3), closeidx(3), createidx(3), useidx(3), getxrec(3), nextxrec(3),
+prevxrec(3), firstxrec(3), lastxrec(3),  autoindex(5), setup(5).
+.br

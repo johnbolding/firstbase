@@ -1,0 +1,67 @@
+.TH PRINTOUTS 5 "12 September 1995"
+.FB
+.SH NAME
+printouts \- overview of \fIFirstBase\fP printouts (reports)
+.SH SYNOPSIS
+Description of \fIFirstBase\fP generated printouts
+.SH DESCRIPTION
+Most all
+.I FirstBase
+printouts (reports, labels and merged documents)
+are actually written to a disk file.
+This disk file is often referred to as the 'print image' of a report, etc.
+Disk files are generated so as to defer printer queuing problems, as well
+as to alleviate problems if the machine crashes while spooling.
+.PP
+.I FirstBase
+system printouts (\fIdbpgen\fP(1))
+are printer ready, and need no further formatting.
+These reports always have a
+.I title, company name, 
+and 
+.I page numbers.
+These reports are formatted when generated. This means \fIFirstBase\fP inserts proper
+padding for page breaks and page numbers.
+.PP
+Labels (\fIdblgen\fP(1))
+are also printer ready.
+These labels are compatible with plain paper
+or peel-off labels. In dealing
+with labels, there is no such thing as 'pages', so there
+is no need to reset the formlength setting on printers.
+.PP
+Special printer dependent formatting characters are never used
+so as to be compatible with virtually any 
+printer.
+.PP
+Non standard printouts can also be developed in \fIFirstBase\fP through
+the use of a text editor and \fIdbmerge\fP(1).
+Once a format or template has been
+created, \fIdbmerge\fP(1) can merge data from an indexed \fIFirstBase\fP
+database 
+with the user defined document. This allows mail merge,
+free form printouts, and much, much more.
+.PP
+Other reports can be created using \fIdbvform\fP(1), a tool
+that uses standard \fIview\fP(5) dictionaries and generates output
+accordingly. The SQL tool, \fIdbsql\fP(1) can be used to generate
+simple reports, too. There are also \fIdbawk\fP(1) and \fIdbmacro\fP(1)
+tools for those desiring the utmost in control.
+.PP
+Note that all of these tools (except \fIdblgen\fP(1)) can write their
+results to standard output instead of a disk file.
+.SH FILES
+.PD 0
+.TP 10
+*.prt
+\fIdbpgen\fP(1) print image file of a printout (report).
+.TP 10
+*.lbl
+\fIdblgen\fP(1) print image file of labels.
+.PD
+.SH SEE ALSO
+firstbase(1), firstbase(5), dbdprt(1), dbpgen(1), dbdlbl(1), dblgen(1),
+dbmerge(1), dbvform(1), dbawk(1), dbsql(1), dbmacro(1)
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br

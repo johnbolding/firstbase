@@ -1,0 +1,33 @@
+.TH RMDB 8 " 3 April 1996"
+.FB
+.SH NAME
+rmdb \- remove a \fIFirstBase\fP database
+.SH SYNOPSIS
+.B rmdb
+\fIdatabase\fP [\fIdatabase\fP ...]
+.SH DESCRIPTION
+.I Rmdb
+is a simple shell script that removes a \fIFirstBase\fP database and one of
+its support files using the UNIX facility \fIrm\fP(1).
+.PP
+Formally, two files are removed: the database itself,
+and the database record map. Also, if there is a database log file, it is
+removed. The database dictionary
+is \fBNOT\fP removed.
+.SH FILES
+.PD 0
+.TP 10
+*.cdb
+\fIFirstBase\fP database.
+.TP 10
+*.ddict
+\fIFirstBase\fP database dictionary.
+.TP 10
+*.map
+record map of \fIFirstBase\fP database.
+.PD
+.SH SEE ALSO
+cpdb(8), mvdb(8), rmidx(8), firstbase(5), dictionaries(5)
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br

@@ -1,0 +1,16 @@
+#Val1 '>=' or $OP
+#        Use these to control the comparisons:
+all $ALL Gather all records, no comparisons. (default).
+not $NOT To gather all records Except some set.
+empty $EMPTY Gather records with empty field.
+#
+#        Use these to compare with other Fields:
+eq $EQ Equal
+ge $GE Greater Than or Equal
+gt $GT Greater Than
+le $LE Less Than or Equal
+lt $LT Less Than
+ne $NE Not Equal
+#
+#        Or use 's' to enter a '>=' Value (Val1):
+s $STRING

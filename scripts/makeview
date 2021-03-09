@@ -1,0 +1,25 @@
+:
+:
+:
+#
+# usage: makeview FirstBase_data_dictionary FirstBase_view_dictionary
+#
+DDICT=$1.ddict
+VDICT=$2.vdict
+AWKSCRIPT=$FIRSTBASEHOME/scripts/makeview.awk
+#
+if [ $# -ne 2 ] ; then
+   echo "Usage: makeview FirstBase_data_dictionary FirstBase_view_dictionary"
+   exit
+fi
+ 
+if [ ! -s $DDICT ] ; then
+   echo "makeview: $DDICT: FirstBase data dictionary does not exist."
+   exit
+fi
+ 
+if [ -s $VDICT ] ; then
+   echo "makeview: $VDICT: FirstBase view dictionary already exists; use another name."
+   exit
+fi
+awk -f $AWKSCRIPT $DDICT >> $VDICT

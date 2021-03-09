@@ -1,0 +1,36 @@
+:
+BASE1=`basename $1 .cdb`
+DIR1=`dirname $1`
+BASE2=`basename $2`
+DIR2=`dirname $2`
+trap "" 1 2 3 4 5 6 7 8 9
+if [ $# -ne 2 ]
+then echo usage mvdb source_dbase destination_dbase
+else
+   if [ ! -d $2 ]
+   then
+      mv $DIR1/$BASE1.ddict $2.ddict
+      mv $DIR1/$BASE1.cdb $2.cdb
+      mv $DIR1/$BASE1.map $2.map
+      if [ -f $1.log ]
+         then
+         mv $DIR1/$BASE1.log $2.log
+      fi
+      if [ -f $1.vdict ]
+         then
+         mv $DIR1/$BASE1.vdict $2.vdict
+      fi
+   else
+      mv $DIR1/$BASE1.ddict $2/$BASE1.ddict
+      mv $DIR1/$BASE1.cdb $2/$BASE1.cdb
+      mv $DIR1/$BASE1.map $2/$BASE1.map
+      if [ -f $1.log ]
+         then
+         mv $DIR1/$BASE1.log $2/$BASE1.log
+      fi
+      if [ -f $1.vdict ]
+         then
+         mv $DIR1/$BASE1.vdict $2/$BASE1.vdict
+      fi
+   fi
+fi

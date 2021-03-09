@@ -1,0 +1,94 @@
+.TH GETXREC 3 "12 September 1995"
+.FB
+.SH NAME
+getxrec \- read an indexed record
+.SH SYNOPSIS
+#include <firstbase/fb.h>
+.sp 1
+fb_getxrec(key, db)
+.br
+char *key;
+.br
+fb_database *db;
+.br
+.PP
+.SH DESCRIPTION
+As explained in the \fIdatabase\fP(4) manual page,
+a database structure contains
+all of the elements needed for an entire database, including an array of
+field structures, all file names and descriptors, and index information.
+Altogether, the array of field structures can hold one complete record.
+.PP
+\fIFb_getxrec\fP attempts to load
+a database record which has a current index entry of \fIkey\fP into \fIdb\fP.
+A binary search is done on the
+current index in an attempt to locate a record with
+an index entry of \fIkey\fP. In the case of flat \fIFirstBase\fP indexes,
+if no record is found, the index
+overflow area is searched sequentially.
+.PP
+For alpha type fields, \fIkey\fP needs to be left justified in a field of
+blanks, and for numeric keys, \fIkey\fP should be right
+justified. Use \fImakess\fP(3) to generate a search string key.
+For example:
+.PP
+.nj
+.nf
+.ft CW
+      fb_field *f;
+
+      f = cdb_kp[0];
+      fb_fetch(f, cdb_afld, cdb_db);
+      fb_makess(cdb_afld, f->type, f->size);
+      fb_getxrec(cdb_afld, cdb_db);
+.ft
+.fi
+.ju
+.PP
+Once a record number is retrieved from the index, \fIfb_getxrec\fP uses
+\fIgetrec\fP(3) to load the record into the database structures.
+.PP
+When using a \fIFirstBase\fP flat index, 
+the physical position number of the index entry, the index record number,
+is stored in the database structure \fIdb->bsrec\fP.
+If \fIdb->bsrec\fP is greater
+than \fIdb->bsend\fP, the returned record's key is stored in the overflow area
+of the index, otherwise it is stored in the binary searchable area.
+.PP
+However, when using a \fIFirstBase\fP Btree+ index, the \fIdb->bsrec\fP value
+is actually the record number (not the index record number).
+.PP
+When \fIfb_getxrec\fP fails to locate an entry, the record that is loaded will
+be the one where the search failure occurred. Again, on an FB_ERROR return from
+\fIfb_getxrec\fP, the record loaded will be where the search key would have
+been, the record containing a key value greater than the search key.
+If such a record does not exist, then \fIdb->rec\fP
+and \fIdb->bsrec\fP will be set to 0, indicating an undefined record.
+.PP
+Note: Before calling \fIfb_getxrec\fP on a normal (flat) \fIFirstBase\fP index,
+the index header numbers should
+be updated using \fIgetxhead\fP if there have been new records added
+to the index since it was opened, as in the following code fragment:
+.PP
+.nj
+.nf
+.ft CW
+      /* get bsmax, bsend from index header file */
+      fb_getxhead(dp->ihfd, &dp->bsmax, &dp->bsend);
+.ft
+.fi
+.ju
+.PP
+.SH CLIENT/SERVER
+The \fIfb_getxrec\fP routine will transparently
+call the \fIfb_getxrec_clnt\fP mechanism
+when the global \fIFirstBase\fP variable \fIcdb_use_rpc\fP is set to one.
+See \fIfb_clnt_create\fP(3) for more details.
+.PP
+.SH SEE ALSO
+getxhead(3), nextxrec(3), makess(3),
+getrec(3), getirec(3), opendb(3), database(4), btree(4), index(4).
+.SH DIAGNOSTICS
+\fIFb_getxrec\fP will return FB_AOK on a successful call, and FB_ERROR when
+the record could not be found or loaded.
+.br

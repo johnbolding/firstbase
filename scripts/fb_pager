@@ -1,0 +1,18 @@
+:
+#
+# simple filter script for FirstBase
+#
+clear
+if [ "$PAGER" = "" -o "$PAGER" = "fb_pager" ] ; then
+   PAGER="more -p"
+fi
+case $PAGER in
+   more*) PAUSEFLAG=1 ;;
+   *)     PAUSEFLAG=0 ;;
+esac
+$PAGER $1
+if [ $PAUSEFLAG = 1 ] ; then
+   echo
+   echo -n "Hit a RETURN to Continue: "
+   read garbage
+fi

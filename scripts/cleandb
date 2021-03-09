@@ -1,0 +1,13 @@
+:
+echo "
+
+			Cleaning Cdb Directory
+
+"
+echo -n "Removing Indexes"
+rm -f *.idx *.idict *.lbl *.prt
+echo
+echo -n "Packing Databases"
+dbpack -b *.cdb
+echo
+echo "Done"

@@ -1,0 +1,33 @@
+.TH CPDB 8 "12 September 1995"
+.FB
+.SH NAME
+cpdb \- copy a \fIFirstBase\fP database to a new file name
+.SH SYNOPSIS
+.B cpdb
+\fIsource_database\fP \fIdestination_database\fP
+.SH DESCRIPTION
+.I Cpdb
+is a simple shell script that copies a \fIFirstBase\fP database and all
+necessary support files to a new destination. The copy is done
+interactively using the \fB-i\fP option of \fIcp\fP(1).
+\fICpdb\fP will ask permission to destroy existing files.
+.PP
+Formally, three files are copied: the database itself, the database
+dictionary, and the database record map. The source files are not removed.
+.SH FILES
+.PD 0
+.TP 10
+*.cdb
+\fIFirstBase\fP database.
+.TP 10
+*.ddict
+\fIFirstBase\fP database dictionary.
+.TP 10
+*.map
+record map of \fIFirstBase\fP database.
+.PD
+.SH SEE ALSO
+cp(1), firstbase(5), dictionaries(5), mvdb(8), rmdb(8)
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br

@@ -1,0 +1,99 @@
+
+
+                         $Rolodex_Inquiries
+
+                     $a. Generalized Rolodex Inquiry - using Indexes
+                     $b. Generalized Rolodex Inquiry - using SQL
+                     
+                     $-. Use '-' to return to the Main Menu.
+
+%
+
+$a
+DATADIR=$ROLOHOME/
+DATABASE=${DATADIR}rolodex
+DATASCREEN=${DATADIR}rolodex
+PRINTOUT=${DATADIR}rolodex
+PRINTDICT=${DATADIR}rolodex.idictp
+PRINTFILE=${DATADIR}rolodex.prt
+RUNFLAGS=-y
+echo "
+        Instructions:
+        
+        - Choose an Index Name (existing index is ok)
+        - Define An Index to Your Needs (See dbdind(1)).
+        - Choose Screen and/or Printer for Result
+"
+echo -n "        Enter Name of INDEX to Define: "
+read INQIDX
+if [ "$INQIDX" = "" ]
+   then
+   exit
+fi
+INDEXDICT=${INQIDX}.idicti
+QPRINTDICT=${INQIDX}.idictp
+INDEXFILE=${INQIDX}.idx
+BTREEINDEXFILE=${INQIDX}.bidx
+dbdind -d $DATABASE -i $INQIDX $RUNFLAGS
+dbigen -d $DATABASE -i $INQIDX $RUNFLAGS
+if [ ! -s $INDEXFILE && ! -s $BTREEINDEXFILE ]
+   then
+   echo
+   echo
+   echo "        No records found matching that query."
+   echo
+   exit
+fi
+echo
+while true
+do
+   clear
+   echo "
+        e.  Edit  Records from Query
+        s.  Scan  Records from Query
+        p.  Print Records from Query
+        q.  Quit
+   "
+   echo -n "        Select Action from list above: "
+   read TODO
+   case $TODO in
+      e) dbvedit -d $DATABASE -i $INQIDX -v $DATASCREEN
+         ;;
+      s) dbvscan -d $DATABASE -i $INQIDX -v $DATASCREEN
+         ;;
+      p) 
+         echo
+         echo -n "        linking to print dictionary..."
+         rm -f $QPRINTDICT
+         ln $PRINTDICT $QPRINTDICT
+         echo
+         echo -n "        generating printout..."
+         dbpgen -d $DATABASE -i $INQIDX $RUNFLAGS
+         echo
+         screenprint $PRINTFILE
+         ;;
+      q) break
+         ;;
+      *)
+         echo
+         echo -n "        invalid entry - hit RETURN to continue."
+         read GARBAGE
+         ;;
+   esac
+done
+
+$b -1
+        echo "
+                This form of the ad hoc query mechanism is done using
+                the FirstBase Tool named dbsql(1).
+
+                Dbsql will now be started. Use the \"help\" command
+                from the \"dbsql>\" prompt and/or read the dbsql(1)
+                man page for more details.
+
+                The name of the database here is \`rolodex'.
+                So, \`select LastName, FirstName from rolodex; '
+                will work.
+
+                Use \"exit\", \"quit\", or <CONTROL>-D to exit dbsql(1)."
+        dbsql

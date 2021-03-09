@@ -1,0 +1,63 @@
+
+			       WELCOME
+
+                To the Dbdupd (Update Dictionary) Help File
+                              
+       This Help File will explain the commands allowed in the creation
+       of an update dictionary. 
+
+       In the Command List:
+       <CTL>   represents the CONTROL key. <CTL> should be depressed
+	       while the following command keystroke is performed.
+       <RET>   represents the RETURN key. <RET> should be depressed 
+	       after the preceding keystroke is performed.
+
+	           Now, let's begin our Command List
+
+       @<RET>  enters Auto Add mode. This command allows us to enter
+               new fields into the database dictionary.
+
+       #<RET>  (substitute an actual Field Number here for "#"). # allows 
+               us to go to a specific field and change it's parameters.
+                     
+       -       The standard END keystroke. - exits the program and
+	       keeps all changes.
+
+       <CTL>H  brings you to the Help File. This is where you are now.
+
+       <CTL>X  exits the program without overwriting the file.
+	       Any modifications made to the file are lost.
+                          
+       <RET>   pages 1 page forward in the database dictionary.
+	       Wrapping occurs after the last page in the file.
+
+       b<RET>  pages 1 page backward in the database dictionary.
+	       Wrapping occurs at the beginning of the file.
+
+       d<RET>  deletes a field from the database dictionary.
+	       After entering d<RET>, enter a valid Field Number
+	       and <RET>. The field will be removed and all fields
+	       below the deleted one will move up 1 position.
+
+       f<RET>  pages 1 page forward in the database dictionary.
+	       Wrapping occurs after the last page in the file.
+
+       i<RET>  allows the insertion of a new field before an existing
+	       field in a database dictionary. All subsequent fields
+	       will move down 1 position.
+
+       ?d<RET>  displays a general field list.
+
+       ?f<RET>  displays a field list that also shows formula fields.
+
+       ?h<RET>  displays a field list that also shows user defined 
+		help fields
+
+       ?i<RET>  displays the index help screen. This is a list of
+                all fields in the current index. The total number of
+		index entries is also displayed.
+
+       ?N<RET>  (where N is a number representing a field in the 
+		database), displays the user defined help file (if
+		it exists) for the field. Each field can have its own
+		help file.

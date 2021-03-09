@@ -1,0 +1,91 @@
+:
+#
+# $Id: fbdemo,v 9.0 2001/01/22 17:40:31 john Exp $
+#
+# firstbase scripts/fbdemo - sample applications menu
+#
+
+if [ "$FIRSTBASEHOME" = "" ] ; then
+   FIRSTBASEHOME=/usr/local/firstbase
+   export FIRSTBASEHOME
+
+   PATH=$FIRSTBASEHOME/bin:$FIRSTBASEHOME/scripts:$PATH
+   export PATH
+fi
+
+DEMODIR=${FIRSTBASEHOME}/applications
+
+ATSHOME=${DEMODIR}/ats
+export ATSHOME
+
+BIBHOME=${DEMODIR}/biblio
+export BIBHOME
+	 
+BTSHOME=${DEMODIR}/bts
+export BTSHOME
+	 
+CTSHOME=${DEMODIR}/cts
+export CTSHOME
+	 
+DTSHOME=${DEMODIR}/dts
+export DTSHOME
+	 
+ETSHOME=${DEMODIR}/expense
+export ETSHOME
+      
+FTSHOME=${DEMODIR}/fts
+export FTSHOME
+      
+HMSHOME=${DEMODIR}/hms
+export HMSHOME
+      
+ITSHOME=${DEMODIR}/its
+export ITSHOME
+      
+MSGHOME=${DEMODIR}/msg
+export MSGHOME
+      
+MTSHOME=${DEMODIR}/mts
+export MTSHOME
+      
+NLFHOME=${DEMODIR}/nlf
+export NLFHOME
+      
+PRSHOME=${DEMODIR}/prs
+export PRSHOME
+      
+RESHOME=${DEMODIR}/res
+export RESHOME
+
+ROLOHOME=${DEMODIR}/rolodex
+export ROLOHOME
+
+PHONEHOME=${DEMODIR}/phone
+export PHONEHOME
+
+SAMPLE_SRC=${DEMODIR}/sample_src
+export SAMPLE_SRC
+
+TAPEHOME=${DEMODIR}/tapelib
+export TAPEHOME
+
+TTSHOME=${DEMODIR}/tts
+export TTSHOME
+
+SALESHOME=${DEMODIR}/sales
+export SALESHOME
+
+UPDHOME=${DEMODIR}/update
+export UPDHOME
+
+TLSHOME=${DEMODIR}/tls
+export TLSHOME
+
+PTSHOME=${DEMODIR}/pts
+export PTSHOME
+
+WMAKERHOME=${DEMODIR}/wmaker
+export WMAKERHOME
+
+MENUFILE=${FIRSTBASEHOME}/applications/APPLICATIONS
+exec dbshell ${MENUFILE}

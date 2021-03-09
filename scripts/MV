@@ -1,0 +1,44 @@
+:
+echo -n "Enter the file Name of the File you want to RENAME: "
+read file
+if test $file
+then
+   if test -f $file -o -d $file
+      then
+      echo -n "Now Enter the NEW name of the file: "
+      read nname
+      if test $nname
+	 then
+	 if test -f $nname
+	 then
+	    echo "Sorry. $nname already exists. Cannot rename $file. "
+	 elif test -d $nname
+	 then
+	    if test -f $nname/$file -o -d $nname/$file
+	       then
+	       echo Sorry. $nname/$file already exists. Nothing done.
+	       exit
+	    fi
+	    echo "$nname is a directory."
+	    echo "Continuing will MOVE $file INTO directory $nname."
+	    echo "$file will keep the same name within directory $nname."
+	    echo -n "Do you want to continue ? ('y' or 'n') "
+	    read select
+	    if test $select = "y"
+	       then
+	       mv $file $nname
+	       echo $file has been moved into directory $nname.
+	    else
+	       echo Nothing renamed or moved.
+	    fi
+	 else
+	    mv $file $nname
+	    echo $file has been renamed to $nname.
+	 fi
+      else
+	 echo No new name entered. Nothing to do.
+      fi
+   else
+      echo Cannot find a file or directory named $file.
+   fi
+fi

@@ -1,0 +1,4 @@
+$Id: README,v 9.0 2001/01/22 18:27:49 john Exp $
+
+Very simple FirstBase database example with one
+database and a few fields.

@@ -1,0 +1,53 @@
+.TH FBFIXED 8 "12 September 1995"
+.FB
+.SH NAME
+fbfixed \- install a \fIFirstBase\fP Fixed CPU License
+.SH SYNOPSIS
+.B fbfixed
+.SH DESCRIPTION
+\fIFbfixed\fP is used to install new \fIFirstBase\fP fixed CPU licenses.
+The tool is a full screen, interactive license editor, using the \fIFirstBase\fP
+style of data input. There are five fields for input, each described below.
+The file that the licenses are stored
+in is \fI$FIRSTBASEHOME/.firstbase-license\fP
+(or \fI.fb-license\fP or \fI.fb-lic\fP on some machines).
+.PD 1
+.TP 15
+Local or Global
+The first field controls the location of the license password file.
+Global licenses are stored in the \fIFirstBase\fP home directory,
+$FIRSTBASEHOME.
+Local licenses are stored in the $HOME directory of the user.
+.TP 15
+Support Date
+This date is assigned to the installation site by FirstBase Software.
+It can be entered as MM-DD-YY, MMDDYY, or MM/DD/YY.
+.TP 15
+License Type
+This field controls the classification of license provided by FirstBase
+Software. There are four types of license, each selected by the first letter
+of its name: Permanent, Secure, Temporary, and Limited.
+.TP 15
+Host ID
+The Host ID from the installation CPU or HostID Device is stored here.
+.TP 15
+License Password
+This field is the license password provided to the site by FirstBase Software.
+.PD
+.sp 1
+.PP
+After entering each of the fields, the new license will be merged with
+the license file. Multiple licenses can be entered at the same time.
+.SH FILES
+.PD 0
+.TP 15
+ .firstbase-license \(em \fIFirstBase\fP fixed license file on BSD machines.
+.TP 15
+ .fb-license \(em \fIFirstBase\fP fixed license file on non BSD machines.
+.PD
+.SH SEE ALSO
+.PP
+dbshell(1), setup(8)
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br

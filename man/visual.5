@@ -1,0 +1,67 @@
+.TH VISUAL 5 "12 September 1995"
+.FB
+.SH NAME
+visual/filter \- visual and filter files used with \fIdbedit\fP(1)
+.SH SYNOPSIS
+ .visual
+.sp
+ .filter
+.br
+.SH DESCRIPTION
+When \fIdbedit\fP(1)
+is asked to pop into 'visual' (or 'filter') mode on a field,
+a \fI.visual\fP (or \fI.filter\fP )
+file is found, and the contents of the file are used as a
+command the UNIX system will execute.
+.PP
+Alternately, the standard UNIX environment
+variable \fIEDITOR\fP can be used to override
+the \fI.visual\fP file.
+.PP
+This feature allows different people to customize the editor that
+\fIdbedit\fP(1) will default to when asked to go into its visual mode.
+For example, some users may prefer \fIedit\fP(1) to \fIvi\fP(1).
+.PP
+The search path is the same as that for the company name file:
+First the working directory is searched. Then the users PATH is
+searched, and finally, the \fIFirstBase\fP home directory is searched \(em all looking
+for a file named \fI.visual\fP (or \fI.filter\fP).
+.PP
+A disabling lock can be placed to disable these features as well.
+This is accomplished by placing an empty file named \fI.visual_lck\fP
+(or \fI.filter_lck\fP) somewhere along the same search path.
+If this lock file \fIexists\fP, then the requested command is not
+allowed to run.
+.PP
+Since the FIRSTBASEHOME environment variable can be used to tune the
+actual \fIFirstBase\fP home directory, a hardwired directory, \fI/usr/lib/firstbase\fP,
+is always searched for these lock files.
+.PP
+Note that the same locking mechanism is used to keep users from starting
+up sub-processes from within dbedit(1). This lock is the \fI.cshell_lck\fP.
+.SH FILES
+.PD 0
+.TP 16
+ .visual
+visual command.
+.TP 16
+ .visual_lck
+visual process lock.
+.TP 16
+ .filter
+filter command.
+.TP 16
+ .filter_lck
+filter process lock.
+.TP 16
+ .cshell_lck
+sub process lock.
+.TP 16
+/usr/lib/firstbase
+hardwired "system" lock directory.
+.PD
+.SH SEE ALSO
+dbedit(1), dbdind(1)
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br

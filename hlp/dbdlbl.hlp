@@ -1,0 +1,43 @@
+
+			       WELCOME
+
+                To the Dbdlbl (Label Dictionary) Help File
+                              
+       This Help File will explain the commands allowed in the creation
+       of a database dictionary. 
+
+       In the Command List:
+       <CTL>   represents the CONTROL key. <CTL> should be depressed
+	       while the following command keystroke is performed.
+       <RET>   represents the RETURN key. <RET> should be depressed 
+	       after the preceding keystroke is performed.
+
+	           Now, let's begin our Command List
+
+       #<RET>  (substitute an actual Field Number here for "#"). # allows 
+               us to go to any of the 5 lines in the label template     
+	       (0-4) and modify it. 
+                     
+       -       The standard END keystroke. - exits the program and
+	       keeps all changes.
+
+       <CTL>H  brings you to the Help File. This is where you are now.
+
+       <CTL>X  exits the program without overwriting the file.
+	       Any modifications made to the file are lost.
+
+       ?d<RET>  displays a general field list.
+
+       ?f<RET>  displays a field list that also shows formula fields.
+
+       ?h<RET>  displays a field list that also shows user defined 
+		help fields
+
+       ?i<RET>  displays the index help screen. This is a list of
+                all fields in the current index. The total number of
+		index entries is also displayed.
+
+       ?N<RET>  (where N is a number representing a field in the 
+		database), displays the user defined help file (if
+		it exists) for the field. Each field can have its own
+		help file.

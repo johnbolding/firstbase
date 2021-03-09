@@ -1,0 +1,100 @@
+.TH TERMINALS 5 " 4 April 1996"
+.FB
+.SH NAME
+terminals \- \fIFirstBase\fP Terminal Overview
+.SH SYNOPSIS
+Description of \fIFirstBase\fP terminal requirements
+.SH DESCRIPTION
+The \fIFirstBase\fP system requires only a few
+terminal control codes (escape sequences):
+.TP 15
+clear()
+clear the screen (cl)
+.TP 15
+clrtobot()
+clear from cursor to bottom of screen (cd)
+.TP 15
+clrtoeol()
+clear from cursor to end of line (ce)
+.TP 15
+move(x, y)
+move cursor to absolute row,col (cm)
+.PP
+A few other terminal description fields are also supported:
+.TP 15
+standout
+Begin Standout mode (so)
+.TP 15
+standend
+End Standout mode (se)
+.TP 15
+reverse
+Begin Standout mode (mr)
+.TP 15
+revend
+End Standout mode (me)
+.TP 15
+lines
+Lines on terminal (li)
+.TP 15
+columns
+Columns on terminal (co)
+.PP
+Additionally, support for arrow and function keys is handled by
+the standard \fItermcap\fP(5) capabilities \fBku\fP, \fBkd\fP,
+\fBkl\fP, \fBkr\fP, and \fBk0\fP through \fBk9\fP.
+These termcap entries are designed
+to let the software know what strings are being emitted by what terminal
+keys.
+.PP
+When an arrow or function key is depressed, the string it emits is looked up
+to see if it is in one of the above mentioned \fBk\fP slots.
+If a match occurs, then
+the internal \fIFirstBase\fP signal corresponding to that \fBk\fP slot (as 
+defined in \fIsetup\fP(5)) will be generated for the waiting software.
+.PP
+Note that function keys are either a single <CONTROL> character
+or a sequence of characters starting with an ESCAPE character.
+Variable length escape sequences are supported.
+.PP
+The \fItermcap\fP(5) terminal database is used by all
+of the tools in \fIFirstBase\fP. This includes
+support for the 'visible bell' feature. Transparent support is provided for
+the \fIterminfo\fP(5) style database as well. The Unix environment variables
+TERMCAP and TERM are used to locate the termcap file and the specific
+entry in the terminal capabilities database.
+.PP
+Note that the \fIFirstBase\fP tools can make a distinction between standout
+video and reverse video
+modes. This distinction is not usually supplied by the \fItermcap\fP(5)
+database routines. The termcap codes for 'begin reverse'
+and for 'end reverse' can be listed as 'mr' and 'me' respectively.
+Of course, if you use reverse video for your standout mode, then this
+added distinction will not be needed.
+.PP
+The lines and columns termcap settings are used to define the shape of the
+window being used with the \fIFirstBase\fP tools. When using \fIFirstBase\fP
+interactively, a minimum screen must be at least 24 x 80.
+But, devices allowing larger windows may use them.
+However, two notes: 1) only \fIdbvedit\fP(1) and \fIdbshell\fP(1)
+can actually uses this larger window, and 2)
+only the 'lines', not the columns, termcap entry is utilized.
+.PP
+In addition, FirstBase will try and read the number of lines
+used by the current window after the termcap setting is used.
+So, if the user shrinks or expands the window,
+FirstBase will reset the LINES variable accordingly.
+.PP
+Tools which are run in batchmode (non-interactively) by using the \fB-b\fP
+argument line switch will not be subject to the above terminal constraints.
+Furthermore, non-\fIFirstBase\fP tools wanting to use larger windows can use
+the \fB-fullscreen\fP argument line option to bypass the normal
+24 X 80 default.
+The lines entry from the termcap setting can also be set by
+using the LINES environment variable (\fIsetup\fP(5)).
+This allows disabling the lines settings as described by the termcap.
+.SH SEE ALSO
+firstbase(1), firstbase(5), termcap(5), screens(5), setup(5)
+.PP
+.I FirstBase User's Guide and Reference Manual
+.br
