@@ -13,7 +13,7 @@
 #include <fb.h>
 #include <fb_ext.h>
 
-   dbwrite(d)
+   void dbwrite(d)
       fb_database *d;
 
       {
