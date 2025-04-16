@@ -4,7 +4,8 @@ Yes yes yes. There needs to be an info file on firstbase
 along with an HTML manual.
 
 For now, the best I can do is to provide the old postscript manual,
-fb-manual.ps, along with the large set of man pages, which are current,
+fb-manual.ps, and the PDF generated from that Postscript, 
+along with the large set of man pages, which are current,
 but certainly not a substitute for methodical documentation.
 
 To generate a postcript image of the man pages:
